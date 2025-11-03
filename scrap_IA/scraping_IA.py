@@ -1,13 +1,11 @@
-from __future__ import annotations
-
 import json
 import re
 from pathlib import Path
 import argparse
 from typing import Optional, Tuple
 
-import requests
 from bs4 import BeautifulSoup as BS
+from playwright.sync_api import sync_playwright
 
 
 DEFAULT_URL = "https://letterboxd.com/film/the-lord-of-the-rings-the-two-towers/"
@@ -23,12 +21,6 @@ def fetch_rendered_html(
     timeout_ms: int = 15000,
 ) -> str:
     """Render the page with Playwright (Chromium) and return the DOM HTML."""
-    try:
-        from playwright.sync_api import sync_playwright
-    except ImportError as e:
-        # Propagate so caller can print install instructions
-        raise e
-
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page(user_agent=user_agent, locale="en-US", color_scheme="light")
@@ -41,25 +33,6 @@ def fetch_rendered_html(
         rendered = page.content()
         browser.close()
         return rendered
-
-
-def get_html_via_session(url: str) -> Tuple[int, str]:
-    """Télécharge le HTML avec des en-têtes réalistes via requests.Session.
-
-    Retourne (status_code, html).
-    """
-    sess = requests.Session()
-    sess.headers.update(
-        {
-            "User-Agent": USER_AGENT,
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.9",
-            "Referer": "https://letterboxd.com/",
-            "Cache-Control": "no-cache",
-        }
-    )
-    resp = sess.get(url, timeout=30)
-    return resp.status_code, resp.text
 
 
 def parse_float(text: Optional[str]) -> Optional[float]:
@@ -154,11 +127,6 @@ def extract_rating_block(soup: BS) -> Tuple[Optional[float], Optional[float], Op
     return None, None, None, ""
 
 
-def looks_like_consent_or_bot(html: str) -> bool:
-    low = html.lower()
-    return any(k in low for k in ("enable javascript", "are you human", "cloudflare", "cf-chl", "consent"))
-
-
 def parse_with_bs(html: str) -> BS:
     try:
         return BS(html, "lxml")  # si lxml dispo, plus robuste
@@ -167,96 +135,49 @@ def parse_with_bs(html: str) -> BS:
 
 
 def main(argv: Optional[list[str]] = None) -> None:
-    parser = argparse.ArgumentParser(description="Extract ratings from a Letterboxd film page")
+    parser = argparse.ArgumentParser(description="Extract ratings from a Letterboxd film page using Playwright")
     parser.add_argument("url", nargs="?", default=DEFAULT_URL, help="Film URL on letterboxd.com")
-    parser.add_argument("--force-playwright", action="store_true", help="Use Playwright only (skip requests/BS4)")
-    parser.add_argument("--no-playwright", action="store_true", help="Disable Playwright fallback")
     parser.add_argument("--timeout", type=int, default=15, help="Playwright wait timeout in seconds (default 15)")
     parser.add_argument("--wait-selector", default="section.ratings-histogram-chart, a.display-rating", help="CSS selector to wait for when rendering")
-    parser.add_argument("--user-agent", default=USER_AGENT, help="Custom User-Agent string for both requests and Playwright")
+    parser.add_argument("--user-agent", default=USER_AGENT, help="Custom User-Agent string for Playwright")
     args = parser.parse_args(argv)
 
     url = args.url
 
-    # Force Playwright path
-    if args.force_playwright:
-        print("[Force Playwright] Rendering page…")
-        try:
-            rendered_html = fetch_rendered_html(
-                url,
-                user_agent=args.user_agent,
-                wait_selector=args.wait_selector,
-                timeout_ms=args.timeout * 1000,
-            )
-            Path("rendered_letterboxd.html").write_text(rendered_html, encoding="utf-8", errors="replace")
-            soup2 = parse_with_bs(rendered_html)
-            displayed, weighted, voters, via = extract_rating_block(soup2)
-            print("[Playwright] Found via:", via or "(none)")
-            print("[Playwright] Displayed:", displayed, "| Weighted:", weighted, "| Voters:", voters)
-        except ImportError:
-            print(
-                "Playwright n'est pas installé. Installe-le puis exécute: \n"
-                "  python -m pip install playwright\n  python -m playwright install\n"
-                "Ensuite relance ce script."
-            )
-        except Exception as e:
-            print("Erreur Playwright:", e)
-        return
+    print("Rendering page with Playwright…")
+    try:
+        rendered_html = fetch_rendered_html(
+            url,
+            user_agent=args.user_agent,
+            wait_selector=args.wait_selector,
+            timeout_ms=args.timeout * 1000,
+        )
+        # Sauvegarde pour l'inspection
+        output_path = Path("rendered_letterboxd.html")
+        output_path.write_text(rendered_html, encoding="utf-8", errors="replace")
+        print(f"HTML rendered and saved to {output_path}")
 
-    status, html = get_html_via_session(url)
-    print(f"HTTP status: {status}")
-    print(f"HTML length: {len(html) if html else 0}")
+        soup = parse_with_bs(rendered_html)
 
-    if looks_like_consent_or_bot(html):
-        Path("last_letterboxd.html").write_text(html, encoding="utf-8", errors="replace")
-        print("Attention: page de consent/anti-bot détectée. HTML sauvegardé dans last_letterboxd.html")
+        title = extract_title(soup)
+        print("Title:", title or "Titre non trouvé")
 
-    soup = parse_with_bs(html)
+        displayed, weighted, voters, via = extract_rating_block(soup)
+        print("Found via:", via or "(none)")
+        print("Displayed:", displayed, "| Weighted:", weighted, "| Voters:", voters)
 
-    title = extract_title(soup)
-    print("Title:", title or "Titre non trouvé")
+        if not (displayed or weighted or voters):
+            print("Aucun rating trouvé. Vérifiez le fichier rendered_letterboxd.html.")
 
-    displayed, weighted, voters, via = extract_rating_block(soup)
-    print("Found via:", via or "(none)")
-    print("Displayed:", displayed, "| Weighted:", weighted, "| Voters:", voters)
-
-    # Fallback Playwright: si rien trouvé via HTML initial
-    if not args.no_playwright and not (displayed or weighted or voters):
-        print("Aucune note trouvée dans le HTML initial. Tentative via Playwright (rendu navigateur)…")
-        try:
-            rendered_html = fetch_rendered_html(
-                url,
-                user_agent=args.user_agent,
-                wait_selector=args.wait_selector,
-                timeout_ms=args.timeout * 1000,
-            )
-            Path("rendered_letterboxd.html").write_text(rendered_html, encoding="utf-8", errors="replace")
-            soup2 = parse_with_bs(rendered_html)
-            displayed, weighted, voters, via = extract_rating_block(soup2)
-            print("[Playwright] Found via:", via or "(none)")
-            print("[Playwright] Displayed:", displayed, "| Weighted:", weighted, "| Voters:", voters)
-        except ImportError:
-            print("Playwright n'est pas installé. Installe-le puis exécute: \n"
-                  "  python -m pip install playwright\n  python -m playwright install\n"
-                  "Ensuite relance ce script.")
-        except Exception as e:
-            print("Erreur Playwright:", e)
-
-    if not (displayed or weighted or voters):
-        # sauvegardes pour inspection
-        Path("last_letterboxd.html").write_text(html, encoding="utf-8", errors="replace")
-        print("Aucun rating trouvé. HTML initial -> last_letterboxd.html.\n"
-              "Si Playwright est activé, regarde rendered_letterboxd.html.")
-
-
-def main_playwright() -> None:
-    """Entry point forcing Playwright rendering."""
-    main(["--force-playwright"])
-
-
-def main_static() -> None:
-    """Entry point disabling Playwright (static HTML only)."""
-    main(["--no-playwright"])
+    except ImportError:
+        print(
+            "Playwright n'est pas installé. Installez-le puis exécutez : \n"
+            "  python -m pip install playwright beautifulsoup4 lxml\n"
+            "  python -m playwright install\n"
+            "Ensuite, relancez ce script."
+        )
+    except Exception as e:
+        print(f"Une erreur est survenue avec Playwright: {e}")
 
 
 if __name__ == "__main__":
