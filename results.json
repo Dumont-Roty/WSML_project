@@ -17,22 +17,36 @@
         "Miranda Otto",
         "Dominic Monaghan"
     ],
+    "duration": 179,
+    "nbr_watched": 2892494,
+    "nbr_appearence": 306830,
+    "nbr_likes": 963811,
+    "rating": 4.4,
+    "fans favoris": 39000,
     "producers": [
-        "Barrie M. Osborne",
         "Peter Jackson",
+        "Barrie M. Osborne",
         "Rick Porras",
         "Jamie Selkirk",
         "Fran Walsh"
     ],
     "writers": [
-        "Fran Walsh",
         "Philippa Boyens",
+        "Fran Walsh",
         "Stephen Sinclair",
         "Peter Jackson",
         "J. R. R. Tolkien"
     ],
     "composer": [
         "Howard Shore"
+    ],
+    "studio": [
+        "New Line Cinema",
+        "WingNut Films",
+        "The Saul Zaentz Company"
+    ],
+    "languages": [
+        "English"
     ],
     "genres": [
         "Action",

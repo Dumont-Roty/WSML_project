@@ -31,6 +31,7 @@ def run(playwright):
     page_info: dict = {'url': URL_TO_SCRAP}
     page_info.update( s.scrap_cast_page(page) )
     page_info.update( s.scrap_crew_page(page) )
+    page_info.update( s.scrap_details_page(page) )
     page_info.update( s.scrap_genres_themes_page(page) )
 
     browser.close()

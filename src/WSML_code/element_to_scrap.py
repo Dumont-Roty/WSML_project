@@ -1,4 +1,5 @@
-from playwright.sync_api import Page, sync_playwright
+from playwright.sync_api import Page
+import re
 
 class Scraping:
     @staticmethod
@@ -38,6 +39,130 @@ class Scraping:
                 res_dir.append(director_name.strip())
         return res_dir if res_dir else ["Directeur non trouvé"]
 
+    @staticmethod
+    def scrap_duree(page: Page) -> int:
+        """
+        La fonction scrap_duree nous permet de récupérer la durée du film depuis la page letterboxd en se basant sur le selecteur CSS
+
+        Args:
+            page (Page): La page à partir de laquelle extraire les informations
+
+        Returns:
+            str: La durée du film
+        """
+        page.wait_for_selector(".text-link.text-footer", timeout=5000)
+        duree_text = page.locator(".text-link.text-footer").text_content()
+        if duree_text is not None:
+            match = re.search(r"\d+\s", duree_text)
+            if match:
+                return int(match.group(0).strip())
+        return 0
+
+    @staticmethod
+    def nbr_watched(page: Page) -> int:
+        """
+        La fonction nbr_watched nous permet de récupérer le nombre de fois que le film a été vu depuis la page letterboxd en se basant sur le selecteur CSS
+
+        Args:
+            page (Page): La page à partir de laquelle extraire les informations
+
+        Returns:
+            int: Le nombre de fois que le film a été vu
+        """
+        page.wait_for_selector(".production-statistic.-watches", timeout=5000)
+        watched_int = page.locator(".production-statistic.-watches").inner_html()
+        if watched_int is not None:
+            match = re.search(r"\b([1-9],\d{3},\d{3}|[1-9]\d{0,2},\d{3}|[1-9]\d{0,2})\b", watched_int)
+            if match:
+                return int(match.group(0).replace(',', ''))
+        return 0
+    
+    @staticmethod
+    def scrap_appearence(page: Page) -> int:
+        """
+        La fonction scrap_appearence nous permet de récupérer les apparences du film depuis la page letterboxd en se basant sur le selecteur CSS
+
+        Args:
+            page (Page): La page à partir de laquelle extraire les informations
+
+        Returns:
+            int: Le nombre d'apparences du film dans des listes
+        """
+        page.wait_for_selector(".production-statistic.-lists", timeout=5000)
+        appearence_int = page.locator(".production-statistic.-lists").inner_html()
+        if appearence_int is not None:
+            match = re.search(r"\b([1-9],\d{3},\d{3}|[1-9]\d{0,2},\d{3}|[1-9]\d{0,2})\b", appearence_int)
+            if match:
+                return int(match.group(0).replace(',', ''))
+        return 0
+    
+    @staticmethod
+    def scrap_like(page: Page) -> int:
+        """
+        La fonction scrap_like nous permet de récupérer les likes du film depuis la page letterboxd en se basant sur le selecteur CSS
+
+        Args:
+            page (Page): La page à partir de laquelle extraire les informations
+
+        Returns:
+            int: Le nombre de likes du film
+        """
+        page.wait_for_selector(".production-statistic.-likes", timeout=5000)
+        like_int = page.locator(".production-statistic.-likes").inner_html()
+        if like_int is not None:
+            match = re.search(r"\b([1-9],\d{3},\d{3}|[1-9]\d{0,2},\d{3}|[1-9]\d{0,2})\b", like_int)
+            if match:
+                return int(match.group(0).replace(',', ''))
+        return 0
+
+    @staticmethod
+    def scrap_rate(page: Page) -> float:
+        """
+        La fonction scrap_rate nous permet de récupérer la note du film depuis la page letterboxd en se basant sur le selecteur CSS
+
+        Args:
+            page (Page): La page à partir de laquelle extraire les informations
+
+        Returns:
+            float: La note du film
+        """
+        page.wait_for_selector(".tooltip.display-rating.-highlight", timeout=5000)
+        rate_text = page.locator(".tooltip.display-rating.-highlight").inner_html()
+        if rate_text is not None:
+            rate = re.search(r"\d+(\.\d+)?", rate_text)
+            if rate:
+                return float(rate.group(0))
+        return 0.0
+
+    @staticmethod
+    def scrap_nbr_fan(page: Page) -> int:
+        """
+        La fonction scrap_nbr_fan nous permet de récupérer le nombre de fans du film depuis la page letterboxd en se basant sur le selecteur CSS
+
+        Args:
+            page (Page): La page à partir de laquelle extraire les informations
+
+        Returns:
+            int: Le nombre de fans du film
+        """
+        # cibler l'élément <a> pour éviter la violation de strict mode (peut y avoir un div du même nom)
+        page.wait_for_selector("a.all-link.more-link", timeout=5000)
+        text = (page.locator("a.all-link.more-link").text_content() or "").strip()
+        if not text:
+            return 0
+        m = re.search(r"(?i)\b(\d+)\s*([k])?\b", text)
+        if not m:
+            return 0
+        num = m.group(1)
+        try:
+            value = int(num)
+        except ValueError:
+            return 0
+        if (m.group(2) or '').upper() == 'K':
+            value *= 1_000
+
+        return int(value)
+    
 #page CAST
     @staticmethod
     def scrap_casting(page: Page) -> list[str]:
@@ -147,6 +272,49 @@ class Scraping:
         else: 
             return "Date non trouvée"
         
+# page DETAILS  
+    @staticmethod
+    def scrap_studios(page: Page) -> list[str]:
+        """
+        La fonction scrap_studios nous permet de récupérer les studios du film depuis la page letterboxd en se basant sur le selecteur CSS
+
+        Args:
+            page (Page): La page à partir de laquelle extraire les informations
+
+        Returns:
+            list[str]: Une liste des noms des studios
+        """
+        page.click("a[href^='/film/'][href$='/details/']")
+        page.wait_for_selector("a[href^='/studio/']", timeout=5000)
+        studios = page.locator("a[href^='/studio/']").all()
+        res_studios = []
+        for studio in studios:
+            studio_name = studio.text_content()
+            if studio_name is not None and studio_name.strip() not in res_studios:
+                res_studios.append(studio_name.strip())
+        return res_studios if res_studios else ["Studios non trouvés"]
+    
+    @staticmethod
+    def scrap_languages(page: Page) -> list[str]:
+        """
+        La fonction scrap_languages nous permet de récupérer les langues du film depuis la page letterboxd en se basant sur le selecteur CSS
+
+        Args:
+            page (Page): La page à partir de laquelle extraire les informations
+
+        Returns:
+            list[str]: Une liste des langues du film
+        """
+        page.click("a[href^='/film/'][href$='/details/']")
+        page.wait_for_selector("a[href^='/films/language/']", timeout=5000)
+        languages = page.locator("a[href^='/films/language/']").all()
+        res_languages = []
+        for language in languages:
+            language_name = language.text_content()
+            if language_name is not None and language_name.strip() not in res_languages:
+                res_languages.append(language_name.strip())
+        return res_languages if res_languages else ["Langues non trouvées"]
+    
 # page GENRES
     @staticmethod
     def scrap_genres(page: Page) -> list[str]:
@@ -189,4 +357,5 @@ class Scraping:
             if theme_name is not None:
                 res_themes.append(theme_name.strip())
         return res_themes if res_themes else ["Thèmes non trouvés"]
+    
     
