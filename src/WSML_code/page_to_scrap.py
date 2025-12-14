@@ -1,5 +1,7 @@
 from element_to_scrap import Scraping as s
+from scrap_tmdb import TMDBScraping as t
 from urllib.parse import urljoin
+import re
 
 
 class PageScrap:
@@ -8,15 +10,15 @@ class PageScrap:
         # Nous sommes déjà sur la page du film : pas besoin de naviguer
         return {
             "title": s.scrap_title(page),
-            "date": s.scrap_date(page),
-            "director": s.scrap_director(page),
+            "year": s.scrap_year(page),
+            "directors": s.scrap_directors(page),
             "casting": s.scrap_casting(page),
             "duration": s.scrap_duree(page),
             "nbr_watched": s.nbr_watched(page),
             "nbr_appearence": s.scrap_appearence(page),
             "nbr_likes": s.scrap_like(page),
             "rating": s.scrap_rate(page),
-            "fans favoris": s.scrap_nbr_fan(page)
+            "fans_favoris": s.scrap_nbr_fan(page)
         }
 
     @staticmethod
@@ -76,3 +78,43 @@ class PageScrap:
             "genres": s.scrap_genres(page),
             "themes": s.scrap_themes(page)
         }
+        
+    @staticmethod
+    def scrap_tmdb_url(page):
+        # Récupère le lien TMDB, ouvre une nouvelle page dans le même contexte, bloque CSS/images, scrape budget/revenue
+        try:
+            page.wait_for_selector("a[href*='themoviedb.org/movie']", timeout=5000)
+            href = page.locator("a[href*='themoviedb.org/movie']").first.get_attribute('href')
+        except Exception:
+            href = None
+
+        if not href:
+            return {"budget": None, "revenue": None}
+
+        tmdb_page = page.context.new_page()
+        tmdb_page.set_default_timeout(8000)
+        tmdb_page.route(re.compile(r"(\.png|\.jpg|\.jpeg|\.svg|\.woff|\.css)"), lambda r: r.abort())
+        try:
+            tmdb_page.goto(href, wait_until='domcontentloaded', timeout=12000)
+            tmdb_page.wait_for_load_state('networkidle')
+
+            budget = t.scrap_budget(tmdb_page)
+            revenue = t.scrap_revenue(tmdb_page)
+
+            # Si une bannière bloque, on tente de la fermer, puis on rescrape ce qui manque.
+            if budget is None or revenue is None:
+                try:
+                    t._dismiss_tmdb_cookies(tmdb_page)
+                except Exception:
+                    pass
+                if budget is None:
+                    budget = t.scrap_budget(tmdb_page)
+                if revenue is None:
+                    revenue = t.scrap_revenue(tmdb_page)
+
+            return {
+                "budget": budget,
+                "revenue": revenue
+            }
+        finally:
+            tmdb_page.close()

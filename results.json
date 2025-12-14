@@ -1,8 +1,8 @@
 {
     "url": "https://letterboxd.com/film/the-lord-of-the-rings-the-two-towers/",
     "title": "The Lord of the Rings: The Two Towers",
-    "date": "2002",
-    "director": [
+    "year": 2002,
+    "directors": [
         "Peter Jackson"
     ],
     "casting": [
@@ -18,11 +18,11 @@
         "Dominic Monaghan"
     ],
     "duration": 179,
-    "nbr_watched": 2892494,
-    "nbr_appearence": 306830,
-    "nbr_likes": 963811,
+    "nbr_watched": 2956402,
+    "nbr_appearence": 313723,
+    "nbr_likes": 986193,
     "rating": 4.4,
-    "fans favoris": 39000,
+    "fans_favoris": 40000,
     "producers": [
         "Peter Jackson",
         "Barrie M. Osborne",
@@ -60,5 +60,7 @@
         "Epic adventure and breathtaking battles",
         "Historical battles and epic heroism",
         "Emotional and captivating fantasy storytelling"
-    ]
+    ],
+    "budget": 79000000,
+    "revenue": 926287400
 }

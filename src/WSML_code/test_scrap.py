@@ -1,6 +1,8 @@
 from page_to_scrap import PageScrap as s
 from playwright.sync_api import sync_playwright
 from dismiss_overlay import dismiss_overlay
+from scrap_tmdb import TMDBScraping
+from models import Movie
 import json
 import re
 
@@ -10,7 +12,8 @@ URL_TO_SCRAP = "https://letterboxd.com/film/the-lord-of-the-rings-the-two-towers
 def run(playwright):
     chromium = playwright.chromium
     browser = chromium.launch(headless=False)
-    page = browser.new_page()
+    context = browser.new_context()
+    page = context.new_page()
     page.route(
         re.compile(r"(\.png|\.jpg|\.jpeg|\.svg|\.woff|\.css)"), 
         lambda route: route.abort()
@@ -28,19 +31,23 @@ def run(playwright):
 
     #page.goto("https://letterboxd.com", wait_until="networkidle")
 
-    page_info: dict = {'url': URL_TO_SCRAP}
-    page_info.update( s.scrap_cast_page(page) )
-    page_info.update( s.scrap_crew_page(page) )
-    page_info.update( s.scrap_details_page(page) )
-    page_info.update( s.scrap_genres_themes_page(page) )
-
+    page_info: dict = {
+        "url": URL_TO_SCRAP,
+        **s.scrap_cast_page(page),
+        **s.scrap_crew_page(page),
+        **s.scrap_details_page(page),
+        **s.scrap_genres_themes_page(page),
+        **s.scrap_tmdb_url(page)
+    }
+    movie = Movie(**page_info)
+    
+    context.close()
     browser.close()
-    return page_info
+    return movie
 
 
 with sync_playwright() as playwright:
-    data = run(playwright)
+    movie = run(playwright)
     
-output_file = 'results.json'
-with open(output_file, 'w', encoding = "utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
+with open("results.json", "w", encoding="utf-8") as f:
+    f.write(movie.model_dump_json(ensure_ascii=False, indent=4))

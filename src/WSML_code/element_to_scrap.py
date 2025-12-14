@@ -20,9 +20,9 @@ class Scraping:
             return ""
 
     @staticmethod
-    def scrap_director(page: Page) -> list[str]:
+    def scrap_directors(page: Page) -> list[str]:
         """
-        La fonction scrap_director nous permet de récupérer le réalisateur du film depuis la page letterboxd en se basant sur le selecteur CSS
+        La fonction scrap_directors nous permet de récupérer le réalisateur du film depuis la page letterboxd en se basant sur le selecteur CSS
 
         Args:
             page (Page): La page à partir de laquelle extraire les informations
@@ -254,9 +254,9 @@ class Scraping:
         return res_composers if res_composers else ["Compositeurs non trouvés"]
 
     @staticmethod
-    def scrap_date(page: Page) -> str:
+    def scrap_year(page: Page) -> str:
         """
-        La fonction scrap_date nous permet de récupérer la date de sortie du film depuis la page letterboxd en se basant sur le selecteur CSS
+        La fonction scrap_year nous permet de récupérer l'année de sortie du film depuis la page letterboxd en se basant sur le selecteur CSS
 
         Args:
             page (Page): La page à partir de laquelle extraire les informations
