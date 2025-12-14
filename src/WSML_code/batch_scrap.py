@@ -22,11 +22,12 @@ URLS_TO_SCRAP: List[str] = [
     "https://letterboxd.com/film/whiplash-2014/",
 ]
 
-def scrape_one(context, url: str) -> Movie:
+def scrape_one(context, tmdb_page, url: str) -> Movie:
     start = perf_counter()
     section_timings = {}
     page = context.new_page()
-    page.goto(url, wait_until="load")
+    page.set_default_timeout(3000)
+    page.goto(url, wait_until="domcontentloaded", timeout=7000)
     try:
         dismiss_overlay(page)
     except Exception as e:
@@ -50,7 +51,7 @@ def scrape_one(context, url: str) -> Movie:
     section_timings["genres_themes_page"] = perf_counter() - t0
 
     t0 = perf_counter();
-    tmdb_block = PageScrap.scrap_tmdb_url(page)
+    tmdb_block = PageScrap.scrap_tmdb_url(page, tmdb_page)
     section_timings["tmdb_page"] = perf_counter() - t0
 
     data = {
@@ -73,16 +74,23 @@ def main() -> None:
     total_start = perf_counter()
     with sync_playwright() as playwright:
         chromium = playwright.chromium
-        browser = chromium.launch(headless=False)
+        browser = chromium.launch(headless=True)
         context = browser.new_context()
-        context.route(re.compile(r"(\.png|\.jpg|\.jpeg|\.svg|\.woff|\.css|\.mp4|\.webm)"), lambda route: route.abort())
+        context.route(re.compile(r"(\.png|\.jpg|\.jpeg|\.svg|\.webp|\.gif|\.ico|\.woff|\.css|\.mp4|\.webm)"), lambda route: route.abort())
         context.route(re.compile(r"(google-analytics\.com|googletagmanager\.com|doubleclick\.net|googlesyndication\.com)"), lambda route: route.abort())
+
+        # Page TMDB réutilisée pour éviter le coût d'ouverture à chaque film
+        tmdb_page = context.new_page()
+        tmdb_page.set_default_timeout(2000)
+        tmdb_page.route(re.compile(r"(\.png|\.jpg|\.jpeg|\.svg|\.webp|\.gif|\.ico|\.woff|\.css|\.mp4|\.webm)"), lambda route: route.abort())
+        tmdb_page.route(re.compile(r"(doubleclick\.net|googlesyndication\.com)") , lambda route: route.abort())
 
         results = []
         for url in URLS_TO_SCRAP:
-            movie = scrape_one(context, url)
+            movie = scrape_one(context, tmdb_page, url)
             results.append(movie.model_dump())
 
+        tmdb_page.close()
         context.close()
         browser.close()
 
