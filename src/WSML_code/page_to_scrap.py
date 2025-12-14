@@ -96,14 +96,12 @@ class PageScrap:
         tmdb_page.route(re.compile(r"(\.png|\.jpg|\.jpeg|\.svg|\.woff|\.css|\.mp4|\.webm)"), lambda r: r.abort())
         tmdb_page.route(re.compile(r"(doubleclick\.net|googlesyndication\.com)"), lambda r: r.abort())
         try:
-            tmdb_page.goto(href, wait_until='domcontentloaded', timeout=5000)
+            tmdb_page.goto(href, wait_until='domcontentloaded', timeout=3000)
             t._dismiss_tmdb_cookies(tmdb_page)
-            # on attaque directement le scrape sans attendre networkidle pour éviter les 8-10s d'attente
 
             budget = t.scrap_budget(tmdb_page)
             revenue = t.scrap_revenue(tmdb_page)
 
-            # Si une bannière bloque, on tente de la fermer, puis on rescrape ce qui manque.
             if budget is None or revenue is None:
                 try:
                     t._dismiss_tmdb_cookies(tmdb_page)

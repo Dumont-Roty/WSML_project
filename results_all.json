@@ -19,9 +19,9 @@
             "Dominic Monaghan"
         ],
         "duration": 179,
-        "nbr_watched": 2956524,
-        "nbr_appearence": 313718,
-        "nbr_likes": 986232,
+        "nbr_watched": 2956566,
+        "nbr_appearence": 313715,
+        "nbr_likes": 986247,
         "rating": 4.4,
         "fans_favoris": 40000,
         "producers": [
@@ -85,9 +85,9 @@
             "John Marley"
         ],
         "duration": 175,
-        "nbr_watched": 3285393,
-        "nbr_appearence": 506576,
-        "nbr_likes": 1300683,
+        "nbr_watched": 3285439,
+        "nbr_appearence": 506568,
+        "nbr_likes": 1300701,
         "rating": 4.5,
         "fans_favoris": 111000,
         "producers": [
@@ -145,9 +145,9 @@
             "Jung Hyeon-jun"
         ],
         "duration": 133,
-        "nbr_watched": 6034628,
-        "nbr_appearence": 760608,
-        "nbr_likes": 3202122,
+        "nbr_watched": 6034734,
+        "nbr_appearence": 760599,
+        "nbr_likes": 3202186,
         "rating": 4.5,
         "fans_favoris": 148000,
         "producers": [
@@ -210,9 +210,9 @@
             "Koba Hayashi"
         ],
         "duration": 125,
-        "nbr_watched": 4503930,
-        "nbr_appearence": 582017,
-        "nbr_likes": 2077165,
+        "nbr_watched": 4503985,
+        "nbr_appearence": 582008,
+        "nbr_likes": 2077192,
         "rating": 4.4,
         "fans_favoris": 130000,
         "producers": [
@@ -250,5 +250,464 @@
         ],
         "budget": 19000000,
         "revenue": 274925095
+    },
+    {
+        "url": "https://letterboxd.com/film/la-haine/",
+        "title": "La Haine",
+        "year": 1995,
+        "directors": [
+            "Mathieu Kassovitz"
+        ],
+        "casting": [
+            "Vincent Cassel",
+            "Hubert Koundé",
+            "Saïd Taghmaoui",
+            "Abdel Ahmed Ghili",
+            "Solo",
+            "Joseph Momo",
+            "Héloïse Rauth",
+            "Rywka Wajsbrot",
+            "Olga Abrego",
+            "Laurent Labasse"
+        ],
+        "duration": 98,
+        "nbr_watched": 1116442,
+        "nbr_appearence": 239019,
+        "nbr_likes": 482492,
+        "rating": 4.5,
+        "fans_favoris": 78000,
+        "producers": [
+            "Christophe Rossignon",
+            "Adeline Lecallier",
+            "Alain Rocca"
+        ],
+        "writers": [
+            "Mathieu Kassovitz"
+        ],
+        "composer": [
+            "Assassin"
+        ],
+        "studio": [
+            "Kasso Productions",
+            "La Sept Cinéma",
+            "Les Productions Lazennec",
+            "Canal+",
+            "StudioCanal"
+        ],
+        "languages": [
+            "French"
+        ],
+        "genres": [
+            "Drama"
+        ],
+        "themes": [
+            "Crime, drugs and gangsters",
+            "Violent crime and drugs",
+            "Gritty crime and ruthless gangsters",
+            "Violent action, guns, and crime",
+            "Racism and the powerful fight for justice",
+            "Intense political and terrorist thrillers"
+        ],
+        "budget": 2600000,
+        "revenue": 15300000
+    },
+    {
+        "url": "https://letterboxd.com/film/everything-everywhere-all-at-once/",
+        "title": "Everything Everywhere All at Once",
+        "year": 2022,
+        "directors": [
+            "Daniel Scheinert",
+            "Daniel Kwan"
+        ],
+        "casting": [
+            "Michelle Yeoh",
+            "Stephanie Hsu",
+            "Ke Huy Quan",
+            "James Hong",
+            "Jamie Lee Curtis",
+            "Tallie Medel",
+            "Jenny Slate",
+            "Harry Shum Jr.",
+            "Biff Wiff",
+            "Sunita Mani"
+        ],
+        "duration": 140,
+        "nbr_watched": 4403522,
+        "nbr_appearence": 656082,
+        "nbr_likes": 2118954,
+        "rating": 4.3,
+        "fans_favoris": 187000,
+        "producers": [
+            "Tim Headington",
+            "Mike Larocca",
+            "Daniel Scheinert",
+            "Jon Read",
+            "Daniel Kwan",
+            "Virginie Besson-Silla",
+            "Jonathan Wang",
+            "Joe Russo",
+            "Anthony Russo"
+        ],
+        "writers": [
+            "Daniel Kwan",
+            "Daniel Scheinert"
+        ],
+        "composer": [
+            "Ryan Lott",
+            "Rafiq Bhatia",
+            "Ian Chang"
+        ],
+        "studio": [
+            "IAC Films",
+            "AGBO",
+            "Ley Line Entertainment",
+            "Year of the Rat"
+        ],
+        "languages": [
+            "English",
+            "Cantonese",
+            "Chinese"
+        ],
+        "genres": [
+            "Science Fiction",
+            "Adventure",
+            "Comedy",
+            "Action"
+        ],
+        "themes": [
+            "Humanity and the world around us",
+            "Moving relationship stories",
+            "Crude humor and satire",
+            "Epic heroes",
+            "Touching and sentimental family stories",
+            "Powerful stories of heartbreak and suffering",
+            "Surreal and thought-provoking visions of life and death",
+            "Quirky and endearing relationships",
+            "Dreamlike, quirky, and surreal storytelling"
+        ],
+        "budget": 25000000,
+        "revenue": 139200000
+    },
+    {
+        "url": "https://letterboxd.com/film/2001-a-space-odyssey/",
+        "title": "2001: A Space Odyssey",
+        "year": 1968,
+        "directors": [
+            "Stanley Kubrick"
+        ],
+        "casting": [
+            "Keir Dullea",
+            "Gary Lockwood",
+            "William Sylvester",
+            "Douglas Rain",
+            "Daniel Richter",
+            "Leonard Rossiter",
+            "Margaret Tyzack",
+            "Robert Beatty",
+            "Sean Sullivan",
+            "Frank W. Miller"
+        ],
+        "duration": 149,
+        "nbr_watched": 1904608,
+        "nbr_appearence": 435282,
+        "nbr_likes": 673963,
+        "rating": 4.3,
+        "fans_favoris": 63000,
+        "producers": [
+            "Stanley Kubrick",
+            "Victor Lyndon"
+        ],
+        "writers": [
+            "Arthur C. Clarke",
+            "Stanley Kubrick"
+        ],
+        "composer": [],
+        "studio": [
+            "Stanley Kubrick Productions",
+            "Metro-Goldwyn-Mayer"
+        ],
+        "languages": [
+            "English",
+            "Russian"
+        ],
+        "genres": [
+            "Science Fiction",
+            "Adventure",
+            "Mystery"
+        ],
+        "themes": [
+            "Humanity and the world around us",
+            "Monsters, aliens, sci-fi and the apocalypse",
+            "Imaginative space odysseys and alien encounters",
+            "Humanity's odyssey: earth and beyond",
+            "Surreal and thought-provoking visions of life and death",
+            "Action-packed space and alien sagas",
+            "Thought-provoking sci-fi action and future technology"
+        ],
+        "budget": 12000000,
+        "revenue": 71923560
+    },
+    {
+        "url": "https://letterboxd.com/film/portrait-of-a-lady-on-fire/",
+        "title": "Portrait of a Lady on Fire",
+        "year": 2019,
+        "directors": [
+            "Céline Sciamma"
+        ],
+        "casting": [
+            "Noémie Merlant",
+            "Adèle Haenel",
+            "Luàna Bajrami",
+            "Valeria Golino",
+            "Christel Baras",
+            "Armande Boulanger",
+            "Guy Delamarche",
+            "Clément Bouyssou"
+        ],
+        "duration": 121,
+        "nbr_watched": 1245521,
+        "nbr_appearence": 392983,
+        "nbr_likes": 588338,
+        "rating": 4.4,
+        "fans_favoris": 80000,
+        "producers": [
+            "Bénédicte Couvreur",
+            "Olivier Père",
+            "Rémi Burah",
+            "Véronique Cayla"
+        ],
+        "writers": [
+            "Céline Sciamma"
+        ],
+        "composer": [
+            "Arthur Simonini",
+            "Para One"
+        ],
+        "studio": [
+            "Lilies Films",
+            "ARTE France Cinéma",
+            "Hold Up Films"
+        ],
+        "languages": [
+            "French",
+            "Italian"
+        ],
+        "genres": [
+            "Drama",
+            "Romance",
+            "History"
+        ],
+        "themes": [
+            "Moving relationship stories",
+            "Humanity and the world around us",
+            "Passion and romance",
+            "Captivating relationships and charming romance",
+            "Erotic relationships and desire",
+            "Powerful poetic and passionate drama",
+            "Tragic sadness and captivating beauty"
+        ],
+        "budget": 5740000,
+        "revenue": 9923127
+    },
+    {
+        "url": "https://letterboxd.com/film/spider-man-into-the-spider-verse/",
+        "title": "Spider-Man: Into the Spider-Verse",
+        "year": 2018,
+        "directors": [
+            "Bob Persichetti",
+            "Peter Ramsey",
+            "Rodney Rothman"
+        ],
+        "casting": [
+            "Shameik Moore",
+            "Jake Johnson",
+            "Hailee Steinfeld",
+            "Mahershala Ali",
+            "Brian Tyree Henry",
+            "Lily Tomlin",
+            "Luna Lauren Vélez",
+            "Zoë Kravitz",
+            "John Mulaney",
+            "Kimiko Glenn"
+        ],
+        "duration": 117,
+        "nbr_watched": 5318855,
+        "nbr_appearence": 598879,
+        "nbr_likes": 2589233,
+        "rating": 4.4,
+        "fans_favoris": 104000,
+        "producers": [
+            "Phil Lord",
+            "Christopher Miller",
+            "Avi Arad",
+            "Christina Steinberg",
+            "Amy Pascal",
+            "Theresa Bentz",
+            "Christian Hejnal"
+        ],
+        "writers": [
+            "Phil Lord",
+            "Rodney Rothman"
+        ],
+        "composer": [
+            "Daniel Pemberton"
+        ],
+        "studio": [
+            "Columbia Pictures",
+            "Lord Miller",
+            "Pascal Pictures",
+            "Sony Pictures Animation",
+            "Arad Productions",
+            "Marvel Entertainment"
+        ],
+        "languages": [
+            "English",
+            "Japanese",
+            "Spanish"
+        ],
+        "genres": [
+            "Adventure",
+            "Animation",
+            "Action",
+            "Science Fiction"
+        ],
+        "themes": [
+            "Epic heroes",
+            "Crude humor and satire",
+            "Kids' animated fun and adventure",
+            "Superheroes in action-packed battles with villains",
+            "Emotional and captivating fantasy storytelling",
+            "Action comedy and silly heroics",
+            "Teen school antics and laughter"
+        ],
+        "budget": 90000000,
+        "revenue": 393602435
+    },
+    {
+        "url": "https://letterboxd.com/film/interstellar/",
+        "title": "Interstellar",
+        "year": 2014,
+        "directors": [
+            "Christopher Nolan"
+        ],
+        "casting": [
+            "Matthew McConaughey",
+            "Anne Hathaway",
+            "Michael Caine",
+            "Jessica Chastain",
+            "Casey Affleck",
+            "Wes Bentley",
+            "Topher Grace",
+            "Mackenzie Foy",
+            "Ellen Burstyn",
+            "John Lithgow"
+        ],
+        "duration": 169,
+        "nbr_watched": 6284391,
+        "nbr_appearence": 754619,
+        "nbr_likes": 3033484,
+        "rating": 4.4,
+        "fans_favoris": 408000,
+        "producers": [
+            "Lynda Obst",
+            "Christopher Nolan",
+            "Emma Thomas"
+        ],
+        "writers": [
+            "Jonathan Nolan",
+            "Christopher Nolan"
+        ],
+        "composer": [
+            "Hans Zimmer"
+        ],
+        "studio": [
+            "Legendary Pictures",
+            "Syncopy",
+            "Lynda Obst Productions"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Science Fiction",
+            "Drama",
+            "Adventure"
+        ],
+        "themes": [
+            "Monsters, aliens, sci-fi and the apocalypse",
+            "Humanity and the world around us",
+            "Moving relationship stories",
+            "Imaginative space odysseys and alien encounters",
+            "Action-packed space and alien sagas",
+            "Thought-provoking sci-fi action and future technology",
+            "Humanity's odyssey: earth and beyond",
+            "Surreal and thought-provoking visions of life and death"
+        ],
+        "budget": 165000000,
+        "revenue": 746606706
+    },
+    {
+        "url": "https://letterboxd.com/film/whiplash-2014/",
+        "title": "Whiplash",
+        "year": 2014,
+        "directors": [
+            "Damien Chazelle"
+        ],
+        "casting": [
+            "Miles Teller",
+            "J.K. Simmons",
+            "Paul Reiser",
+            "Melissa Benoist",
+            "Austin Stowell",
+            "Nate Lang",
+            "Chris Mulkey",
+            "Damon Gupton",
+            "Suanne Spoke",
+            "Max Kasch"
+        ],
+        "duration": 107,
+        "nbr_watched": 4793400,
+        "nbr_appearence": 567451,
+        "nbr_likes": 2252931,
+        "rating": 4.4,
+        "fans_favoris": 194000,
+        "producers": [
+            "Jason Blum",
+            "Michel Litvak",
+            "Helen Estabrook",
+            "David Lancaster",
+            "Nicholas Britell",
+            "Garrick Dion",
+            "Stephanie Wilcox",
+            "Sarah Potts",
+            "Phillip Dawe"
+        ],
+        "writers": [
+            "Damien Chazelle"
+        ],
+        "composer": [
+            "Justin Hurwitz"
+        ],
+        "studio": [
+            "Bold Films",
+            "Blumhouse Productions",
+            "Right of Way Films"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Drama",
+            "Music"
+        ],
+        "themes": [
+            "Moving relationship stories",
+            "Student coming-of-age challenges",
+            "Emotional life of renowned artists",
+            "Powerful stories of heartbreak and suffering",
+            "Emotional and captivating fantasy storytelling"
+        ],
+        "budget": 3300000,
+        "revenue": 50307484
     }
 ]

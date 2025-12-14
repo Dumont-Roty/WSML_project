@@ -243,15 +243,25 @@ class Scraping:
         Returns:
             list[str]: Une liste des noms des compositeurs
         """
-        page.click("a[href^='/film/'][href$='/crew/']")
-        page.wait_for_selector("a[href^='/composer/']", timeout=5000)
-        composers = page.locator("a[href^='/composer/']").all()
+        try:
+            page.click("a[href^='/film/'][href$='/crew/']")
+        except Exception:
+            # Si déjà sur l'onglet crew ou lien absent, continuer sans échec.
+            pass
+
+        try:
+            page.wait_for_selector("a[href^='/composer/']", timeout=1500)
+            composers = page.locator("a[href^='/composer/']").all()
+        except Exception:
+            return []
+
         res_composers = []
         for composer in composers:
             composer_name = composer.text_content()
             if composer_name is not None and composer_name.strip() not in res_composers:
                 res_composers.append(composer_name.strip())
-        return res_composers if res_composers else ["Compositeurs non trouvés"]
+
+        return res_composers
 
     @staticmethod
     def scrap_year(page: Page) -> str:
