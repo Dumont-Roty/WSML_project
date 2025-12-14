@@ -83,7 +83,7 @@ class PageScrap:
     def scrap_tmdb_url(page):
         # Récupère le lien TMDB, ouvre une nouvelle page dans le même contexte, bloque CSS/images, scrape budget/revenue
         try:
-            page.wait_for_selector("a[href*='themoviedb.org/movie']", timeout=5000)
+            page.wait_for_selector("a[href*='themoviedb.org/movie']", timeout=2000)
             href = page.locator("a[href*='themoviedb.org/movie']").first.get_attribute('href')
         except Exception:
             href = None
@@ -92,11 +92,13 @@ class PageScrap:
             return {"budget": None, "revenue": None}
 
         tmdb_page = page.context.new_page()
-        tmdb_page.set_default_timeout(8000)
-        tmdb_page.route(re.compile(r"(\.png|\.jpg|\.jpeg|\.svg|\.woff|\.css)"), lambda r: r.abort())
+        tmdb_page.set_default_timeout(2500)
+        tmdb_page.route(re.compile(r"(\.png|\.jpg|\.jpeg|\.svg|\.woff|\.css|\.mp4|\.webm)"), lambda r: r.abort())
+        tmdb_page.route(re.compile(r"(doubleclick\.net|googlesyndication\.com)"), lambda r: r.abort())
         try:
-            tmdb_page.goto(href, wait_until='domcontentloaded', timeout=12000)
-            tmdb_page.wait_for_load_state('networkidle')
+            tmdb_page.goto(href, wait_until='domcontentloaded', timeout=5000)
+            t._dismiss_tmdb_cookies(tmdb_page)
+            # on attaque directement le scrape sans attendre networkidle pour éviter les 8-10s d'attente
 
             budget = t.scrap_budget(tmdb_page)
             revenue = t.scrap_revenue(tmdb_page)

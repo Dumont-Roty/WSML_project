@@ -41,7 +41,7 @@ class TMDBScraping:
         budget_text = None
         for sel in selectors:
             try:
-                page.wait_for_selector(sel, timeout=5000)
+                page.wait_for_selector(sel, timeout=2000)
                 budget_text = page.locator(sel).first.inner_text()
                 if budget_text:
                     break
@@ -91,7 +91,7 @@ class TMDBScraping:
         revenue_text = None
         for sel in selectors:
             try:
-                page.wait_for_selector(sel, timeout=5000)
+                page.wait_for_selector(sel, timeout=2000)
                 revenue_text = page.locator(sel).first.inner_text()
                 if revenue_text:
                     break
