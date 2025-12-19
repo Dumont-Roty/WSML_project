@@ -1,4 +1,4 @@
-from playwright.sync_api import Page
+from playwright.sync_api import Page, TimeoutError
 import re
 
 class Scraping:
@@ -126,7 +126,10 @@ class Scraping:
         Returns:
             float: La note du film
         """
-        page.wait_for_selector(".tooltip.display-rating.-highlight", timeout=5000)
+        try:
+            page.wait_for_selector(".tooltip.display-rating.-highlight", timeout=7000)
+        except TimeoutError:
+            return 0.0
         rate_text = page.locator(".tooltip.display-rating.-highlight").inner_html()
         if rate_text is not None:
             rate = re.search(r"\d+(\.\d+)?", rate_text)

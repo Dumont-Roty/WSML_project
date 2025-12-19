@@ -1,131 +1,5 @@
 [
     {
-        "url": "https://letterboxd.com/film/the-lord-of-the-rings-the-two-towers/",
-        "title": "The Lord of the Rings: The Two Towers",
-        "year": 2002,
-        "directors": [
-            "Peter Jackson"
-        ],
-        "casting": [
-            "Elijah Wood",
-            "Ian McKellen",
-            "Viggo Mortensen",
-            "Sean Astin",
-            "Andy Serkis",
-            "John Rhys-Davies",
-            "Orlando Bloom",
-            "Bernard Hill",
-            "Miranda Otto",
-            "Dominic Monaghan"
-        ],
-        "duration": 179,
-        "nbr_watched": 2956640,
-        "nbr_appearence": 313720,
-        "nbr_likes": 986274,
-        "rating": 4.4,
-        "fans_favoris": 40000,
-        "producers": [
-            "Peter Jackson",
-            "Barrie M. Osborne",
-            "Rick Porras",
-            "Jamie Selkirk",
-            "Fran Walsh"
-        ],
-        "writers": [
-            "Philippa Boyens",
-            "Fran Walsh",
-            "Stephen Sinclair",
-            "Peter Jackson",
-            "J. R. R. Tolkien"
-        ],
-        "composer": [
-            "Howard Shore"
-        ],
-        "studio": [
-            "New Line Cinema",
-            "WingNut Films",
-            "The Saul Zaentz Company"
-        ],
-        "languages": [
-            "English"
-        ],
-        "genres": [
-            "Action",
-            "Fantasy",
-            "Adventure"
-        ],
-        "themes": [
-            "Epic heroes",
-            "Fantasy adventure, heroism, and swordplay",
-            "Superheroes in action-packed battles with villains",
-            "Epic adventure and breathtaking battles",
-            "Historical battles and epic heroism",
-            "Emotional and captivating fantasy storytelling"
-        ],
-        "budget": null,
-        "revenue": null
-    },
-    {
-        "url": "https://letterboxd.com/film/the-godfather/",
-        "title": "The Godfather",
-        "year": 1972,
-        "directors": [
-            "Francis Ford Coppola"
-        ],
-        "casting": [
-            "Marlon Brando",
-            "Al Pacino",
-            "James Caan",
-            "Robert Duvall",
-            "Richard S. Castellano",
-            "Diane Keaton",
-            "Talia Shire",
-            "Gianni Russo",
-            "Sterling Hayden",
-            "John Marley"
-        ],
-        "duration": 175,
-        "nbr_watched": 3285524,
-        "nbr_appearence": 506571,
-        "nbr_likes": 1300744,
-        "rating": 4.5,
-        "fans_favoris": 111000,
-        "producers": [
-            "Gray Frederickson",
-            "Albert S. Ruddy"
-        ],
-        "writers": [
-            "Francis Ford Coppola",
-            "Mario Puzo"
-        ],
-        "composer": [
-            "Nino Rota"
-        ],
-        "studio": [
-            "Paramount Pictures",
-            "Alfran Productions"
-        ],
-        "languages": [
-            "English",
-            "Latin",
-            "Italian"
-        ],
-        "genres": [
-            "Crime",
-            "Drama"
-        ],
-        "themes": [
-            "Crime, drugs and gangsters",
-            "Gritty crime and ruthless gangsters",
-            "Violent crime and drugs",
-            "Gripping, intense violent crime",
-            "Violent action, guns, and crime",
-            "Brutal, violent prison drama"
-        ],
-        "budget": null,
-        "revenue": null
-    },
-    {
         "url": "https://letterboxd.com/film/parasite-2019/",
         "title": "Parasite",
         "year": 2019,
@@ -145,22 +19,22 @@
             "Jung Hyeon-jun"
         ],
         "duration": 133,
-        "nbr_watched": 6034874,
-        "nbr_appearence": 760596,
-        "nbr_likes": 3202250,
+        "nbr_watched": 6063092,
+        "nbr_appearence": 762259,
+        "nbr_likes": 3217133,
         "rating": 4.5,
-        "fans_favoris": 148000,
+        "fans_favoris": 149000,
         "producers": [
             "Jang Young-hwan",
-            "Moon Yang-kwon",
             "Kwak Sin-ae",
+            "Moon Yang-kwon",
             "Lee Joo-hyun",
             "Bong Joon Ho"
         ],
         "writers": [
             "Kim Dae-hwan",
-            "Han Jin-won",
-            "Bong Joon Ho"
+            "Bong Joon Ho",
+            "Han Jin-won"
         ],
         "composer": [
             "Jung Jae-il"
@@ -187,129 +61,278 @@
             "Enduring stories of family and marital drama",
             "Intense political and terrorist thrillers"
         ],
-        "budget": null,
-        "revenue": null
+        "budget": 11363000,
+        "revenue": 257591776,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
     },
     {
-        "url": "https://letterboxd.com/film/spirited-away/",
-        "title": "Spirited Away",
-        "year": 2001,
+        "url": "https://letterboxd.com/film/interstellar/",
+        "title": "Interstellar",
+        "year": 2014,
         "directors": [
-            "Hayao Miyazaki"
+            "Christopher Nolan"
         ],
         "casting": [
-            "Rumi Hiiragi",
-            "Miyu Irino",
-            "Mari Natsuki",
-            "Takashi Naito",
-            "Yasuko Sawaguchi",
-            "Tatsuya Gashûin",
-            "Ryunosuke Kamiki",
-            "Yumi Tamai",
-            "Yo Oizumi",
-            "Koba Hayashi"
+            "Matthew McConaughey",
+            "Anne Hathaway",
+            "Michael Caine",
+            "Jessica Chastain",
+            "Casey Affleck",
+            "Wes Bentley",
+            "Topher Grace",
+            "Mackenzie Foy",
+            "Ellen Burstyn",
+            "John Lithgow"
         ],
-        "duration": 125,
-        "nbr_watched": 4504082,
-        "nbr_appearence": 582009,
-        "nbr_likes": 2077234,
+        "duration": 169,
+        "nbr_watched": 6323162,
+        "nbr_appearence": 757206,
+        "nbr_likes": 3056973,
         "rating": 4.4,
-        "fans_favoris": 130000,
+        "fans_favoris": 412000,
         "producers": [
-            "Toshio Suzuki"
+            "Christopher Nolan",
+            "Lynda Obst",
+            "Emma Thomas"
         ],
         "writers": [
-            "Hayao Miyazaki"
+            "Jonathan Nolan",
+            "Christopher Nolan"
         ],
         "composer": [
-            "Joe Hisaishi"
+            "Hans Zimmer"
         ],
         "studio": [
-            "Studio Ghibli",
-            "Tokuma Shoten",
-            "Nippon Television Network Corporation",
-            "Mitsubishi",
-            "dentsu",
-            "TFC"
+            "Legendary Pictures",
+            "Syncopy",
+            "Lynda Obst Productions"
         ],
         "languages": [
-            "Japanese"
+            "English"
         ],
         "genres": [
-            "Family",
-            "Fantasy",
-            "Animation"
+            "Science Fiction",
+            "Drama",
+            "Adventure"
         ],
         "themes": [
+            "Monsters, aliens, sci-fi and the apocalypse",
             "Humanity and the world around us",
-            "Emotional and captivating fantasy storytelling",
-            "Fairy-tale fantasy and enchanted magic",
-            "Adorable animals and heartwarming families",
-            "Kids' animated fun and adventure",
+            "Moving relationship stories",
+            "Imaginative space odysseys and alien encounters",
+            "Action-packed space and alien sagas",
+            "Thought-provoking sci-fi action and future technology",
+            "Humanity's odyssey: earth and beyond",
             "Surreal and thought-provoking visions of life and death"
         ],
         "budget": null,
-        "revenue": null
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
     },
     {
-        "url": "https://letterboxd.com/film/la-haine/",
-        "title": "La Haine",
-        "year": 1995,
+        "url": "https://letterboxd.com/film/barbie/",
+        "title": "Barbie",
+        "year": 2023,
         "directors": [
-            "Mathieu Kassovitz"
+            "Greta Gerwig"
         ],
         "casting": [
-            "Vincent Cassel",
-            "Hubert Koundé",
-            "Saïd Taghmaoui",
-            "Abdel Ahmed Ghili",
-            "Solo",
-            "Joseph Momo",
-            "Héloïse Rauth",
-            "Rywka Wajsbrot",
-            "Olga Abrego",
-            "Laurent Labasse"
+            "Margot Robbie",
+            "Ryan Gosling",
+            "America Ferrera",
+            "Ariana Greenblatt",
+            "Issa Rae",
+            "Kate McKinnon",
+            "Alexandra Shipp",
+            "Emma Mackey",
+            "Hari Nef",
+            "Sharon Rooney"
         ],
-        "duration": 98,
-        "nbr_watched": 1116469,
-        "nbr_appearence": 239016,
-        "nbr_likes": 482505,
-        "rating": 4.5,
-        "fans_favoris": 78000,
+        "duration": 114,
+        "nbr_watched": 6342419,
+        "nbr_appearence": 570452,
+        "nbr_likes": 2500213,
+        "rating": 0.0,
+        "fans_favoris": 26000,
         "producers": [
-            "Christophe Rossignon",
-            "Adeline Lecallier",
-            "Alain Rocca"
+            "Robbie Brenner",
+            "David Heyman",
+            "Christine Crais",
+            "Margot Robbie",
+            "Tom Ackerley"
         ],
         "writers": [
-            "Mathieu Kassovitz"
+            "Noah Baumbach",
+            "Greta Gerwig"
         ],
         "composer": [
-            "Assassin"
+            "Andrew Wyatt",
+            "Mark Ronson"
         ],
         "studio": [
-            "Kasso Productions",
-            "La Sept Cinéma",
-            "Les Productions Lazennec",
-            "Canal+",
-            "StudioCanal"
+            "LuckyChap Entertainment",
+            "Heyday Films",
+            "NB/GG Pictures",
+            "Mattel",
+            "Warner Bros. Pictures"
         ],
         "languages": [
-            "French"
+            "English"
         ],
         "genres": [
-            "Drama"
+            "Comedy",
+            "Adventure"
         ],
         "themes": [
-            "Crime, drugs and gangsters",
-            "Violent crime and drugs",
-            "Gritty crime and ruthless gangsters",
-            "Violent action, guns, and crime",
-            "Racism and the powerful fight for justice",
-            "Intense political and terrorist thrillers"
+            "Humanity and the world around us",
+            "Crude humor and satire",
+            "Moving relationship stories",
+            "Emotional and captivating fantasy storytelling",
+            "Surreal and thought-provoking visions of life and death",
+            "Quirky and endearing relationships",
+            "Laugh-out-loud relationship entanglements",
+            "Funny jokes and crude humor"
         ],
-        "budget": 2600000,
-        "revenue": 15300000
+        "budget": 145000000,
+        "revenue": 1447138421,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/fight-club/",
+        "title": "Fight Club",
+        "year": 1999,
+        "directors": [
+            "David Fincher"
+        ],
+        "casting": [
+            "Edward Norton",
+            "Brad Pitt",
+            "Helena Bonham Carter",
+            "Meat Loaf",
+            "Jared Leto",
+            "Zach Grenier",
+            "Holt McCallany",
+            "Eion Bailey",
+            "Richmond Arquette",
+            "David Andrews"
+        ],
+        "duration": 139,
+        "nbr_watched": 6263570,
+        "nbr_appearence": 643258,
+        "nbr_likes": 2856435,
+        "rating": 4.3,
+        "fans_favoris": 196000,
+        "producers": [
+            "Art Linson",
+            "Ceán Chaffin",
+            "Ross Grayson Bell",
+            "John S. Dorsey"
+        ],
+        "writers": [
+            "Jim Uhls",
+            "Chuck Palahniuk"
+        ],
+        "composer": [
+            "John King",
+            "Michael Simpson"
+        ],
+        "studio": [
+            "Fox 2000 Pictures",
+            "Regency Enterprises",
+            "Linson Entertainment",
+            "20th Century Fox",
+            "Taurus Film"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Drama",
+            "Thriller"
+        ],
+        "themes": [
+            "Intense violence and sexual transgression",
+            "Humanity and the world around us",
+            "Dreamlike, quirky, and surreal storytelling",
+            "Challenging or sexual themes & twists",
+            "Twisted dark psychological thriller",
+            "Surreal and thought-provoking visions of life and death",
+            "Powerful poetic and passionate drama"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/la-la-land/",
+        "title": "La La Land",
+        "year": 2016,
+        "directors": [
+            "Damien Chazelle"
+        ],
+        "casting": [
+            "Ryan Gosling",
+            "Emma Stone",
+            "John Legend",
+            "Rosemarie DeWitt",
+            "J.K. Simmons",
+            "Amiée Conn",
+            "Terry Walters",
+            "Thom Shelton",
+            "Cinda Adams",
+            "Callie Hernandez"
+        ],
+        "duration": 129,
+        "nbr_watched": 5338824,
+        "nbr_appearence": 724063,
+        "nbr_likes": 2389589,
+        "rating": 4.1,
+        "fans_favoris": 330000,
+        "producers": [
+            "Jordan Horowitz",
+            "Marc Platt",
+            "Jeffrey Harlacker",
+            "Fred Berger",
+            "Gary Gilbert"
+        ],
+        "writers": [
+            "Damien Chazelle"
+        ],
+        "composer": [
+            "Justin Hurwitz"
+        ],
+        "studio": [
+            "Summit Entertainment",
+            "Gilbert Films",
+            "Impostor Pictures",
+            "Marc Platt Productions"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Drama",
+            "Comedy",
+            "Romance"
+        ],
+        "themes": [
+            "Song and dance",
+            "Moving relationship stories",
+            "Humanity and the world around us",
+            "Dazzling vocal performances and musicals",
+            "Captivating relationships and charming romance",
+            "Dance rhythms and catchy tunes",
+            "Emotional life of renowned artists",
+            "Charming romances and delightful chemistry"
+        ],
+        "budget": 30000000,
+        "revenue": 509183536,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
     },
     {
         "url": "https://letterboxd.com/film/everything-everywhere-all-at-once/",
@@ -332,15 +355,15 @@
             "Sunita Mani"
         ],
         "duration": 140,
-        "nbr_watched": 4403609,
-        "nbr_appearence": 656082,
-        "nbr_likes": 2118986,
+        "nbr_watched": 4418177,
+        "nbr_appearence": 657026,
+        "nbr_likes": 2125855,
         "rating": 4.3,
-        "fans_favoris": 187000,
+        "fans_favoris": 188000,
         "producers": [
-            "Tim Headington",
             "Mike Larocca",
             "Daniel Scheinert",
+            "Tim Headington",
             "Jon Read",
             "Daniel Kwan",
             "Virginie Besson-Silla",
@@ -349,13 +372,13 @@
             "Anthony Russo"
         ],
         "writers": [
-            "Daniel Kwan",
-            "Daniel Scheinert"
+            "Daniel Scheinert",
+            "Daniel Kwan"
         ],
         "composer": [
             "Ryan Lott",
-            "Rafiq Bhatia",
-            "Ian Chang"
+            "Ian Chang",
+            "Rafiq Bhatia"
         ],
         "studio": [
             "IAC Films",
@@ -386,128 +409,678 @@
             "Dreamlike, quirky, and surreal storytelling"
         ],
         "budget": null,
-        "revenue": null
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
     },
     {
-        "url": "https://letterboxd.com/film/2001-a-space-odyssey/",
-        "title": "2001: A Space Odyssey",
-        "year": 1968,
+        "url": "https://letterboxd.com/film/whiplash-2014/",
+        "title": "Whiplash",
+        "year": 2014,
         "directors": [
-            "Stanley Kubrick"
+            "Damien Chazelle"
         ],
         "casting": [
-            "Keir Dullea",
-            "Gary Lockwood",
-            "William Sylvester",
-            "Douglas Rain",
-            "Daniel Richter",
-            "Leonard Rossiter",
-            "Margaret Tyzack",
-            "Robert Beatty",
-            "Sean Sullivan",
-            "Frank W. Miller"
+            "Miles Teller",
+            "J.K. Simmons",
+            "Paul Reiser",
+            "Melissa Benoist",
+            "Austin Stowell",
+            "Nate Lang",
+            "Chris Mulkey",
+            "Damon Gupton",
+            "Suanne Spoke",
+            "Max Kasch"
         ],
-        "duration": 149,
-        "nbr_watched": 1904635,
-        "nbr_appearence": 435284,
-        "nbr_likes": 673970,
-        "rating": 4.3,
-        "fans_favoris": 63000,
-        "producers": [
-            "Stanley Kubrick",
-            "Victor Lyndon"
-        ],
-        "writers": [
-            "Arthur C. Clarke",
-            "Stanley Kubrick"
-        ],
-        "composer": [],
-        "studio": [
-            "Stanley Kubrick Productions",
-            "Metro-Goldwyn-Mayer"
-        ],
-        "languages": [
-            "English",
-            "Russian"
-        ],
-        "genres": [
-            "Science Fiction",
-            "Adventure",
-            "Mystery"
-        ],
-        "themes": [
-            "Humanity and the world around us",
-            "Monsters, aliens, sci-fi and the apocalypse",
-            "Imaginative space odysseys and alien encounters",
-            "Humanity's odyssey: earth and beyond",
-            "Surreal and thought-provoking visions of life and death",
-            "Action-packed space and alien sagas",
-            "Thought-provoking sci-fi action and future technology"
-        ],
-        "budget": null,
-        "revenue": null
-    },
-    {
-        "url": "https://letterboxd.com/film/portrait-of-a-lady-on-fire/",
-        "title": "Portrait of a Lady on Fire",
-        "year": 2019,
-        "directors": [
-            "Céline Sciamma"
-        ],
-        "casting": [
-            "Noémie Merlant",
-            "Adèle Haenel",
-            "Luàna Bajrami",
-            "Valeria Golino",
-            "Christel Baras",
-            "Armande Boulanger",
-            "Guy Delamarche",
-            "Clément Bouyssou"
-        ],
-        "duration": 121,
-        "nbr_watched": 1245538,
-        "nbr_appearence": 392988,
-        "nbr_likes": 588350,
+        "duration": 107,
+        "nbr_watched": 4818671,
+        "nbr_appearence": 568910,
+        "nbr_likes": 2266280,
         "rating": 4.4,
-        "fans_favoris": 80000,
+        "fans_favoris": 196000,
         "producers": [
-            "Bénédicte Couvreur",
-            "Olivier Père",
-            "Rémi Burah",
-            "Véronique Cayla"
+            "Jason Blum",
+            "Michel Litvak",
+            "Helen Estabrook",
+            "David Lancaster",
+            "Nicholas Britell",
+            "Garrick Dion",
+            "Stephanie Wilcox",
+            "Sarah Potts",
+            "Phillip Dawe"
         ],
         "writers": [
-            "Céline Sciamma"
+            "Damien Chazelle"
         ],
         "composer": [
-            "Arthur Simonini",
-            "Para One"
+            "Justin Hurwitz"
         ],
         "studio": [
-            "Lilies Films",
-            "ARTE France Cinéma",
-            "Hold Up Films"
+            "Bold Films",
+            "Blumhouse Productions",
+            "Right of Way Films"
         ],
         "languages": [
-            "French",
-            "Italian"
+            "English"
         ],
         "genres": [
             "Drama",
-            "Romance",
-            "History"
+            "Music"
         ],
         "themes": [
             "Moving relationship stories",
-            "Humanity and the world around us",
-            "Passion and romance",
-            "Captivating relationships and charming romance",
-            "Erotic relationships and desire",
-            "Powerful poetic and passionate drama",
-            "Tragic sadness and captivating beauty"
+            "Student coming-of-age challenges",
+            "Emotional life of renowned artists",
+            "Powerful stories of heartbreak and suffering",
+            "Emotional and captivating fantasy storytelling"
         ],
-        "budget": 5740000,
-        "revenue": 9923127
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/oppenheimer-2023/",
+        "title": "Oppenheimer",
+        "year": 2023,
+        "directors": [
+            "Christopher Nolan"
+        ],
+        "casting": [
+            "Cillian Murphy",
+            "Emily Blunt",
+            "Matt Damon",
+            "Robert Downey Jr.",
+            "Florence Pugh",
+            "Josh Hartnett",
+            "Casey Affleck",
+            "Rami Malek",
+            "Kenneth Branagh",
+            "Benny Safdie"
+        ],
+        "duration": 181,
+        "nbr_watched": 4593890,
+        "nbr_appearence": 643802,
+        "nbr_likes": 1741988,
+        "rating": 4.2,
+        "fans_favoris": 50000,
+        "producers": [
+            "Christopher Nolan",
+            "Emma Thomas",
+            "Charles Roven",
+            "Andy Thompson"
+        ],
+        "writers": [
+            "Christopher Nolan",
+            "Martin J. Sherwin",
+            "Kai Bird"
+        ],
+        "composer": [
+            "Ludwig Göransson"
+        ],
+        "studio": [
+            "Syncopy",
+            "Universal Pictures",
+            "Atlas Entertainment",
+            "Breakheart Films",
+            "Peters Creek Entertainment"
+        ],
+        "languages": [
+            "English",
+            "Dutch"
+        ],
+        "genres": [
+            "Drama",
+            "History"
+        ],
+        "themes": [
+            "Humanity and the world around us",
+            "Politics and human rights",
+            "Epic history and literature",
+            "Surreal and thought-provoking visions of life and death",
+            "Intense political and terrorist thrillers",
+            "Powerful poetic and passionate drama",
+            "Dangerous technology and the apocalypse",
+            "Riveting political and presidential drama"
+        ],
+        "budget": 100000000,
+        "revenue": 952000000,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/pulp-fiction/",
+        "title": "Pulp Fiction",
+        "year": 1994,
+        "directors": [
+            "Quentin Tarantino"
+        ],
+        "casting": [
+            "John Travolta",
+            "Samuel L. Jackson",
+            "Uma Thurman",
+            "Bruce Willis",
+            "Ving Rhames",
+            "Harvey Keitel",
+            "Eric Stoltz",
+            "Tim Roth",
+            "Amanda Plummer",
+            "Maria de Medeiros"
+        ],
+        "duration": 154,
+        "nbr_watched": 5241410,
+        "nbr_appearence": 620676,
+        "nbr_likes": 2254144,
+        "rating": 4.2,
+        "fans_favoris": 119000,
+        "producers": [
+            "Lawrence Bender"
+        ],
+        "writers": [
+            "Quentin Tarantino"
+        ],
+        "composer": [],
+        "studio": [
+            "Miramax",
+            "A Band Apart",
+            "Jersey Films"
+        ],
+        "languages": [
+            "English",
+            "Spanish",
+            "French"
+        ],
+        "genres": [
+            "Comedy",
+            "Thriller",
+            "Crime"
+        ],
+        "themes": [
+            "Crime, drugs and gangsters",
+            "Intense violence and sexual transgression",
+            "Humanity and the world around us",
+            "Crude humor and satire",
+            "Gritty crime and ruthless gangsters",
+            "Violent action, guns, and crime",
+            "Heists and thrilling action",
+            "Graphic violence and brutal revenge",
+            "Dreamlike, quirky, and surreal storytelling"
+        ],
+        "budget": 8000000,
+        "revenue": 213928762,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/the-truman-show/",
+        "title": "The Truman Show",
+        "year": 1998,
+        "directors": [
+            "Peter Weir"
+        ],
+        "casting": [
+            "Jim Carrey",
+            "Laura Linney",
+            "Noah Emmerich",
+            "Natascha McElhone",
+            "Holland Taylor",
+            "Ed Harris",
+            "Paul Giamatti",
+            "Brian Delate",
+            "Peter Krause",
+            "Blair Slater"
+        ],
+        "duration": 103,
+        "nbr_watched": 5665970,
+        "nbr_appearence": 443751,
+        "nbr_likes": 2303029,
+        "rating": 4.2,
+        "fans_favoris": 94000,
+        "producers": [
+            "Edward S. Feldman",
+            "Andrew Niccol",
+            "Scott Rudin",
+            "Adam Schroeder",
+            "Richard Luke Rothschild"
+        ],
+        "writers": [
+            "Andrew Niccol"
+        ],
+        "composer": [
+            "Burkhard von Dallwitz",
+            "Philip Glass",
+            "Wojciech Kilar"
+        ],
+        "studio": [
+            "Paramount Pictures",
+            "Scott Rudin Productions"
+        ],
+        "languages": [
+            "English",
+            "Japanese",
+            "Spanish",
+            "Italian"
+        ],
+        "genres": [
+            "Comedy",
+            "Drama"
+        ],
+        "themes": [
+            "Humanity and the world around us",
+            "Moving relationship stories",
+            "Crude humor and satire",
+            "Surreal and thought-provoking visions of life and death",
+            "Powerful stories of heartbreak and suffering",
+            "Powerful poetic and passionate drama",
+            "Heartbreaking and moving family drama",
+            "Gags, jokes, and slapstick humor"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/the-substance/",
+        "title": "The Substance",
+        "year": 2024,
+        "directors": [
+            "Coralie Fargeat"
+        ],
+        "casting": [
+            "Demi Moore",
+            "Margaret Qualley",
+            "Dennis Quaid",
+            "Edward Hamilton-Clark",
+            "Gore Abrams",
+            "Oscar Lesage",
+            "Christian Erickson",
+            "Robin Greer",
+            "Tom Morton",
+            "Hugo Diego Garcia"
+        ],
+        "duration": 141,
+        "nbr_watched": 3477217,
+        "nbr_appearence": 511694,
+        "nbr_likes": 1160991,
+        "rating": 0.0,
+        "fans_favoris": 31000,
+        "producers": [
+            "Coralie Fargeat",
+            "Tim Bevan",
+            "Eric Fellner"
+        ],
+        "writers": [
+            "Coralie Fargeat"
+        ],
+        "composer": [
+            "Raffertie"
+        ],
+        "studio": [
+            "Working Title Films (GB)",
+            "Blacksmith",
+            "Working Title Films (US)"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Horror",
+            "Thriller",
+            "Science Fiction"
+        ],
+        "themes": [
+            "Intense violence and sexual transgression",
+            "Humanity and the world around us",
+            "Challenging or sexual themes & twists",
+            "Surreal and thought-provoking visions of life and death",
+            "Dreamlike, quirky, and surreal storytelling",
+            "Twisted dark psychological thriller",
+            "Gothic and eerie haunting horror"
+        ],
+        "budget": 17500000,
+        "revenue": 76506196,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/eternal-sunshine-of-the-spotless-mind/",
+        "title": "Eternal Sunshine of the Spotless Mind",
+        "year": 2004,
+        "directors": [
+            "Michel Gondry"
+        ],
+        "casting": [
+            "Jim Carrey",
+            "Kate Winslet",
+            "Kirsten Dunst",
+            "Mark Ruffalo",
+            "Elijah Wood",
+            "Tom Wilkinson",
+            "Jane Adams",
+            "David Cross",
+            "Deirdre O'Connell",
+            "Thomas Jay Ryan"
+        ],
+        "duration": 108,
+        "nbr_watched": 4120854,
+        "nbr_appearence": 602072,
+        "nbr_likes": 1817879,
+        "rating": 4.2,
+        "fans_favoris": 222000,
+        "producers": [
+            "Steve Golin",
+            "Anthony Bregman"
+        ],
+        "writers": [
+            "Charlie Kaufman"
+        ],
+        "composer": [
+            "Jon Brion"
+        ],
+        "studio": [
+            "Focus Features",
+            "Anonymous Content",
+            "This is that"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Science Fiction",
+            "Romance",
+            "Drama"
+        ],
+        "themes": [
+            "Humanity and the world around us",
+            "Moving relationship stories",
+            "Relationship comedy",
+            "Dreamlike, quirky, and surreal storytelling",
+            "Touching and sentimental family stories",
+            "Surreal and thought-provoking visions of life and death",
+            "Captivating relationships and charming romance",
+            "Powerful stories of heartbreak and suffering"
+        ],
+        "budget": 20000000,
+        "revenue": 72258126,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/get-out-2017/",
+        "title": "Get Out",
+        "year": 2017,
+        "directors": [
+            "Jordan Peele"
+        ],
+        "casting": [
+            "Daniel Kaluuya",
+            "Allison Williams",
+            "Catherine Keener",
+            "Bradley Whitford",
+            "Caleb Landry Jones",
+            "Marcus Henderson",
+            "Betty Gabriel",
+            "LaKeith Stanfield",
+            "Stephen Root",
+            "Lil Rel Howery"
+        ],
+        "duration": 104,
+        "nbr_watched": 5258774,
+        "nbr_appearence": 536156,
+        "nbr_likes": 2193639,
+        "rating": 4.1,
+        "fans_favoris": 41000,
+        "producers": [
+            "Jason Blum",
+            "Edward H. Hamm Jr.",
+            "Sean McKittrick",
+            "Jordan Peele",
+            "Beatriz Sequeira",
+            "Marcei A. Brown",
+            "Gerard DiNardi",
+            "Phillip Dawe",
+            "Chris Ryan"
+        ],
+        "writers": [
+            "Jordan Peele"
+        ],
+        "composer": [
+            "Michael Abels"
+        ],
+        "studio": [
+            "Monkeypaw Productions",
+            "Blumhouse Productions",
+            "QC Entertainment"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Horror",
+            "Mystery",
+            "Thriller"
+        ],
+        "themes": [
+            "Horror, the undead and monster classics",
+            "Intense violence and sexual transgression",
+            "Twisted dark psychological thriller",
+            "Terrifying, haunted, and supernatural horror",
+            "Creepy, chilling, and terrifying horror",
+            "Gory, gruesome, and slasher horror",
+            "Racism and the powerful fight for justice"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/sinners-2025/",
+        "title": "Sinners",
+        "year": 2025,
+        "directors": [
+            "Ryan Coogler"
+        ],
+        "casting": [
+            "Michael B. Jordan",
+            "Hailee Steinfeld",
+            "Miles Caton",
+            "Jack O'Connell",
+            "Wunmi Mosaku",
+            "Jayme Lawson",
+            "Omar Benson Miller",
+            "Delroy Lindo",
+            "Li Jun Li",
+            "Yao"
+        ],
+        "duration": 138,
+        "nbr_watched": 3217835,
+        "nbr_appearence": 472649,
+        "nbr_likes": 1386761,
+        "rating": 4.1,
+        "fans_favoris": 52000,
+        "producers": [
+            "Zinzi Coogler",
+            "Sev Ohanian",
+            "Ryan Coogler",
+            "Kenneth Yu",
+            "Ammar Mohamed",
+            "Tina Anderson"
+        ],
+        "writers": [
+            "Ryan Coogler"
+        ],
+        "composer": [
+            "Ludwig Göransson"
+        ],
+        "studio": [
+            "Warner Bros. Pictures",
+            "Proximity Media",
+            "Domain Entertainment"
+        ],
+        "languages": [
+            "English",
+            "Chinese"
+        ],
+        "genres": [
+            "Thriller",
+            "Action",
+            "Horror"
+        ],
+        "themes": [
+            "Humanity and the world around us",
+            "Horror, the undead and monster classics",
+            "Bloody vampire horror",
+            "Creepy, chilling, and terrifying horror",
+            "Terrifying, haunted, and supernatural horror",
+            "Gothic and eerie haunting horror",
+            "Surreal and thought-provoking visions of life and death"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/joker-2019/",
+        "title": "Joker",
+        "year": 2019,
+        "directors": [
+            "Todd Phillips"
+        ],
+        "casting": [
+            "Joaquin Phoenix",
+            "Robert De Niro",
+            "Zazie Beetz",
+            "Frances Conroy",
+            "Brett Cullen",
+            "Shea Whigham",
+            "Bill Camp",
+            "Glenn Fleshler",
+            "Leigh Gill",
+            "Josh Pais"
+        ],
+        "duration": 122,
+        "nbr_watched": 5811491,
+        "nbr_appearence": 388668,
+        "nbr_likes": 2186512,
+        "rating": 0.0,
+        "fans_favoris": 31000,
+        "producers": [
+            "Todd Phillips",
+            "Bradley Cooper",
+            "Emma Tillinger Koskoff",
+            "David Webb"
+        ],
+        "writers": [
+            "Todd Phillips",
+            "Scott Silver",
+            "Bob Kane",
+            "Bill Finger",
+            "Jerry Robinson"
+        ],
+        "composer": [
+            "Hildur Guðnadóttir"
+        ],
+        "studio": [
+            "Warner Bros. Pictures",
+            "Joint Effort",
+            "Village Roadshow Pictures",
+            "Bron Studios",
+            "DC Films"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Drama",
+            "Thriller",
+            "Crime"
+        ],
+        "themes": [
+            "Intense violence and sexual transgression",
+            "Moving relationship stories",
+            "Crime, drugs and gangsters",
+            "Humanity and the world around us",
+            "Powerful stories of heartbreak and suffering",
+            "Gripping, intense violent crime",
+            "Challenging or sexual themes & twists",
+            "Fascinating, emotional stories and documentaries",
+            "Emotional and captivating fantasy storytelling"
+        ],
+        "budget": 55000000,
+        "revenue": 1078958629,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/dune-2021/",
+        "title": "Dune",
+        "year": 2021,
+        "directors": [
+            "Denis Villeneuve"
+        ],
+        "casting": [
+            "Timothée Chalamet",
+            "Rebecca Ferguson",
+            "Oscar Isaac",
+            "Jason Momoa",
+            "Stellan Skarsgård",
+            "Stephen McKinley Henderson",
+            "Josh Brolin",
+            "Javier Bardem",
+            "Sharon Duncan-Brewster",
+            "Chang Chen"
+        ],
+        "duration": 155,
+        "nbr_watched": 4640637,
+        "nbr_appearence": 458803,
+        "nbr_likes": 1663955,
+        "rating": 0.0,
+        "fans_favoris": 34000,
+        "producers": [
+            "Jessica Derhammer",
+            "Vasco Xu",
+            "Chris Carreras",
+            "Cale Boyter",
+            "Mary Parent",
+            "Denis Villeneuve",
+            "Joseph M. Caracciolo Jr."
+        ],
+        "writers": [
+            "Eric Roth",
+            "Denis Villeneuve",
+            "Jon Spaihts",
+            "Frank Herbert"
+        ],
+        "composer": [
+            "Hans Zimmer"
+        ],
+        "studio": [
+            "Legendary Pictures"
+        ],
+        "languages": [
+            "English",
+            "Chinese"
+        ],
+        "genres": [
+            "Science Fiction",
+            "Adventure"
+        ],
+        "themes": [
+            "Epic heroes",
+            "Monsters, aliens, sci-fi and the apocalypse",
+            "Action-packed space and alien sagas",
+            "Thought-provoking sci-fi action and future technology",
+            "Superheroes in action-packed battles with villains",
+            "Imaginative space odysseys and alien encounters",
+            "Emotional and captivating fantasy storytelling"
+        ],
+        "budget": 165000000,
+        "revenue": 407573628,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
     },
     {
         "url": "https://letterboxd.com/film/spider-man-into-the-spider-verse/",
@@ -531,18 +1104,18 @@
             "Kimiko Glenn"
         ],
         "duration": 117,
-        "nbr_watched": 5318965,
-        "nbr_appearence": 598876,
-        "nbr_likes": 2589286,
+        "nbr_watched": 5349282,
+        "nbr_appearence": 600057,
+        "nbr_likes": 2604754,
         "rating": 4.4,
-        "fans_favoris": 104000,
+        "fans_favoris": 105000,
         "producers": [
             "Phil Lord",
-            "Christopher Miller",
             "Avi Arad",
+            "Christopher Miller",
             "Christina Steinberg",
-            "Amy Pascal",
             "Theresa Bentz",
+            "Amy Pascal",
             "Christian Hejnal"
         ],
         "writers": [
@@ -581,40 +1154,316 @@
             "Teen school antics and laughter"
         ],
         "budget": 90000000,
-        "revenue": 393602435
+        "revenue": 393602435,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
     },
     {
-        "url": "https://letterboxd.com/film/interstellar/",
-        "title": "Interstellar",
-        "year": 2014,
+        "url": "https://letterboxd.com/film/midsommar/",
+        "title": "Midsommar",
+        "year": 2019,
+        "directors": [
+            "Ari Aster"
+        ],
+        "casting": [
+            "Florence Pugh",
+            "Jack Reynor",
+            "William Jackson Harper",
+            "Will Poulter",
+            "Vilhelm Blomgren",
+            "Isabelle Grill",
+            "Gunnel Fred",
+            "Ellora Torchia",
+            "Archie Madekwe",
+            "Henrik Norlén"
+        ],
+        "duration": 147,
+        "nbr_watched": 4450424,
+        "nbr_appearence": 539565,
+        "nbr_likes": 1644869,
+        "rating": 0.0,
+        "fans_favoris": 56000,
+        "producers": [
+            "Lars Knudsen",
+            "Beau Ferris",
+            "Patrik Andersson",
+            "Tyler Campellone",
+            "Jeffrey Penman",
+            "Tintin Scheynius"
+        ],
+        "writers": [
+            "Ari Aster"
+        ],
+        "composer": [
+            "Bobby Krlic"
+        ],
+        "studio": [
+            "B-Reel Films",
+            "Square Peg"
+        ],
+        "languages": [
+            "English",
+            "Swedish"
+        ],
+        "genres": [
+            "Mystery",
+            "Drama",
+            "Horror"
+        ],
+        "themes": [
+            "Intense violence and sexual transgression",
+            "Horror, the undead and monster classics",
+            "Humanity and the world around us",
+            "Terrifying, haunted, and supernatural horror",
+            "Twisted dark psychological thriller",
+            "Gory, gruesome, and slasher horror",
+            "Gothic and eerie haunting horror",
+            "Dreamlike, quirky, and surreal storytelling"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/the-dark-knight/",
+        "title": "The Dark Knight",
+        "year": 2008,
         "directors": [
             "Christopher Nolan"
         ],
         "casting": [
-            "Matthew McConaughey",
-            "Anne Hathaway",
+            "Christian Bale",
+            "Heath Ledger",
+            "Aaron Eckhart",
             "Michael Caine",
-            "Jessica Chastain",
-            "Casey Affleck",
-            "Wes Bentley",
-            "Topher Grace",
-            "Mackenzie Foy",
-            "Ellen Burstyn",
-            "John Lithgow"
+            "Maggie Gyllenhaal",
+            "Gary Oldman",
+            "Morgan Freeman",
+            "Monique Gabriela Curnen",
+            "Ron Dean",
+            "Cillian Murphy"
         ],
-        "duration": 169,
-        "nbr_watched": 6284563,
-        "nbr_appearence": 754614,
-        "nbr_likes": 3033598,
-        "rating": 4.4,
-        "fans_favoris": 408000,
+        "duration": 152,
+        "nbr_watched": 5447616,
+        "nbr_appearence": 917798,
+        "nbr_likes": 2393806,
+        "rating": 4.5,
+        "fans_favoris": 140000,
         "producers": [
-            "Lynda Obst",
+            "Emma Thomas",
+            "Charles Roven",
             "Christopher Nolan",
-            "Emma Thomas"
+            "Jordan Goldberg"
         ],
         "writers": [
+            "Christopher Nolan",
             "Jonathan Nolan",
+            "Bob Kane",
+            "Bill Finger"
+        ],
+        "composer": [
+            "James Newton Howard",
+            "Hans Zimmer"
+        ],
+        "studio": [
+            "Warner Bros. Pictures",
+            "Legendary Pictures",
+            "Syncopy",
+            "DC"
+        ],
+        "languages": [
+            "English",
+            "Chinese"
+        ],
+        "genres": [
+            "Drama",
+            "Thriller",
+            "Action",
+            "Crime"
+        ],
+        "themes": [
+            "Epic heroes",
+            "Humanity and the world around us",
+            "High speed and special ops",
+            "Crime, drugs and gangsters",
+            "Intense violence and sexual transgression",
+            "Superheroes in action-packed battles with villains",
+            "Explosive and action-packed heroes vs. villains",
+            "Heists and thrilling action"
+        ],
+        "budget": 185000000,
+        "revenue": 1004558444,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/the-batman/",
+        "title": "The Batman",
+        "year": 2022,
+        "directors": [
+            "Matt Reeves"
+        ],
+        "casting": [
+            "Robert Pattinson",
+            "Zoë Kravitz",
+            "Jeffrey Wright",
+            "Colin Farrell",
+            "Paul Dano",
+            "John Turturro",
+            "Andy Serkis",
+            "Peter Sarsgaard",
+            "Barry Keoghan",
+            "Jayme Lawson"
+        ],
+        "duration": 177,
+        "nbr_watched": 4564110,
+        "nbr_appearence": 533942,
+        "nbr_likes": 1904355,
+        "rating": 4.0,
+        "fans_favoris": 92000,
+        "producers": [
+            "Dylan Clark",
+            "Matt Reeves",
+            "Toby Hefferman"
+        ],
+        "writers": [
+            "Peter Craig",
+            "Matt Reeves",
+            "Bill Finger",
+            "Bob Kane"
+        ],
+        "composer": [
+            "Michael Giacchino"
+        ],
+        "studio": [
+            "6th & Idaho Motion Picture Company",
+            "Dylan Clark Productions",
+            "DC Films",
+            "Warner Bros. Pictures"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Crime",
+            "Mystery",
+            "Thriller"
+        ],
+        "themes": [
+            "Crime, drugs and gangsters",
+            "Epic heroes",
+            "High speed and special ops",
+            "Thrillers and murder mysteries",
+            "Superheroes in action-packed battles with villains",
+            "Explosive and action-packed heroes vs. villains",
+            "Violent action, guns, and crime",
+            "Noir and dark crime dramas",
+            "Intriguing and suspenseful murder mysteries"
+        ],
+        "budget": 185000000,
+        "revenue": 772319315,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/dead-poets-society/",
+        "title": "Dead Poets Society",
+        "year": 1989,
+        "directors": [
+            "Peter Weir"
+        ],
+        "casting": [
+            "Robin Williams",
+            "Robert Sean Leonard",
+            "Ethan Hawke",
+            "Josh Charles",
+            "Gale Hansen",
+            "Dylan Kussman",
+            "Allelon Ruggiero",
+            "James Waterston",
+            "Norman Lloyd",
+            "Kurtwood Smith"
+        ],
+        "duration": 129,
+        "nbr_watched": 3817291,
+        "nbr_appearence": 528888,
+        "nbr_likes": 1758058,
+        "rating": 4.3,
+        "fans_favoris": 300000,
+        "producers": [
+            "Steven Haft",
+            "Paul Junger Witt",
+            "Tony Thomas",
+            "Duncan Henderson"
+        ],
+        "writers": [
+            "Tom Schulman"
+        ],
+        "composer": [
+            "Maurice Jarre"
+        ],
+        "studio": [
+            "A Steven Haft Production",
+            "Witt/Thomas Productions",
+            "Silver Screen Partners IV",
+            "Touchstone Pictures"
+        ],
+        "languages": [
+            "English",
+            "Latin"
+        ],
+        "genres": [
+            "Drama"
+        ],
+        "themes": [
+            "Underdogs and coming of age",
+            "Moving relationship stories",
+            "Student coming-of-age challenges",
+            "Emotional teen coming-of-age stories",
+            "Emotional and touching family dramas",
+            "Touching and sentimental family stories",
+            "Powerful stories of heartbreak and suffering"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/inception/",
+        "title": "Inception",
+        "year": 2010,
+        "directors": [
+            "Christopher Nolan"
+        ],
+        "casting": [
+            "Leonardo DiCaprio",
+            "Joseph Gordon-Levitt",
+            "Ken Watanabe",
+            "Tom Hardy",
+            "Elliot Page",
+            "Dileep Rao",
+            "Cillian Murphy",
+            "Tom Berenger",
+            "Marion Cotillard",
+            "Pete Postlethwaite"
+        ],
+        "duration": 148,
+        "nbr_watched": 5192492,
+        "nbr_appearence": 554879,
+        "nbr_likes": 2049165,
+        "rating": 4.2,
+        "fans_favoris": 100000,
+        "producers": [
+            "Christopher Nolan",
+            "Emma Thomas",
+            "Jordan Goldberg",
+            "Thomas Hayslip",
+            "Kanjirô Sakura",
+            "Yoshikuni Taki"
+        ],
+        "writers": [
             "Christopher Nolan"
         ],
         "composer": [
@@ -623,91 +1472,3419 @@
         "studio": [
             "Legendary Pictures",
             "Syncopy",
-            "Lynda Obst Productions"
+            "Warner Bros. Pictures"
+        ],
+        "languages": [
+            "English",
+            "French",
+            "Japanese",
+            "Swahili"
+        ],
+        "genres": [
+            "Action",
+            "Adventure",
+            "Science Fiction"
+        ],
+        "themes": [
+            "High speed and special ops",
+            "Humanity and the world around us",
+            "Dreamlike, quirky, and surreal storytelling",
+            "Surreal and thought-provoking visions of life and death",
+            "Emotional and captivating fantasy storytelling",
+            "Explosive and action-packed heroes vs. villains",
+            "Thought-provoking sci-fi action and future technology"
+        ],
+        "budget": 160000000,
+        "revenue": 839030630,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/american-psycho/",
+        "title": "American Psycho",
+        "year": 2000,
+        "directors": [
+            "Mary Harron"
+        ],
+        "casting": [
+            "Christian Bale",
+            "Justin Theroux",
+            "Josh Lucas",
+            "Bill Sage",
+            "Chloë Sevigny",
+            "Reese Witherspoon",
+            "Samantha Mathis",
+            "Matt Ross",
+            "Jared Leto",
+            "Willem Dafoe"
+        ],
+        "duration": 102,
+        "nbr_watched": 4573992,
+        "nbr_appearence": 427641,
+        "nbr_likes": 1557738,
+        "rating": 0.0,
+        "fans_favoris": 45000,
+        "producers": [
+            "Christian Halsey Solomon",
+            "Chris Hanley",
+            "Edward R. Pressman",
+            "Ernie Barbarash",
+            "Clifford Streit",
+            "Rob Weiss",
+            "Alessandro Camon"
+        ],
+        "writers": [
+            "Mary Harron",
+            "Guinevere Turner",
+            "Bret Easton Ellis"
+        ],
+        "composer": [
+            "John Cale"
+        ],
+        "studio": [
+            "Lionsgate",
+            "Pressman Film",
+            "Muse Productions",
+            "Christian Halsey Solomon Productions"
+        ],
+        "languages": [
+            "English",
+            "Spanish",
+            "Cantonese"
+        ],
+        "genres": [
+            "Crime",
+            "Drama",
+            "Thriller",
+            "Horror"
+        ],
+        "themes": [
+            "Intense violence and sexual transgression",
+            "Horror, the undead and monster classics",
+            "Crude humor and satire",
+            "Challenging or sexual themes & twists",
+            "Gory, gruesome, and slasher horror",
+            "Graphic violence and brutal revenge",
+            "Twisted dark psychological thriller",
+            "Dreamlike, quirky, and surreal storytelling"
+        ],
+        "budget": 7000000,
+        "revenue": 34300000,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/knives-out-2019/",
+        "title": "Knives Out",
+        "year": 2019,
+        "directors": [
+            "Rian Johnson"
+        ],
+        "casting": [
+            "Daniel Craig",
+            "Chris Evans",
+            "Ana de Armas",
+            "Jamie Lee Curtis",
+            "Michael Shannon",
+            "Don Johnson",
+            "Toni Collette",
+            "LaKeith Stanfield",
+            "Christopher Plummer",
+            "Katherine Langford"
+        ],
+        "duration": 131,
+        "nbr_watched": 4874332,
+        "nbr_appearence": 397222,
+        "nbr_likes": 1981851,
+        "rating": 0.0,
+        "fans_favoris": 45000,
+        "producers": [
+            "Ram Bergman",
+            "Rian Johnson",
+            "Nikos Karamigios",
+            "Leopold Hughes"
+        ],
+        "writers": [
+            "Rian Johnson"
+        ],
+        "composer": [
+            "Nathan Johnson"
+        ],
+        "studio": [
+            "Lionsgate",
+            "MRC",
+            "T-Street"
+        ],
+        "languages": [
+            "English",
+            "Spanish"
+        ],
+        "genres": [
+            "Mystery",
+            "Comedy",
+            "Crime"
+        ],
+        "themes": [
+            "Thrillers and murder mysteries",
+            "Crude humor and satire",
+            "Intriguing and suspenseful murder mysteries",
+            "Suspenseful crime thrillers",
+            "Noir and dark crime dramas",
+            "Twisted dark psychological thriller"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/10-things-i-hate-about-you/",
+        "title": "10 Things I Hate About You",
+        "year": 1999,
+        "directors": [
+            "Gil Junger"
+        ],
+        "casting": [
+            "Heath Ledger",
+            "Julia Stiles",
+            "Joseph Gordon-Levitt",
+            "Larisa Oleynik",
+            "David Krumholtz",
+            "Andrew Keegan",
+            "Susan May Pratt",
+            "Gabrielle Union",
+            "Larry Miller",
+            "Daryl Mitchell"
+        ],
+        "duration": 97,
+        "nbr_watched": 10,
+        "nbr_appearence": 10,
+        "nbr_likes": 10,
+        "rating": 4.0,
+        "fans_favoris": 187000,
+        "producers": [
+            "Andrew Lazar",
+            "Jody Hedien",
+            "Greg Silverman"
+        ],
+        "writers": [
+            "Karen McCullah",
+            "Kirsten Smith",
+            "William Shakespeare"
+        ],
+        "composer": [
+            "Richard Gibbs"
+        ],
+        "studio": [
+            "Mad Chance",
+            "Jaret Entertainment"
+        ],
+        "languages": [
+            "English",
+            "French"
+        ],
+        "genres": [
+            "Comedy",
+            "Drama",
+            "Romance"
+        ],
+        "themes": [
+            "Underdogs and coming of age",
+            "Relationship comedy",
+            "Crude humor and satire",
+            "Teen school antics and laughter",
+            "Laugh-out-loud relationship entanglements",
+            "Funny jokes and crude humor",
+            "Charming romances and delightful chemistry",
+            "Quirky and endearing relationships"
+        ],
+        "budget": 16000000,
+        "revenue": 53478166,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/dune-part-two/",
+        "title": "Dune: Part Two",
+        "year": 2024,
+        "directors": [
+            "Denis Villeneuve"
+        ],
+        "casting": [
+            "Timothée Chalamet",
+            "Zendaya",
+            "Rebecca Ferguson",
+            "Javier Bardem",
+            "Josh Brolin",
+            "Austin Butler",
+            "Florence Pugh",
+            "Dave Bautista",
+            "Christopher Walken",
+            "Léa Seydoux"
+        ],
+        "duration": 167,
+        "nbr_watched": 3440754,
+        "nbr_appearence": 570469,
+        "nbr_likes": 1460525,
+        "rating": 4.4,
+        "fans_favoris": 93000,
+        "producers": [
+            "Mary Parent",
+            "Cale Boyter",
+            "Jessica Derhammer",
+            "Tanya Lapointe",
+            "Patrick McCormick",
+            "Denis Villeneuve"
+        ],
+        "writers": [
+            "Denis Villeneuve",
+            "Jon Spaihts",
+            "Frank Herbert"
+        ],
+        "composer": [
+            "Hans Zimmer"
+        ],
+        "studio": [
+            "Legendary Pictures"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Adventure",
+            "Science Fiction"
+        ],
+        "themes": [
+            "Epic heroes",
+            "Humanity and the world around us",
+            "Action-packed space and alien sagas",
+            "Superheroes in action-packed battles with villains",
+            "Historical battles and epic heroism",
+            "Fantasy adventure, heroism, and swordplay",
+            "Emotional and captivating fantasy storytelling"
+        ],
+        "budget": 190000000,
+        "revenue": 714844358,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/spirited-away/",
+        "title": "Spirited Away",
+        "year": 2001,
+        "directors": [
+            "Hayao Miyazaki"
+        ],
+        "casting": [
+            "Rumi Hiiragi",
+            "Miyu Irino",
+            "Mari Natsuki",
+            "Takashi Naito",
+            "Yasuko Sawaguchi",
+            "Tatsuya Gashûin",
+            "Ryunosuke Kamiki",
+            "Yumi Tamai",
+            "Yo Oizumi",
+            "Koba Hayashi"
+        ],
+        "duration": 125,
+        "nbr_watched": 4529731,
+        "nbr_appearence": 583591,
+        "nbr_likes": 2090464,
+        "rating": 4.4,
+        "fans_favoris": 131000,
+        "producers": [
+            "Toshio Suzuki"
+        ],
+        "writers": [
+            "Hayao Miyazaki"
+        ],
+        "composer": [
+            "Joe Hisaishi"
+        ],
+        "studio": [
+            "Studio Ghibli",
+            "Tokuma Shoten",
+            "Nippon Television Network Corporation",
+            "Mitsubishi",
+            "dentsu",
+            "TFC"
+        ],
+        "languages": [
+            "Japanese"
+        ],
+        "genres": [
+            "Family",
+            "Fantasy",
+            "Animation"
+        ],
+        "themes": [
+            "Humanity and the world around us",
+            "Emotional and captivating fantasy storytelling",
+            "Fairy-tale fantasy and enchanted magic",
+            "Adorable animals and heartwarming families",
+            "Kids' animated fun and adventure",
+            "Surreal and thought-provoking visions of life and death"
+        ],
+        "budget": 19000000,
+        "revenue": 274925095,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/spider-man-across-the-spider-verse/",
+        "title": "Spider-Man: Across the Spider-Verse",
+        "year": 2023,
+        "directors": [
+            "Kemp Powers",
+            "Justin K. Thompson",
+            "Joaquim Dos Santos"
+        ],
+        "casting": [
+            "Shameik Moore",
+            "Hailee Steinfeld",
+            "Brian Tyree Henry",
+            "Luna Lauren Vélez",
+            "Jake Johnson",
+            "Oscar Isaac",
+            "Jason Schwartzman",
+            "Issa Rae",
+            "Daniel Kaluuya",
+            "Karan Soni"
+        ],
+        "duration": 140,
+        "nbr_watched": 3931259,
+        "nbr_appearence": 566702,
+        "nbr_likes": 1862868,
+        "rating": 4.4,
+        "fans_favoris": 84000,
+        "producers": [
+            "Alonzo Ruvalcaba",
+            "Christina Steinberg",
+            "Avi Arad",
+            "Rebecca Karch Tomlinson",
+            "Julie Groll",
+            "Amy Pascal",
+            "Christopher Miller",
+            "Phil Lord"
+        ],
+        "writers": [
+            "Phil Lord",
+            "Christopher Miller",
+            "David Callaham"
+        ],
+        "composer": [
+            "Daniel Pemberton"
+        ],
+        "studio": [
+            "Columbia Pictures",
+            "Sony Pictures Animation",
+            "Lord Miller",
+            "Pascal Pictures",
+            "Arad Productions",
+            "Marvel Entertainment"
+        ],
+        "languages": [
+            "English",
+            "Hindi",
+            "Italian",
+            "Spanish"
+        ],
+        "genres": [
+            "Animation",
+            "Science Fiction",
+            "Adventure",
+            "Action"
+        ],
+        "themes": [
+            "Epic heroes",
+            "Emotional and captivating fantasy storytelling",
+            "Superheroes in action-packed battles with villains"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/the-wolf-of-wall-street/",
+        "title": "The Wolf of Wall Street",
+        "year": 2013,
+        "directors": [
+            "Martin Scorsese"
+        ],
+        "casting": [
+            "Leonardo DiCaprio",
+            "Jonah Hill",
+            "Margot Robbie",
+            "Matthew McConaughey",
+            "Kyle Chandler",
+            "Rob Reiner",
+            "Jon Bernthal",
+            "Jon Favreau",
+            "Jean Dujardin",
+            "Joanna Lumley"
+        ],
+        "duration": 180,
+        "nbr_watched": 5033648,
+        "nbr_appearence": 405910,
+        "nbr_likes": 1707958,
+        "rating": 0.0,
+        "fans_favoris": 44000,
+        "producers": [
+            "Riza Aziz",
+            "Joey McFarland",
+            "Emma Tillinger Koskoff",
+            "Martin Scorsese",
+            "Leonardo DiCaprio",
+            "Ted Griffin",
+            "Richard Baratta",
+            "Marianne Bower",
+            "Adam Somner"
+        ],
+        "writers": [
+            "Terence Winter",
+            "Jordan Belfort"
+        ],
+        "composer": [],
+        "studio": [
+            "Red Granite Pictures",
+            "Appian Way",
+            "Sikelia Productions",
+            "EMJAG Productions"
+        ],
+        "languages": [
+            "English",
+            "French"
+        ],
+        "genres": [
+            "Comedy",
+            "Drama",
+            "Crime"
+        ],
+        "themes": [
+            "Crude humor and satire",
+            "Crime, drugs and gangsters",
+            "Funny jokes and crude humor",
+            "Challenging or sexual themes & twists",
+            "Violent crime and drugs",
+            "Gags, jokes, and slapstick humor",
+            "Engaging, intense crime and casino drama"
+        ],
+        "budget": 100000000,
+        "revenue": 407038432,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/superman-2025/",
+        "title": "Superman",
+        "year": 2025,
+        "directors": [
+            "James Gunn"
+        ],
+        "casting": [
+            "David Corenswet",
+            "Rachel Brosnahan",
+            "Nicholas Hoult",
+            "Edi Gathegi",
+            "Nathan Fillion",
+            "Isabela Merced",
+            "María Gabriela de Faría",
+            "Skyler Gisondo",
+            "Alan Tudyk",
+            "Grace Chan"
+        ],
+        "duration": 130,
+        "nbr_watched": 2831159,
+        "nbr_appearence": 374793,
+        "nbr_likes": 1230711,
+        "rating": 0.0,
+        "fans_favoris": 34000,
+        "producers": [
+            "James Gunn",
+            "Peter Safran",
+            "Galen Vaisman"
+        ],
+        "writers": [
+            "James Gunn",
+            "Joe Shuster",
+            "Jerry Siegel"
+        ],
+        "composer": [
+            "John Murphy",
+            "David Fleming",
+            "John Williams"
+        ],
+        "studio": [
+            "DC Studios",
+            "Troll Court Entertainment",
+            "The Safran Company",
+            "Domain Entertainment"
         ],
         "languages": [
             "English"
         ],
         "genres": [
             "Science Fiction",
-            "Drama",
-            "Adventure"
+            "Adventure",
+            "Action"
         ],
         "themes": [
-            "Monsters, aliens, sci-fi and the apocalypse",
-            "Humanity and the world around us",
-            "Moving relationship stories",
-            "Imaginative space odysseys and alien encounters",
-            "Action-packed space and alien sagas",
+            "Epic heroes",
+            "Superheroes in action-packed battles with villains",
+            "Action comedy and silly heroics",
             "Thought-provoking sci-fi action and future technology",
-            "Humanity's odyssey: earth and beyond",
-            "Surreal and thought-provoking visions of life and death"
+            "Fantasy adventure, heroism, and swordplay",
+            "Explosive and action-packed heroes vs. villains"
         ],
-        "budget": null,
-        "revenue": null
+        "budget": 225000000,
+        "revenue": 616684465,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
     },
     {
-        "url": "https://letterboxd.com/film/whiplash-2014/",
-        "title": "Whiplash",
-        "year": 2014,
+        "url": "https://letterboxd.com/film/se7en/",
+        "title": "Se7en",
+        "year": 1995,
         "directors": [
-            "Damien Chazelle"
+            "David Fincher"
         ],
         "casting": [
-            "Miles Teller",
-            "J.K. Simmons",
-            "Paul Reiser",
-            "Melissa Benoist",
-            "Austin Stowell",
-            "Nate Lang",
-            "Chris Mulkey",
-            "Damon Gupton",
-            "Suanne Spoke",
-            "Max Kasch"
+            "Morgan Freeman",
+            "Brad Pitt",
+            "Gwyneth Paltrow",
+            "Kevin Spacey",
+            "John Cassini",
+            "R. Lee Ermey",
+            "John C. McGinley",
+            "Peter Crombie",
+            "Reg E. Cathey",
+            "Daniel Zacapa"
         ],
-        "duration": 107,
-        "nbr_watched": 4793513,
-        "nbr_appearence": 567449,
-        "nbr_likes": 2252978,
+        "duration": 127,
+        "nbr_watched": 4110616,
+        "nbr_appearence": 528560,
+        "nbr_likes": 1655693,
         "rating": 4.4,
-        "fans_favoris": 194000,
+        "fans_favoris": 123000,
         "producers": [
-            "Jason Blum",
-            "Michel Litvak",
-            "Helen Estabrook",
-            "David Lancaster",
-            "Nicholas Britell",
-            "Garrick Dion",
-            "Stephanie Wilcox",
-            "Sarah Potts",
-            "Phillip Dawe"
+            "Phyllis Carlyle",
+            "Arnold Kopelson",
+            "Michele Platt",
+            "Sanford Panitch",
+            "Nana Greenwald",
+            "Stephen Joel Brown"
         ],
         "writers": [
-            "Damien Chazelle"
+            "Andrew Kevin Walker"
         ],
         "composer": [
-            "Justin Hurwitz"
+            "Howard Shore"
         ],
         "studio": [
-            "Bold Films",
-            "Blumhouse Productions",
-            "Right of Way Films"
+            "New Line Cinema",
+            "Juno Pix",
+            "Cecchi Gori Pictures"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Mystery",
+            "Crime",
+            "Thriller"
+        ],
+        "themes": [
+            "Thrillers and murder mysteries",
+            "Intense violence and sexual transgression",
+            "Horror, the undead and monster classics",
+            "Crime, drugs and gangsters",
+            "Intriguing and suspenseful murder mysteries",
+            "Twisted dark psychological thriller",
+            "Suspenseful crime thrillers",
+            "Gory, gruesome, and slasher horror",
+            "Noir and dark crime dramas"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/black-swan/",
+        "title": "Black Swan",
+        "year": 2010,
+        "directors": [
+            "Darren Aronofsky"
+        ],
+        "casting": [
+            "Natalie Portman",
+            "Mila Kunis",
+            "Vincent Cassel",
+            "Barbara Hershey",
+            "Winona Ryder",
+            "Benjamin Millepied",
+            "Ksenia Solo",
+            "Kristina Anapau",
+            "Janet Montgomery",
+            "Sebastian Stan"
+        ],
+        "duration": 108,
+        "nbr_watched": 3794500,
+        "nbr_appearence": 506697,
+        "nbr_likes": 1482132,
+        "rating": 4.2,
+        "fans_favoris": 122000,
+        "producers": [
+            "Mike Medavoy",
+            "Joseph P. Reidy",
+            "Rose Garnett",
+            "Scott Franklin",
+            "Arnold Messer",
+            "Jerry Fruchtman",
+            "Brian Oliver"
+        ],
+        "writers": [
+            "John J. McLaughlin",
+            "Mark Heyman",
+            "Andres Heinz"
+        ],
+        "composer": [
+            "Clint Mansell"
+        ],
+        "studio": [
+            "Fox Searchlight Pictures",
+            "Cross Creek Pictures",
+            "Protozoa Pictures",
+            "Phoenix Pictures",
+            "Dune Entertainment"
+        ],
+        "languages": [
+            "English",
+            "French",
+            "Italian"
+        ],
+        "genres": [
+            "Drama",
+            "Thriller",
+            "Horror"
+        ],
+        "themes": [
+            "Humanity and the world around us",
+            "Intense violence and sexual transgression",
+            "Moving relationship stories",
+            "Horror, the undead and monster classics",
+            "Twisted dark psychological thriller",
+            "Challenging or sexual themes & twists",
+            "Erotic relationships and desire",
+            "Dreamlike, quirky, and surreal storytelling",
+            "Terrifying, haunted, and supernatural horror"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/nosferatu-2024/",
+        "title": "Nosferatu",
+        "year": 2024,
+        "directors": [
+            "Robert Eggers"
+        ],
+        "casting": [
+            "Lily-Rose Depp",
+            "Nicholas Hoult",
+            "Bill Skarsgård",
+            "Aaron Taylor-Johnson",
+            "Willem Dafoe",
+            "Emma Corrin",
+            "Ralph Ineson",
+            "Simon McBurney",
+            "Adéla Hesová",
+            "Milena Konstantinova"
+        ],
+        "duration": 133,
+        "nbr_watched": 2675713,
+        "nbr_appearence": 435111,
+        "nbr_likes": 875868,
+        "rating": 0.0,
+        "fans_favoris": 21000,
+        "producers": [
+            "Jeff Robinov",
+            "John Graham",
+            "David Minkowski",
+            "Matthew Stillman",
+            "Chris Columbus",
+            "Eleanor Columbus",
+            "Robert Eggers"
+        ],
+        "writers": [
+            "Robert Eggers",
+            "Bram Stoker",
+            "Henrik Galeen"
+        ],
+        "composer": [
+            "Robin Carolan"
+        ],
+        "studio": [
+            "Focus Features",
+            "Studio 8",
+            "Maiden Voyage Pictures",
+            "Birch Hill Road Entertainment"
+        ],
+        "languages": [
+            "English",
+            "German",
+            "Latin",
+            "Romanian",
+            "Russian"
+        ],
+        "genres": [
+            "Fantasy",
+            "Horror"
+        ],
+        "themes": [
+            "Horror, the undead and monster classics",
+            "Intense violence and sexual transgression",
+            "Humanity and the world around us",
+            "Terrifying, haunted, and supernatural horror",
+            "Creepy, chilling, and terrifying horror",
+            "Gothic and eerie haunting horror",
+            "Bloody vampire horror",
+            "Twisted dark psychological thriller"
+        ],
+        "budget": 50000000,
+        "revenue": 181764515,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/the-grand-budapest-hotel/",
+        "title": "The Grand Budapest Hotel",
+        "year": 2014,
+        "directors": [
+            "Wes Anderson"
+        ],
+        "casting": [
+            "Ralph Fiennes",
+            "F. Murray Abraham",
+            "Mathieu Amalric",
+            "Adrien Brody",
+            "Willem Dafoe",
+            "Jeff Goldblum",
+            "Harvey Keitel",
+            "Jude Law",
+            "Bill Murray",
+            "Edward Norton"
+        ],
+        "duration": 100,
+        "nbr_watched": 3774314,
+        "nbr_appearence": 515434,
+        "nbr_likes": 1594190,
+        "rating": 4.2,
+        "fans_favoris": 91000,
+        "producers": [
+            "Wes Anderson",
+            "Jeremy Dawson",
+            "Steven M. Rales",
+            "Scott Rudin",
+            "Jane Frazer",
+            "Octavia Peissel",
+            "John Peet"
+        ],
+        "writers": [
+            "Wes Anderson",
+            "Stefan Zweig"
+        ],
+        "composer": [
+            "Alexandre Desplat",
+            "Simon Rhodes"
+        ],
+        "studio": [
+            "Fox Searchlight Pictures",
+            "Studio Babelsberg",
+            "Indian Paintbrush",
+            "TSG Entertainment",
+            "American Empirical Pictures"
+        ],
+        "languages": [
+            "English",
+            "French"
+        ],
+        "genres": [
+            "Comedy",
+            "Drama"
+        ],
+        "themes": [
+            "Crude humor and satire",
+            "Relationship comedy",
+            "Gags, jokes, and slapstick humor",
+            "Amusing jokes and witty satire",
+            "Laugh-out-loud relationship entanglements",
+            "Funny jokes and crude humor",
+            "Dreamlike, quirky, and surreal storytelling"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/challengers/",
+        "title": "Challengers",
+        "year": 2024,
+        "directors": [
+            "Luca Guadagnino"
+        ],
+        "casting": [
+            "Zendaya",
+            "Mike Faist",
+            "Josh O'Connor",
+            "Darnell Appling",
+            "Bryan Doo",
+            "Shane T Harris",
+            "Nada Despotovich",
+            "Joan Mcshane",
+            "Chris Fowler",
+            "Mary Joe Fernández"
+        ],
+        "duration": 132,
+        "nbr_watched": 2885080,
+        "nbr_appearence": 417295,
+        "nbr_likes": 1003343,
+        "rating": 0.0,
+        "fans_favoris": 41000,
+        "producers": [
+            "Amy Pascal",
+            "Rachel O'Connor",
+            "Luca Guadagnino",
+            "Zendaya",
+            "Darnell Appling",
+            "Kim H. Winther",
+            "Daniela Venturelli"
+        ],
+        "writers": [
+            "Justin Kuritzkes"
+        ],
+        "composer": [
+            "Trent Reznor",
+            "Atticus Ross"
+        ],
+        "studio": [
+            "Pascal Pictures",
+            "Why Are You Acting? Productions",
+            "Frenesy Film",
+            "Amazon MGM Studios"
+        ],
+        "languages": [
+            "English",
+            "Romanian"
+        ],
+        "genres": [
+            "Romance",
+            "Drama"
+        ],
+        "themes": [
+            "Moving relationship stories",
+            "Erotic relationships and desire",
+            "Underdog fighting and boxing stories",
+            "Passion and romance",
+            "Captivating relationships and charming romance"
+        ],
+        "budget": 55000000,
+        "revenue": 94182533,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/saltburn/",
+        "title": "Saltburn",
+        "year": 2023,
+        "directors": [
+            "Emerald Fennell"
+        ],
+        "casting": [
+            "Barry Keoghan",
+            "Jacob Elordi",
+            "Rosamund Pike",
+            "Richard E. Grant",
+            "Alison Oliver",
+            "Archie Madekwe",
+            "Carey Mulligan",
+            "Paul Rhys",
+            "Ewan Mitchell",
+            "Sadie Soverall"
+        ],
+        "duration": 131,
+        "nbr_watched": 3405810,
+        "nbr_appearence": 288616,
+        "nbr_likes": 939033,
+        "rating": 0.0,
+        "fans_favoris": 16000,
+        "producers": [
+            "Josey McNamara",
+            "Emerald Fennell",
+            "Margot Robbie",
+            "Bronte Payne"
+        ],
+        "writers": [
+            "Emerald Fennell"
+        ],
+        "composer": [
+            "Anthony B. Willis"
+        ],
+        "studio": [
+            "LuckyChap Entertainment",
+            "MRC",
+            "Lie Still"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Comedy",
+            "Drama",
+            "Thriller"
+        ],
+        "themes": [
+            "Intense violence and sexual transgression",
+            "Twisted dark psychological thriller",
+            "Challenging or sexual themes & twists",
+            "Erotic relationships and desire",
+            "Dreamlike, quirky, and surreal storytelling",
+            "Graphic violence and brutal revenge"
+        ],
+        "budget": 20000000,
+        "revenue": 21013738,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/forrest-gump/",
+        "title": "Forrest Gump",
+        "year": 1994,
+        "directors": [
+            "Robert Zemeckis"
+        ],
+        "casting": [
+            "Tom Hanks",
+            "Robin Wright",
+            "Gary Sinise",
+            "Sally Field",
+            "Mykelti Williamson",
+            "Michael Conner Humphreys",
+            "Hanna Hall",
+            "Haley Joel Osment",
+            "Siobhan Fallon Hogan",
+            "Rebecca Williams"
+        ],
+        "duration": 142,
+        "nbr_watched": 5190408,
+        "nbr_appearence": 381260,
+        "nbr_likes": 1823042,
+        "rating": 4.2,
+        "fans_favoris": 99000,
+        "producers": [
+            "Steve Tisch",
+            "Steve Starkey",
+            "Wendy Finerman",
+            "Charles Newirth"
+        ],
+        "writers": [
+            "Eric Roth",
+            "Winston Groom"
+        ],
+        "composer": [
+            "Alan Silvestri"
+        ],
+        "studio": [
+            "Paramount Pictures",
+            "The Steve Tisch Company",
+            "Wendy Finerman Productions"
         ],
         "languages": [
             "English"
         ],
         "genres": [
             "Drama",
-            "Music"
+            "Romance",
+            "Comedy"
+        ],
+        "themes": [
+            "Humanity and the world around us",
+            "Moving relationship stories",
+            "Touching and sentimental family stories",
+            "Emotional and touching family dramas",
+            "Powerful stories of heartbreak and suffering",
+            "Emotional teen coming-of-age stories",
+            "Heartbreaking and moving family drama"
+        ],
+        "budget": 55000000,
+        "revenue": 677387716,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/lady-bird/",
+        "title": "Lady Bird",
+        "year": 2017,
+        "directors": [
+            "Greta Gerwig"
+        ],
+        "casting": [
+            "Saoirse Ronan",
+            "Laurie Metcalf",
+            "Tracy Letts",
+            "Lucas Hedges",
+            "Timothée Chalamet",
+            "Beanie Feldstein",
+            "Lois Smith",
+            "Stephen McKinley Henderson",
+            "Odeya Rush",
+            "Jordan Rodrigues"
+        ],
+        "duration": 94,
+        "nbr_watched": 3801854,
+        "nbr_appearence": 504082,
+        "nbr_likes": 1478662,
+        "rating": 0.0,
+        "fans_favoris": 84000,
+        "producers": [
+            "Evelyn O'Neill",
+            "Eli Bush",
+            "Scott Rudin",
+            "Jason Sack",
+            "Alex G. Scott"
+        ],
+        "writers": [
+            "Greta Gerwig"
+        ],
+        "composer": [
+            "Jon Brion"
+        ],
+        "studio": [
+            "IAC Films",
+            "Scott Rudin Productions",
+            "Entertainment 360"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Comedy",
+            "Drama"
         ],
         "themes": [
             "Moving relationship stories",
-            "Student coming-of-age challenges",
-            "Emotional life of renowned artists",
-            "Powerful stories of heartbreak and suffering",
+            "Underdogs and coming of age",
+            "Humanity and the world around us",
+            "Touching and sentimental family stories",
+            "Emotional and touching family dramas",
+            "Emotional teen coming-of-age stories",
+            "Quirky and endearing relationships",
+            "Powerful stories of heartbreak and suffering"
+        ],
+        "budget": 10000000,
+        "revenue": 79000000,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/inglourious-basterds/",
+        "title": "Inglourious Basterds",
+        "year": 2009,
+        "directors": [
+            "Quentin Tarantino"
+        ],
+        "casting": [
+            "Brad Pitt",
+            "Mélanie Laurent",
+            "Christoph Waltz",
+            "Eli Roth",
+            "Michael Fassbender",
+            "Diane Kruger",
+            "Daniel Brühl",
+            "Til Schweiger",
+            "Gedeon Burkhard",
+            "Jacky Ido"
+        ],
+        "duration": 153,
+        "nbr_watched": 4253963,
+        "nbr_appearence": 530279,
+        "nbr_likes": 1750925,
+        "rating": 4.4,
+        "fans_favoris": 102000,
+        "producers": [
+            "Lawrence Bender",
+            "Henning Molfenter",
+            "Christoph Fisser",
+            "Bruce Moriarty",
+            "Pilar Savone",
+            "William Paul Clark",
+            "Carl Woebcken"
+        ],
+        "writers": [
+            "Quentin Tarantino"
+        ],
+        "composer": [],
+        "studio": [
+            "Universal Pictures",
+            "The Weinstein Company",
+            "A Band Apart",
+            "Zehnte Babelsberg Film",
+            "Visiona Romantica"
+        ],
+        "languages": [
+            "English",
+            "German",
+            "French",
+            "Italian"
+        ],
+        "genres": [
+            "War",
+            "Drama",
+            "Thriller"
+        ],
+        "themes": [
+            "War and historical adventure",
+            "Epic history and literature",
+            "Nazis and World War II",
+            "Graphic violence and brutal revenge",
+            "Military combat and heroic soldiers",
+            "Bravery in War",
+            "Historical battles and epic heroism"
+        ],
+        "budget": 70000000,
+        "revenue": 321457747,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/the-shining/",
+        "title": "The Shining",
+        "year": 1980,
+        "directors": [
+            "Stanley Kubrick"
+        ],
+        "casting": [
+            "Jack Nicholson",
+            "Shelley Duvall",
+            "Danny Lloyd",
+            "Scatman Crothers",
+            "Barry Nelson",
+            "Philip Stone",
+            "Joe Turkel",
+            "Anne Jackson",
+            "Tony Burton",
+            "Lia Beldam"
+        ],
+        "duration": 144,
+        "nbr_watched": 4053600,
+        "nbr_appearence": 654481,
+        "nbr_likes": 1574217,
+        "rating": 4.2,
+        "fans_favoris": 77000,
+        "producers": [
+            "Stanley Kubrick",
+            "Martin Richards",
+            "Mary Lea Johnson",
+            "Robert Fryer"
+        ],
+        "writers": [
+            "Diane Johnson",
+            "Stanley Kubrick",
+            "Stephen King"
+        ],
+        "composer": [
+            "Wendy Carlos",
+            "Rachel Elkind",
+            "Béla Bartók",
+            "Krzysztof Penderecki",
+            "György Ligeti"
+        ],
+        "studio": [
+            "Warner Bros. Pictures",
+            "Peregrine",
+            "Hawk Films",
+            "The Producer Circle Co."
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Horror",
+            "Thriller"
+        ],
+        "themes": [
+            "Horror, the undead and monster classics",
+            "Intense violence and sexual transgression",
+            "Terrifying, haunted, and supernatural horror",
+            "Gory, gruesome, and slasher horror",
+            "Creepy, chilling, and terrifying horror",
+            "Gothic and eerie haunting horror",
+            "Twisted dark psychological thriller"
+        ],
+        "budget": 19000000,
+        "revenue": 44781695,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/poor-things-2023/",
+        "title": "Poor Things",
+        "year": 2023,
+        "directors": [
+            "Yorgos Lanthimos"
+        ],
+        "casting": [
+            "Emma Stone",
+            "Mark Ruffalo",
+            "Willem Dafoe",
+            "Ramy Youssef",
+            "Christopher Abbott",
+            "Suzy Bemba",
+            "Jerrod Carmichael",
+            "Kathryn Hunter",
+            "Vicki Pepperdine",
+            "Hanna Schygulla"
+        ],
+        "duration": 141,
+        "nbr_watched": 2805723,
+        "nbr_appearence": 455483,
+        "nbr_likes": 1010392,
+        "rating": 0.0,
+        "fans_favoris": 32000,
+        "producers": [
+            "Yorgos Lanthimos",
+            "Ildikó Kemény",
+            "Kasia Malipan",
+            "David Minkowski",
+            "Emma Stone",
+            "Ed Guiney",
+            "Andrew Lowe"
+        ],
+        "writers": [
+            "Tony McNamara",
+            "Alasdair Gray"
+        ],
+        "composer": [
+            "Jerskin Fendrix"
+        ],
+        "studio": [
+            "Searchlight Pictures",
+            "Film4 Productions",
+            "TSG Entertainment",
+            "Element Pictures",
+            "Limp",
+            "Fruit Tree"
+        ],
+        "languages": [
+            "English",
+            "French",
+            "Portuguese"
+        ],
+        "genres": [
+            "Romance",
+            "Science Fiction",
+            "Comedy"
+        ],
+        "themes": [
+            "Humanity and the world around us",
+            "Intense violence and sexual transgression",
+            "Challenging or sexual themes & twists",
+            "Surreal and thought-provoking visions of life and death",
+            "Dreamlike, quirky, and surreal storytelling",
+            "Erotic relationships and desire",
             "Emotional and captivating fantasy storytelling"
         ],
+        "budget": 35000000,
+        "revenue": 117607117,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/good-will-hunting/",
+        "title": "Good Will Hunting",
+        "year": 1997,
+        "directors": [
+            "Gus Van Sant"
+        ],
+        "casting": [
+            "Matt Damon",
+            "Robin Williams",
+            "Ben Affleck",
+            "Stellan Skarsgård",
+            "Minnie Driver",
+            "Casey Affleck",
+            "Cole Hauser",
+            "Vik Sahay",
+            "John Mighton",
+            "Rachel Majorowski"
+        ],
+        "duration": 127,
+        "nbr_watched": 3608650,
+        "nbr_appearence": 440617,
+        "nbr_likes": 1444440,
+        "rating": 4.4,
+        "fans_favoris": 170000,
+        "producers": [
+            "Lawrence Bender",
+            "Chris Moore"
+        ],
+        "writers": [
+            "Matt Damon",
+            "Ben Affleck"
+        ],
+        "composer": [
+            "Danny Elfman"
+        ],
+        "studio": [
+            "Lawrence Bender Productions",
+            "Be Gentlemen Limited Partnership",
+            "Miramax"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Drama"
+        ],
+        "themes": [
+            "Humanity and the world around us",
+            "Moving relationship stories",
+            "Powerful stories of heartbreak and suffering",
+            "Touching and sentimental family stories",
+            "Student coming-of-age challenges",
+            "Emotional teen coming-of-age stories",
+            "Emotional and touching family dramas"
+        ],
         "budget": null,
-        "revenue": null
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/kill-bill-vol-1/",
+        "title": "Kill Bill: Vol. 1",
+        "year": 2003,
+        "directors": [
+            "Quentin Tarantino"
+        ],
+        "casting": [
+            "Uma Thurman",
+            "Lucy Liu",
+            "Vivica A. Fox",
+            "Daryl Hannah",
+            "David Carradine",
+            "Michael Madsen",
+            "Julie Dreyfus",
+            "Chiaki Kuriyama",
+            "Sonny Chiba",
+            "Gordon Liu Chia-Hui"
+        ],
+        "duration": 111,
+        "nbr_watched": 1,
+        "nbr_appearence": 1,
+        "nbr_likes": 1,
+        "rating": 4.2,
+        "fans_favoris": 96000,
+        "producers": [
+            "Lawrence Bender",
+            "Kwame Parker",
+            "Dede Nickerson",
+            "Koko Maeda",
+            "Katsuji Morishita"
+        ],
+        "writers": [
+            "Quentin Tarantino",
+            "Uma Thurman"
+        ],
+        "composer": [
+            "RZA",
+            "Tomoyasu Hotei"
+        ],
+        "studio": [
+            "Miramax",
+            "A Band Apart",
+            "Super Cool ManChu"
+        ],
+        "languages": [
+            "English",
+            "Japanese",
+            "French"
+        ],
+        "genres": [
+            "Crime",
+            "Action"
+        ],
+        "themes": [
+            "Epic heroes",
+            "Intense combat and martial arts",
+            "Violent action, guns, and crime",
+            "Graphic violence and brutal revenge",
+            "Historical battles and epic heroism",
+            "Superheroes in action-packed battles with villains"
+        ],
+        "budget": 30000000,
+        "revenue": 180906076,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/gone-girl/",
+        "title": "Gone Girl",
+        "year": 2014,
+        "directors": [
+            "David Fincher"
+        ],
+        "casting": [
+            "Ben Affleck",
+            "Rosamund Pike",
+            "Neil Patrick Harris",
+            "Tyler Perry",
+            "Carrie Coon",
+            "Kim Dickens",
+            "Patrick Fugit",
+            "David Clennon",
+            "Lisa Banes",
+            "Missi Pyle"
+        ],
+        "duration": 149,
+        "nbr_watched": 3909120,
+        "nbr_appearence": 435293,
+        "nbr_likes": 1412000,
+        "rating": 4.1,
+        "fans_favoris": 54000,
+        "producers": [
+            "Jim Davidson",
+            "Reese Witherspoon",
+            "Arnon Milchan",
+            "Ceán Chaffin",
+            "Joshua Donen"
+        ],
+        "writers": [
+            "Gillian Flynn"
+        ],
+        "composer": [
+            "Trent Reznor",
+            "Atticus Ross"
+        ],
+        "studio": [
+            "20th Century Fox",
+            "Regency Enterprises"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Drama",
+            "Mystery",
+            "Thriller"
+        ],
+        "themes": [
+            "Thrillers and murder mysteries",
+            "Intense violence and sexual transgression",
+            "Suspenseful crime thrillers",
+            "Twisted dark psychological thriller",
+            "Noir and dark crime dramas",
+            "Intriguing and suspenseful murder mysteries",
+            "Intense political and terrorist thrillers"
+        ],
+        "budget": 61000000,
+        "revenue": 370890259,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/the-menu-2022/",
+        "title": "The Menu",
+        "year": 2022,
+        "directors": [
+            "Mark Mylod"
+        ],
+        "casting": [
+            "Anya Taylor-Joy",
+            "Ralph Fiennes",
+            "Nicholas Hoult",
+            "Janet McTeer",
+            "Paul Adelstein",
+            "Rob Yang",
+            "Aimee Carrero",
+            "John Leguizamo",
+            "Arturo Castro",
+            "Reed Birney"
+        ],
+        "duration": 107,
+        "nbr_watched": 3534906,
+        "nbr_appearence": 296639,
+        "nbr_likes": 1050203,
+        "rating": 0.0,
+        "fans_favoris": 8,
+        "producers": [
+            "Betsy Koch",
+            "Adam McKay",
+            "DanTram Nguyen",
+            "Zahra Phillips",
+            "Katie Goodson",
+            "Will Ferrell",
+            "Jenna Go"
+        ],
+        "writers": [
+            "Seth Reiss",
+            "Will Tracy"
+        ],
+        "composer": [
+            "Colin Stetson"
+        ],
+        "studio": [
+            "Hyperobject Industries",
+            "Searchlight Pictures",
+            "Gary Sanchez Productions",
+            "TSG Entertainment"
+        ],
+        "languages": [
+            "English",
+            "Spanish"
+        ],
+        "genres": [
+            "Comedy",
+            "Thriller",
+            "Horror"
+        ],
+        "themes": [
+            "Intense violence and sexual transgression",
+            "Humanity and the world around us",
+            "Twisted dark psychological thriller",
+            "Dreamlike, quirky, and surreal storytelling",
+            "Terrifying, haunted, and supernatural horror"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/the-silence-of-the-lambs/",
+        "title": "The Silence of the Lambs",
+        "year": 1991,
+        "directors": [
+            "Jonathan Demme"
+        ],
+        "casting": [
+            "Jodie Foster",
+            "Anthony Hopkins",
+            "Scott Glenn",
+            "Ted Levine",
+            "Anthony Heald",
+            "Brooke Smith",
+            "Diane Baker",
+            "Kasi Lemmons",
+            "Frankie Faison",
+            "Tracey Walter"
+        ],
+        "duration": 119,
+        "nbr_watched": 3734039,
+        "nbr_appearence": 529432,
+        "nbr_likes": 1434500,
+        "rating": 4.3,
+        "fans_favoris": 79000,
+        "producers": [
+            "Ron Bozman",
+            "Edward Saxon",
+            "Kenneth Utt",
+            "Grace Blake"
+        ],
+        "writers": [
+            "Ted Tally",
+            "Thomas Harris"
+        ],
+        "composer": [
+            "Howard Shore"
+        ],
+        "studio": [
+            "Orion Pictures",
+            "Strong Heart",
+            "A Luta Continua"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Crime",
+            "Thriller",
+            "Horror",
+            "Drama"
+        ],
+        "themes": [
+            "Intense violence and sexual transgression",
+            "Horror, the undead and monster classics",
+            "Thrillers and murder mysteries",
+            "Humanity and the world around us",
+            "Terrifying, haunted, and supernatural horror",
+            "Twisted dark psychological thriller",
+            "Gory, gruesome, and slasher horror",
+            "Intriguing and suspenseful murder mysteries",
+            "Suspenseful crime thrillers"
+        ],
+        "budget": 19000000,
+        "revenue": 272742922,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/little-women-2019/",
+        "title": "Little Women",
+        "year": 2019,
+        "directors": [
+            "Greta Gerwig"
+        ],
+        "casting": [
+            "Saoirse Ronan",
+            "Emma Watson",
+            "Florence Pugh",
+            "Eliza Scanlen",
+            "Laura Dern",
+            "Timothée Chalamet",
+            "Tracy Letts",
+            "Bob Odenkirk",
+            "James Norton",
+            "Louis Garrel"
+        ],
+        "duration": 135,
+        "nbr_watched": 3315310,
+        "nbr_appearence": 541063,
+        "nbr_likes": 1487871,
+        "rating": 4.2,
+        "fans_favoris": 191000,
+        "producers": [
+            "Denise Di Novi",
+            "Robin Swicord",
+            "Amy Pascal"
+        ],
+        "writers": [
+            "Greta Gerwig",
+            "Louisa May Alcott"
+        ],
+        "composer": [
+            "Alexandre Desplat"
+        ],
+        "studio": [
+            "Columbia Pictures",
+            "Regency Enterprises",
+            "Pascal Pictures"
+        ],
+        "languages": [
+            "English",
+            "French"
+        ],
+        "genres": [
+            "Drama",
+            "Romance",
+            "History"
+        ],
+        "themes": [
+            "Moving relationship stories",
+            "Touching and sentimental family stories",
+            "Captivating relationships and charming romance",
+            "Emotional and touching family dramas",
+            "Powerful stories of heartbreak and suffering",
+            "Charming romances and delightful chemistry"
+        ],
+        "budget": 40000000,
+        "revenue": 332103783,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/wicked-2024/",
+        "title": "Wicked",
+        "year": 2024,
+        "directors": [
+            "Jon M. Chu"
+        ],
+        "casting": [
+            "Cynthia Erivo",
+            "Ariana Grande",
+            "Michelle Yeoh",
+            "Jonathan Bailey",
+            "Ethan Slater",
+            "Marissa Bode",
+            "Jeff Goldblum",
+            "Peter Dinklage",
+            "Andy Nyman",
+            "Courtney-Mae Briggs"
+        ],
+        "duration": 162,
+        "nbr_watched": 2745511,
+        "nbr_appearence": 351796,
+        "nbr_likes": 1002216,
+        "rating": 0.0,
+        "fans_favoris": 38000,
+        "producers": [
+            "Marc Platt",
+            "David Stone"
+        ],
+        "writers": [
+            "Winnie Holzman",
+            "Dana Fox",
+            "Gregory Maguire",
+            "Stephen Schwartz",
+            "L. Frank Baum"
+        ],
+        "composer": [
+            "Stephen Schwartz",
+            "John Powell"
+        ],
+        "studio": [
+            "Universal Pictures",
+            "Marc Platt Productions"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Romance",
+            "Drama",
+            "Fantasy"
+        ],
+        "themes": [
+            "Song and dance",
+            "Dazzling vocal performances and musicals",
+            "Emotional and captivating fantasy storytelling",
+            "Fairy-tale fantasy and enchanted magic",
+            "Catchy songs and hilarious musical comedy",
+            "Captivating relationships and charming romance"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/anora/",
+        "title": "Anora",
+        "year": 2024,
+        "directors": [
+            "Sean Baker"
+        ],
+        "casting": [
+            "Mikey Madison",
+            "Mark Eydelshteyn",
+            "Yura Borisov",
+            "Karren Karagulian",
+            "Vache Tovmasyan",
+            "Luna Sofía Miranda",
+            "Lindsey Normington",
+            "Darya Ekamasova",
+            "Aleksey Serebryakov",
+            "Anton Bitter"
+        ],
+        "duration": 139,
+        "nbr_watched": 2480203,
+        "nbr_appearence": 407350,
+        "nbr_likes": 810775,
+        "rating": 0.0,
+        "fans_favoris": 20000,
+        "producers": [
+            "Alex Coco",
+            "Sean Baker",
+            "Samantha Quan",
+            "Elizabeth Siegal"
+        ],
+        "writers": [
+            "Sean Baker"
+        ],
+        "composer": [],
+        "studio": [
+            "Cre Film",
+            "FilmNation Entertainment"
+        ],
+        "languages": [
+            "English",
+            "Russian",
+            "Armenian"
+        ],
+        "genres": [
+            "Drama",
+            "Romance",
+            "Comedy"
+        ],
+        "themes": [
+            "Relationship comedy",
+            "Moving relationship stories",
+            "Crude humor and satire",
+            "Humanity and the world around us",
+            "Erotic relationships and desire",
+            "Quirky and endearing relationships",
+            "Laugh-out-loud relationship entanglements",
+            "Touching and sentimental family stories",
+            "Passion and romance"
+        ],
+        "budget": 6000000,
+        "revenue": 56286295,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/once-upon-a-time-in-hollywood/",
+        "title": "Once Upon a Time… in Hollywood",
+        "year": 2019,
+        "directors": [
+            "Quentin Tarantino"
+        ],
+        "casting": [
+            "Leonardo DiCaprio",
+            "Brad Pitt",
+            "Margot Robbie",
+            "Emile Hirsch",
+            "Margaret Qualley",
+            "Timothy Olyphant",
+            "Julia Butters",
+            "Austin Butler",
+            "Dakota Fanning",
+            "Bruce Dern"
+        ],
+        "duration": 162,
+        "nbr_watched": 3807446,
+        "nbr_appearence": 467684,
+        "nbr_likes": 1266138,
+        "rating": 0.0,
+        "fans_favoris": 34000,
+        "producers": [
+            "David Heyman",
+            "Shannon McIntosh",
+            "Quentin Tarantino",
+            "William Paul Clark",
+            "Daren Metropoulos"
+        ],
+        "writers": [
+            "Quentin Tarantino"
+        ],
+        "composer": [],
+        "studio": [
+            "Heyday Films",
+            "Columbia Pictures",
+            "Bona Film Group"
+        ],
+        "languages": [
+            "English",
+            "Italian",
+            "Spanish"
+        ],
+        "genres": [
+            "Thriller",
+            "Drama",
+            "Comedy"
+        ],
+        "themes": [
+            "Epic history and literature",
+            "Dreamlike, quirky, and surreal storytelling"
+        ],
+        "budget": 95000000,
+        "revenue": 392105159,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/500-days-of-summer/",
+        "title": "(500) Days of Summer",
+        "year": 2009,
+        "directors": [
+            "Marc Webb"
+        ],
+        "casting": [
+            "Joseph Gordon-Levitt",
+            "Zooey Deschanel",
+            "Geoffrey Arend",
+            "Chloë Grace Moretz",
+            "Matthew Gray Gubler",
+            "Clark Gregg",
+            "Patricia Belcher",
+            "Rachel Boston",
+            "Minka Kelly",
+            "Charles Walker"
+        ],
+        "duration": 95,
+        "nbr_watched": 500,
+        "nbr_appearence": 500,
+        "nbr_likes": 500,
+        "rating": 0.0,
+        "fans_favoris": 53000,
+        "producers": [
+            "Steven J. Wolfe",
+            "Jessica Tuchinsky",
+            "Mark Waters",
+            "Mason Novick",
+            "Scott Hyman",
+            "Veronica Brooks"
+        ],
+        "writers": [
+            "Michael H. Weber",
+            "Scott Neustadter"
+        ],
+        "composer": [
+            "Mychael Danna",
+            "Rob Simonsen"
+        ],
+        "studio": [
+            "Fox Searchlight Pictures",
+            "Watermark Pictures",
+            "Dune Entertainment III"
+        ],
+        "languages": [
+            "English",
+            "French",
+            "Swedish"
+        ],
+        "genres": [
+            "Romance",
+            "Comedy",
+            "Drama"
+        ],
+        "themes": [
+            "Relationship comedy",
+            "Moving relationship stories",
+            "Humanity and the world around us",
+            "Crude humor and satire",
+            "Song and dance",
+            "Charming romances and delightful chemistry",
+            "Laugh-out-loud relationship entanglements",
+            "Captivating relationships and charming romance",
+            "Touching and sentimental family stories",
+            "Quirky and endearing relationships"
+        ],
+        "budget": 7500000,
+        "revenue": 60781545,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/spider-man-no-way-home/",
+        "title": "Spider-Man: No Way Home",
+        "year": 2021,
+        "directors": [
+            "Jon Watts"
+        ],
+        "casting": [
+            "Tom Holland",
+            "Zendaya",
+            "Benedict Cumberbatch",
+            "Jacob Batalon",
+            "Jon Favreau",
+            "Jamie Foxx",
+            "Willem Dafoe",
+            "Alfred Molina",
+            "Benedict Wong",
+            "Tony Revolori"
+        ],
+        "duration": 148,
+        "nbr_watched": 4411791,
+        "nbr_appearence": 525831,
+        "nbr_likes": 1618096,
+        "rating": 0.0,
+        "fans_favoris": 27000,
+        "producers": [
+            "Emily Fong",
+            "David H. Venghaus Jr.",
+            "Amy Pascal",
+            "Kevin Feige",
+            "Mitchell Bell",
+            "Chris Buongiorno"
+        ],
+        "writers": [
+            "Chris McKenna",
+            "Erik Sommers",
+            "Stan Lee",
+            "Steve Ditko"
+        ],
+        "composer": [
+            "Michael Giacchino"
+        ],
+        "studio": [
+            "Marvel Studios",
+            "Pascal Pictures",
+            "Columbia Pictures"
+        ],
+        "languages": [
+            "English",
+            "Tagalog"
+        ],
+        "genres": [
+            "Adventure",
+            "Action",
+            "Science Fiction"
+        ],
+        "themes": [
+            "Epic heroes",
+            "Superheroes in action-packed battles with villains",
+            "Action comedy and silly heroics",
+            "Explosive and action-packed heroes vs. villains",
+            "Touching and sentimental family stories",
+            "Fantasy adventure, heroism, and swordplay"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/call-me-by-your-name/",
+        "title": "Call Me by Your Name",
+        "year": 2017,
+        "directors": [
+            "Luca Guadagnino"
+        ],
+        "casting": [
+            "Armie Hammer",
+            "Timothée Chalamet",
+            "Michael Stuhlbarg",
+            "Amira Casar",
+            "Esther Garrel",
+            "Victoire du Bois",
+            "Vanda Capriolo",
+            "Antonio Rimoldi",
+            "Elena Bucci",
+            "Marco Sgrosso"
+        ],
+        "duration": 132,
+        "nbr_watched": 3536222,
+        "nbr_appearence": 466687,
+        "nbr_likes": 1321351,
+        "rating": 0.0,
+        "fans_favoris": 149000,
+        "producers": [
+            "Marco Morabito",
+            "Luca Guadagnino",
+            "Rodrigo Teixeira",
+            "Emilie Georges",
+            "Peter Spears",
+            "Susanne Filkins",
+            "Kim Surowicz",
+            "Howard Rosenman",
+            "James Ivory",
+            "Abdi Nazemian",
+            "Allan Neuwirth"
+        ],
+        "writers": [
+            "James Ivory",
+            "André Aciman"
+        ],
+        "composer": [
+            "John Adams",
+            "Sufjan Stevens"
+        ],
+        "studio": [
+            "La Cinéfacture",
+            "Frenesy Film",
+            "M.Y.R.A. Entertainment",
+            "RT Features",
+            "Water's End Productions",
+            "Memento Films International"
+        ],
+        "languages": [
+            "English",
+            "French",
+            "Italian"
+        ],
+        "genres": [
+            "Romance",
+            "Drama"
+        ],
+        "themes": [
+            "Moving relationship stories",
+            "Humanity and the world around us",
+            "Emotional LGBTQ relationships",
+            "Touching and sentimental family stories",
+            "Captivating relationships and charming romance",
+            "Emotional teen coming-of-age stories",
+            "Passion and romance"
+        ],
+        "budget": 3500000,
+        "revenue": 43143046,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/the-perks-of-being-a-wallflower/",
+        "title": "The Perks of Being a Wallflower",
+        "year": 2012,
+        "directors": [
+            "Stephen Chbosky"
+        ],
+        "casting": [
+            "Logan Lerman",
+            "Emma Watson",
+            "Ezra Miller",
+            "Mae Whitman",
+            "Kate Walsh",
+            "Dylan McDermott",
+            "Melanie Lynskey",
+            "Nina Dobrev",
+            "Johnny Simmons",
+            "Joan Cusack"
+        ],
+        "duration": 103,
+        "nbr_watched": 3679632,
+        "nbr_appearence": 410812,
+        "nbr_likes": 1484356,
+        "rating": 0.0,
+        "fans_favoris": 174000,
+        "producers": [
+            "John Malkovich",
+            "Russell Smith",
+            "Lianne Halfon",
+            "Gillian Brown",
+            "Ava Dellaira",
+            "Chris Gary"
+        ],
+        "writers": [
+            "Stephen Chbosky"
+        ],
+        "composer": [
+            "Michael Brook"
+        ],
+        "studio": [
+            "Mr. Mudd"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Drama"
+        ],
+        "themes": [
+            "Underdogs and coming of age",
+            "Moving relationship stories",
+            "Humanity and the world around us",
+            "Student coming-of-age challenges",
+            "Emotional teen coming-of-age stories",
+            "Powerful stories of heartbreak and suffering",
+            "Touching and sentimental family stories",
+            "Emotional LGBTQ relationships"
+        ],
+        "budget": 13000000,
+        "revenue": 33384127,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/shutter-island/",
+        "title": "Shutter Island",
+        "year": 2010,
+        "directors": [
+            "Martin Scorsese"
+        ],
+        "casting": [
+            "Leonardo DiCaprio",
+            "Mark Ruffalo",
+            "Ben Kingsley",
+            "Max von Sydow",
+            "Michelle Williams",
+            "Emily Mortimer",
+            "Patricia Clarkson",
+            "Jackie Earle Haley",
+            "Ted Levine",
+            "John Carroll Lynch"
+        ],
+        "duration": 138,
+        "nbr_watched": 4082262,
+        "nbr_appearence": 395155,
+        "nbr_likes": 1435616,
+        "rating": 4.2,
+        "fans_favoris": 69000,
+        "producers": [
+            "Bradley J. Fischer",
+            "Arnold Messer",
+            "Martin Scorsese",
+            "Mike Medavoy"
+        ],
+        "writers": [
+            "Laeta Kalogridis",
+            "Dennis Lehane"
+        ],
+        "composer": [],
+        "studio": [
+            "Paramount Pictures",
+            "Phoenix Pictures",
+            "Sikelia Productions",
+            "Appian Way"
+        ],
+        "languages": [
+            "English",
+            "German"
+        ],
+        "genres": [
+            "Mystery",
+            "Drama",
+            "Thriller"
+        ],
+        "themes": [
+            "Intense violence and sexual transgression",
+            "Horror, the undead and monster classics",
+            "Thrillers and murder mysteries",
+            "Twisted dark psychological thriller",
+            "Terrifying, haunted, and supernatural horror",
+            "Intriguing and suspenseful murder mysteries",
+            "Suspenseful crime thrillers",
+            "Noir and dark crime dramas"
+        ],
+        "budget": 80000000,
+        "revenue": 294804195,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/the-godfather/",
+        "title": "The Godfather",
+        "year": 1972,
+        "directors": [
+            "Francis Ford Coppola"
+        ],
+        "casting": [
+            "Marlon Brando",
+            "Al Pacino",
+            "James Caan",
+            "Robert Duvall",
+            "Richard S. Castellano",
+            "Diane Keaton",
+            "Talia Shire",
+            "Gianni Russo",
+            "Sterling Hayden",
+            "John Marley"
+        ],
+        "duration": 175,
+        "nbr_watched": 3300506,
+        "nbr_appearence": 507972,
+        "nbr_likes": 1307089,
+        "rating": 4.5,
+        "fans_favoris": 112000,
+        "producers": [
+            "Gray Frederickson",
+            "Albert S. Ruddy"
+        ],
+        "writers": [
+            "Francis Ford Coppola",
+            "Mario Puzo"
+        ],
+        "composer": [
+            "Nino Rota"
+        ],
+        "studio": [
+            "Paramount Pictures",
+            "Alfran Productions"
+        ],
+        "languages": [
+            "English",
+            "Latin",
+            "Italian"
+        ],
+        "genres": [
+            "Crime",
+            "Drama"
+        ],
+        "themes": [
+            "Crime, drugs and gangsters",
+            "Gritty crime and ruthless gangsters",
+            "Violent crime and drugs",
+            "Gripping, intense violent crime",
+            "Violent action, guns, and crime",
+            "Brutal, violent prison drama"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/fantastic-mr-fox/",
+        "title": "Fantastic Mr. Fox",
+        "year": 2009,
+        "directors": [
+            "Wes Anderson"
+        ],
+        "casting": [
+            "George Clooney",
+            "Meryl Streep",
+            "Jason Schwartzman",
+            "Wallace Wolodarsky",
+            "Eric Chase Anderson",
+            "Willem Dafoe",
+            "Bill Murray",
+            "Robin Hurlstone",
+            "Hugo Guinness",
+            "Michael Gambon"
+        ],
+        "duration": 87,
+        "nbr_watched": 3273211,
+        "nbr_appearence": 532689,
+        "nbr_likes": 1447413,
+        "rating": 4.3,
+        "fans_favoris": 142000,
+        "producers": [
+            "Wes Anderson",
+            "Allison Abbate",
+            "Molly Cooper",
+            "Jeremy Dawson",
+            "Scott Rudin"
+        ],
+        "writers": [
+            "Noah Baumbach",
+            "Wes Anderson",
+            "Roald Dahl"
+        ],
+        "composer": [
+            "Alexandre Desplat"
+        ],
+        "studio": [
+            "Regency Enterprises",
+            "Indian Paintbrush",
+            "American Empirical Pictures"
+        ],
+        "languages": [
+            "English",
+            "French",
+            "Latin"
+        ],
+        "genres": [
+            "Comedy",
+            "Animation",
+            "Family",
+            "Adventure"
+        ],
+        "themes": [
+            "Crude humor and satire",
+            "Humanity and the world around us",
+            "Kids' animated fun and adventure",
+            "Adorable animals and heartwarming families",
+            "Holiday joy and heartwarming Christmas",
+            "Fairy-tale fantasy and enchanted magic",
+            "Funny jokes and crude humor"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/ratatouille/",
+        "title": "Ratatouille",
+        "year": 2007,
+        "directors": [
+            "Brad Bird"
+        ],
+        "casting": [
+            "Patton Oswalt",
+            "Ian Holm",
+            "Lou Romano",
+            "Brian Dennehy",
+            "Peter Sohn",
+            "Peter O'Toole",
+            "Brad Garrett",
+            "Janeane Garofalo",
+            "Will Arnett",
+            "Julius Callahan"
+        ],
+        "duration": 111,
+        "nbr_watched": 5218076,
+        "nbr_appearence": 391637,
+        "nbr_likes": 1790135,
+        "rating": 4.2,
+        "fans_favoris": 60000,
+        "producers": [
+            "Bradford Lewis",
+            "Galyn Susman"
+        ],
+        "writers": [
+            "Brad Bird"
+        ],
+        "composer": [
+            "Michael Giacchino"
+        ],
+        "studio": [
+            "Pixar"
+        ],
+        "languages": [
+            "English",
+            "French"
+        ],
+        "genres": [
+            "Family",
+            "Fantasy",
+            "Animation",
+            "Comedy"
+        ],
+        "themes": [
+            "Humanity and the world around us",
+            "Crude humor and satire",
+            "Kids' animated fun and adventure",
+            "Holiday joy and heartwarming Christmas",
+            "Charming romances and delightful chemistry",
+            "Adorable animals and heartwarming families",
+            "Emotional and captivating fantasy storytelling"
+        ],
+        "budget": 150000000,
+        "revenue": 623726000,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/weapons-2025/",
+        "title": "Weapons",
+        "year": 2025,
+        "directors": [
+            "Zach Cregger"
+        ],
+        "casting": [
+            "Julia Garner",
+            "Josh Brolin",
+            "Alden Ehrenreich",
+            "Austin Abrams",
+            "Benedict Wong",
+            "Amy Madigan",
+            "Cary Christopher",
+            "Toby Huss",
+            "Whitmer Thomas",
+            "Callie Schuttera"
+        ],
+        "duration": 129,
+        "nbr_watched": 2432557,
+        "nbr_appearence": 314721,
+        "nbr_likes": 771893,
+        "rating": 0.0,
+        "fans_favoris": 4,
+        "producers": [
+            "J.D. Lifshitz",
+            "Miri Yoon",
+            "Zach Cregger",
+            "Roy Lee",
+            "Raphael Margules"
+        ],
+        "writers": [
+            "Zach Cregger"
+        ],
+        "composer": [
+            "Zach Cregger",
+            "Ryan Holladay",
+            "Hays Holladay"
+        ],
+        "studio": [
+            "New Line Cinema",
+            "Subconscious",
+            "Vertigo Entertainment",
+            "BoulderLight Pictures",
+            "Domain Entertainment"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Horror",
+            "Mystery"
+        ],
+        "themes": [
+            "Horror, the undead and monster classics",
+            "Intense violence and sexual transgression",
+            "Twisted dark psychological thriller",
+            "Terrifying, haunted, and supernatural horror",
+            "Creepy, chilling, and terrifying horror",
+            "Gothic and eerie haunting horror",
+            "Gory, gruesome, and slasher horror"
+        ],
+        "budget": 38000000,
+        "revenue": 265894217,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/django-unchained/",
+        "title": "Django Unchained",
+        "year": 2012,
+        "directors": [
+            "Quentin Tarantino"
+        ],
+        "casting": [
+            "Jamie Foxx",
+            "Christoph Waltz",
+            "Leonardo DiCaprio",
+            "Kerry Washington",
+            "Samuel L. Jackson",
+            "Walton Goggins",
+            "Dennis Christopher",
+            "James Remar",
+            "David Steen",
+            "Dana Gourrier"
+        ],
+        "duration": 165,
+        "nbr_watched": 4006613,
+        "nbr_appearence": 444870,
+        "nbr_likes": 1557841,
+        "rating": 4.3,
+        "fans_favoris": 71000,
+        "producers": [
+            "Reginald Hudlin",
+            "Pilar Savone",
+            "Stacey Sher",
+            "William Paul Clark"
+        ],
+        "writers": [
+            "Quentin Tarantino"
+        ],
+        "composer": [
+            "Luis Bacalov"
+        ],
+        "studio": [
+            "The Weinstein Company",
+            "Columbia Pictures"
+        ],
+        "languages": [
+            "English",
+            "French",
+            "German"
+        ],
+        "genres": [
+            "Drama",
+            "Western"
+        ],
+        "themes": [
+            "Westerns",
+            "Epic heroes",
+            "Intense violence and sexual transgression",
+            "Wild west outlaws and gunfights",
+            "Violent action, guns, and crime",
+            "Graphic violence and brutal revenge",
+            "Racism and the powerful fight for justice",
+            "Western frontier dramas with a touch of humor"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/avengers-infinity-war/",
+        "title": "Avengers: Infinity War",
+        "year": 2018,
+        "directors": [
+            "Anthony Russo",
+            "Joe Russo"
+        ],
+        "casting": [
+            "Robert Downey Jr.",
+            "Chris Evans",
+            "Chris Hemsworth",
+            "Josh Brolin",
+            "Mark Ruffalo",
+            "Scarlett Johansson",
+            "Don Cheadle",
+            "Benedict Cumberbatch",
+            "Tom Holland",
+            "Chadwick Boseman"
+        ],
+        "duration": 149,
+        "nbr_watched": 4830331,
+        "nbr_appearence": 480482,
+        "nbr_likes": 1638305,
+        "rating": 4.0,
+        "fans_favoris": 31000,
+        "producers": [
+            "Kevin Feige",
+            "Mitchell Bell",
+            "Jen Underdahl",
+            "Ari Costa"
+        ],
+        "writers": [
+            "Christopher Markus",
+            "Stephen McFeely",
+            "Joe Simon",
+            "Jack Kirby",
+            "Steve Englehart",
+            "Steve Gan",
+            "Bill Mantlo",
+            "Keith Giffen",
+            "Jim Starlin",
+            "Stan Lee",
+            "Larry Lieber",
+            "Don Heck"
+        ],
+        "composer": [
+            "Alan Silvestri"
+        ],
+        "studio": [
+            "Marvel Studios"
+        ],
+        "languages": [
+            "English",
+            "Xhosa"
+        ],
+        "genres": [
+            "Action",
+            "Science Fiction",
+            "Adventure"
+        ],
+        "themes": [
+            "Epic heroes",
+            "Superheroes in action-packed battles with villains",
+            "Fantasy adventure, heroism, and swordplay",
+            "Action comedy and silly heroics",
+            "Action-packed space and alien sagas",
+            "Explosive and action-packed heroes vs. villains"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/avengers-endgame/",
+        "title": "Avengers: Endgame",
+        "year": 2019,
+        "directors": [
+            "Anthony Russo",
+            "Joe Russo"
+        ],
+        "casting": [
+            "Robert Downey Jr.",
+            "Chris Evans",
+            "Mark Ruffalo",
+            "Chris Hemsworth",
+            "Scarlett Johansson",
+            "Jeremy Renner",
+            "Josh Brolin",
+            "Don Cheadle",
+            "Paul Rudd",
+            "Benedict Cumberbatch"
+        ],
+        "duration": 181,
+        "nbr_watched": 4699268,
+        "nbr_appearence": 482720,
+        "nbr_likes": 1540880,
+        "rating": 0.0,
+        "fans_favoris": 37000,
+        "producers": [
+            "Kevin Feige",
+            "Mitchell Bell",
+            "Ari Costa",
+            "Christopher Markus",
+            "Stephen McFeely",
+            "Jen Underdahl",
+            "JoAnn Perritano"
+        ],
+        "writers": [
+            "Christopher Markus",
+            "Stephen McFeely",
+            "Jim Starlin",
+            "Joe Simon",
+            "Jack Kirby",
+            "Steve Englehart",
+            "Steve Gan",
+            "Bill Mantlo",
+            "Keith Giffen",
+            "Stan Lee",
+            "Larry Lieber",
+            "Don Heck"
+        ],
+        "composer": [
+            "Alan Silvestri"
+        ],
+        "studio": [
+            "Marvel Studios"
+        ],
+        "languages": [
+            "English",
+            "Japanese",
+            "Xhosa"
+        ],
+        "genres": [
+            "Science Fiction",
+            "Action",
+            "Adventure"
+        ],
+        "themes": [
+            "Epic heroes",
+            "Superheroes in action-packed battles with villains",
+            "Fantasy adventure, heroism, and swordplay",
+            "Epic adventure and breathtaking battles",
+            "Historical battles and epic heroism"
+        ],
+        "budget": 356000000,
+        "revenue": 2799439100,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/baby-driver/",
+        "title": "Baby Driver",
+        "year": 2017,
+        "directors": [
+            "Edgar Wright"
+        ],
+        "casting": [
+            "Ansel Elgort",
+            "Kevin Spacey",
+            "Lily James",
+            "Jon Hamm",
+            "Jamie Foxx",
+            "Jon Bernthal",
+            "Eiza González",
+            "Flea",
+            "CJ Jones",
+            "Lanny Joon"
+        ],
+        "duration": 113,
+        "nbr_watched": 3949456,
+        "nbr_appearence": 285276,
+        "nbr_likes": 1326259,
+        "rating": 0.0,
+        "fans_favoris": 45000,
+        "producers": [
+            "Eric Fellner",
+            "Tim Bevan",
+            "Leo Thompson",
+            "Nira Park"
+        ],
+        "writers": [
+            "Edgar Wright"
+        ],
+        "composer": [
+            "Steven Price"
+        ],
+        "studio": [
+            "Big Talk Studios",
+            "Working Title Films (US)",
+            "MRC"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Crime",
+            "Action"
+        ],
+        "themes": [
+            "Crime, drugs and gangsters",
+            "Song and dance",
+            "High speed and special ops",
+            "Relationship comedy",
+            "Heists and thrilling action",
+            "Adrenaline-fueled action and fast cars",
+            "Violent action, guns, and crime",
+            "Gritty crime and ruthless gangsters",
+            "Explosive and action-packed heroes vs. villains"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/hereditary/",
+        "title": "Hereditary",
+        "year": 2018,
+        "directors": [
+            "Ari Aster"
+        ],
+        "casting": [
+            "Toni Collette",
+            "Alex Wolff",
+            "Gabriel Byrne",
+            "Milly Shapiro",
+            "Ann Dowd",
+            "Mallory Bechtel",
+            "Brock McKinney",
+            "Jake Brown",
+            "Morgan Lund",
+            "Christy Summerhays"
+        ],
+        "duration": 128,
+        "nbr_watched": 3205360,
+        "nbr_appearence": 480314,
+        "nbr_likes": 1134719,
+        "rating": 0.0,
+        "fans_favoris": 49000,
+        "producers": [
+            "Brandon Tamburri",
+            "Kevin Scott Frakes",
+            "Lars Knudsen",
+            "Buddy Patrick",
+            "Beau Ferris",
+            "Jeffrey Penman",
+            "Tyler Campellone"
+        ],
+        "writers": [
+            "Ari Aster"
+        ],
+        "composer": [
+            "Colin Stetson"
+        ],
+        "studio": [
+            "PalmStar Media",
+            "Pulse Films",
+            "Finch Entertainment",
+            "Windy Hill Pictures"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Thriller",
+            "Horror",
+            "Mystery"
+        ],
+        "themes": [
+            "Horror, the undead and monster classics",
+            "Intense violence and sexual transgression",
+            "Terrifying, haunted, and supernatural horror",
+            "Twisted dark psychological thriller",
+            "Gothic and eerie haunting horror",
+            "Gory, gruesome, and slasher horror",
+            "Creepy, chilling, and terrifying horror"
+        ],
+        "budget": 10000000,
+        "revenue": 87796204,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/the-shawshank-redemption/",
+        "title": "The Shawshank Redemption",
+        "year": 1994,
+        "directors": [
+            "Frank Darabont"
+        ],
+        "casting": [
+            "Tim Robbins",
+            "Morgan Freeman",
+            "Bob Gunton",
+            "William Sadler",
+            "Clancy Brown",
+            "Gil Bellows",
+            "James Whitmore",
+            "Mark Rolston",
+            "Jeffrey DeMunn",
+            "Larry Brandenburg"
+        ],
+        "duration": 142,
+        "nbr_watched": 3386076,
+        "nbr_appearence": 406205,
+        "nbr_likes": 1338691,
+        "rating": 4.6,
+        "fans_favoris": 128000,
+        "producers": [
+            "Niki Marvin"
+        ],
+        "writers": [
+            "Frank Darabont",
+            "Stephen King"
+        ],
+        "composer": [
+            "Thomas Newman"
+        ],
+        "studio": [
+            "Castle Rock Entertainment"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Crime",
+            "Drama"
+        ],
+        "themes": [
+            "Humanity and the world around us",
+            "Moving relationship stories",
+            "Brutal, violent prison drama",
+            "Powerful stories of heartbreak and suffering",
+            "Touching and sentimental family stories",
+            "Gripping, intense violent crime",
+            "Surreal and thought-provoking visions of life and death"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/the-matrix/",
+        "title": "The Matrix",
+        "year": 1999,
+        "directors": [
+            "Lana Wachowski",
+            "Lilly Wachowski"
+        ],
+        "casting": [
+            "Keanu Reeves",
+            "Laurence Fishburne",
+            "Carrie-Anne Moss",
+            "Hugo Weaving",
+            "Gloria Foster",
+            "Joe Pantoliano",
+            "Marcus Chong",
+            "Julian Arahanga",
+            "Matt Doran",
+            "Belinda McClory"
+        ],
+        "duration": 136,
+        "nbr_watched": 3936889,
+        "nbr_appearence": 394742,
+        "nbr_likes": 1336769,
+        "rating": 4.2,
+        "fans_favoris": 56000,
+        "producers": [
+            "Joel Silver",
+            "Richard Mirisch",
+            "Carol Hughes",
+            "Dan Cracchiolo"
+        ],
+        "writers": [
+            "Lilly Wachowski",
+            "Lana Wachowski"
+        ],
+        "composer": [
+            "Don Davis"
+        ],
+        "studio": [
+            "Village Roadshow Pictures",
+            "Groucho II Film Partnership",
+            "Silver Pictures",
+            "Warner Bros. Pictures"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Science Fiction",
+            "Action"
+        ],
+        "themes": [
+            "Monsters, aliens, sci-fi and the apocalypse",
+            "Epic heroes",
+            "High speed and special ops",
+            "Humanity and the world around us",
+            "Faith and religion",
+            "Thought-provoking sci-fi action and future technology",
+            "Superheroes in action-packed battles with villains",
+            "Intense combat and martial arts",
+            "Explosive and action-packed heroes vs. villains",
+            "Action-packed space and alien sagas"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/deadpool-wolverine/",
+        "title": "Deadpool & Wolverine",
+        "year": 2024,
+        "directors": [
+            "Shawn Levy"
+        ],
+        "casting": [
+            "Ryan Reynolds",
+            "Hugh Jackman",
+            "Emma Corrin",
+            "Matthew Macfadyen",
+            "Dafne Keen",
+            "Jon Favreau",
+            "Morena Baccarin",
+            "Rob Delaney",
+            "Leslie Uggams",
+            "Jennifer Garner"
+        ],
+        "duration": 128,
+        "nbr_watched": 2888194,
+        "nbr_appearence": 381228,
+        "nbr_likes": 900174,
+        "rating": 0.0,
+        "fans_favoris": 6,
+        "producers": [
+            "Ryan Reynolds",
+            "Lauren Shuler Donner",
+            "Shawn Levy",
+            "Mitchell Bell",
+            "Kevin Feige",
+            "Janine Modder"
+        ],
+        "writers": [
+            "Rhett Reese",
+            "Paul Wernick",
+            "Ryan Reynolds",
+            "Shawn Levy",
+            "Zeb Wells",
+            "Len Wein",
+            "John Romita Sr.",
+            "Herb Trimpe",
+            "Roy Thomas",
+            "Fabian Nicieza",
+            "Rob Liefeld"
+        ],
+        "composer": [
+            "Rob Simonsen"
+        ],
+        "studio": [
+            "Marvel Studios",
+            "Maximum Effort",
+            "21 Laps Entertainment",
+            "20th Century Studios",
+            "Kevin Feige Productions",
+            "TSG Entertainment"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Science Fiction",
+            "Action",
+            "Comedy"
+        ],
+        "themes": [
+            "Crude humor and satire",
+            "Epic heroes",
+            "Action comedy and silly heroics",
+            "Superheroes in action-packed battles with villains",
+            "Gags, jokes, and slapstick humor",
+            "Funny jokes and crude humor",
+            "Laugh-out-loud relationship entanglements"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/taxi-driver/",
+        "title": "Taxi Driver",
+        "year": 1976,
+        "directors": [
+            "Martin Scorsese"
+        ],
+        "casting": [
+            "Robert De Niro",
+            "Jodie Foster",
+            "Cybill Shepherd",
+            "Harvey Keitel",
+            "Peter Boyle",
+            "Leonard Harris",
+            "Albert Brooks",
+            "Diahnne Abbott",
+            "Frank Adu",
+            "Victor Argo"
+        ],
+        "duration": 114,
+        "nbr_watched": 2891917,
+        "nbr_appearence": 457076,
+        "nbr_likes": 1012859,
+        "rating": 4.1,
+        "fans_favoris": 69000,
+        "producers": [
+            "Julia Phillips",
+            "Michael Phillips",
+            "Phillip M. Goldfarb"
+        ],
+        "writers": [
+            "Paul Schrader"
+        ],
+        "composer": [
+            "Bernard Herrmann"
+        ],
+        "studio": [
+            "Italo/Judeo Productions",
+            "Bill/Phillips",
+            "Columbia Pictures"
+        ],
+        "languages": [
+            "English",
+            "Spanish"
+        ],
+        "genres": [
+            "Crime",
+            "Drama"
+        ],
+        "themes": [
+            "Intense violence and sexual transgression",
+            "Politics and human rights",
+            "Humanity and the world around us",
+            "Crime, drugs and gangsters",
+            "Challenging or sexual themes & twists",
+            "Violent action, guns, and crime",
+            "Violent crime and drugs",
+            "Gritty crime and ruthless gangsters",
+            "Twisted dark psychological thriller"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/mickey-17/",
+        "title": "Mickey 17",
+        "year": 2025,
+        "directors": [
+            "Bong Joon Ho"
+        ],
+        "casting": [
+            "Robert Pattinson",
+            "Naomi Ackie",
+            "Steven Yeun",
+            "Mark Ruffalo",
+            "Toni Collette",
+            "Anamaria Vartolomei",
+            "Daniel Henshall",
+            "Patsy Ferran",
+            "Steve Park",
+            "Tim Key"
+        ],
+        "duration": 137,
+        "nbr_watched": 17,
+        "nbr_appearence": 17,
+        "nbr_likes": 17,
+        "rating": 0.0,
+        "fans_favoris": 5,
+        "producers": [
+            "Bong Joon Ho",
+            "Dooho Choi",
+            "Dede Gardner",
+            "Jeremy Kleiner",
+            "Yeijin Cho"
+        ],
+        "writers": [
+            "Bong Joon Ho",
+            "Edward Ashton"
+        ],
+        "composer": [
+            "Jung Jae-il"
+        ],
+        "studio": [
+            "Warner Bros. Pictures",
+            "Plan B Entertainment",
+            "Offscreen",
+            "Kate Street Picture Company",
+            "Domain Entertainment"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Comedy",
+            "Adventure",
+            "Science Fiction"
+        ],
+        "themes": [
+            "Monsters, aliens, sci-fi and the apocalypse",
+            "Humanity and the world around us",
+            "Crude humor and satire",
+            "Imaginative space odysseys and alien encounters",
+            "Thought-provoking sci-fi action and future technology",
+            "Surreal and thought-provoking visions of life and death",
+            "Action-packed space and alien sagas",
+            "Humanity's odyssey: earth and beyond"
+        ],
+        "budget": 118000000,
+        "revenue": 131847147,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/mean-girls/",
+        "title": "Mean Girls",
+        "year": 2004,
+        "directors": [
+            "Mark Waters"
+        ],
+        "casting": [
+            "Lindsay Lohan",
+            "Rachel McAdams",
+            "Lizzy Caplan",
+            "Lacey Chabert",
+            "Amanda Seyfried",
+            "Daniel Franzese",
+            "Jonathan Bennett",
+            "Rajiv Surendra",
+            "Tina Fey",
+            "Tim Meadows"
+        ],
+        "duration": 96,
+        "nbr_watched": 4249570,
+        "nbr_appearence": 323719,
+        "nbr_likes": 1325516,
+        "rating": 0.0,
+        "fans_favoris": 36000,
+        "producers": [
+            "Lorne Michaels",
+            "Louise Rosner-Meyer",
+            "Jennifer Guinier"
+        ],
+        "writers": [
+            "Tina Fey",
+            "Rosalind Wiseman"
+        ],
+        "composer": [
+            "Rolfe Kent"
+        ],
+        "studio": [
+            "Broadway Video",
+            "Paramount Pictures",
+            "M.G. Films"
+        ],
+        "languages": [
+            "English",
+            "Swahili",
+            "German",
+            "Vietnamese"
+        ],
+        "genres": [
+            "Comedy",
+            "Drama"
+        ],
+        "themes": [
+            "Underdogs and coming of age",
+            "Crude humor and satire",
+            "Teen school antics and laughter",
+            "Funny jokes and crude humor",
+            "Student coming-of-age challenges",
+            "Amusing jokes and witty satire",
+            "Gags, jokes, and slapstick humor"
+        ],
+        "budget": 17000000,
+        "revenue": 130193514,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/the-lord-of-the-rings-the-fellowship-of-the-ring/",
+        "title": "The Lord of the Rings: The Fellowship of the Ring",
+        "year": 2001,
+        "directors": [
+            "Peter Jackson"
+        ],
+        "casting": [
+            "Elijah Wood",
+            "Ian McKellen",
+            "Viggo Mortensen",
+            "Sean Astin",
+            "Ian Holm",
+            "Liv Tyler",
+            "Christopher Lee",
+            "Sean Bean",
+            "Billy Boyd",
+            "Dominic Monaghan"
+        ],
+        "duration": 179,
+        "nbr_watched": 3864747,
+        "nbr_appearence": 430861,
+        "nbr_likes": 1398534,
+        "rating": 4.4,
+        "fans_favoris": 85000,
+        "producers": [
+            "Peter Jackson",
+            "Barrie M. Osborne",
+            "Rick Porras",
+            "Ellen Somers",
+            "Jamie Selkirk",
+            "Tim Sanders",
+            "Fran Walsh"
+        ],
+        "writers": [
+            "Philippa Boyens",
+            "Fran Walsh",
+            "Peter Jackson",
+            "J. R. R. Tolkien"
+        ],
+        "composer": [
+            "Howard Shore"
+        ],
+        "studio": [
+            "New Line Cinema",
+            "WingNut Films",
+            "The Saul Zaentz Company"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Adventure",
+            "Action",
+            "Fantasy"
+        ],
+        "themes": [
+            "Epic heroes",
+            "Humanity and the world around us",
+            "Fantasy adventure, heroism, and swordplay",
+            "Epic adventure and breathtaking battles",
+            "Superheroes in action-packed battles with villains",
+            "Emotional and captivating fantasy storytelling",
+            "Historical battles and epic heroism"
+        ],
+        "budget": null,
+        "revenue": null,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
+    },
+    {
+        "url": "https://letterboxd.com/film/the-social-network/",
+        "title": "The Social Network",
+        "year": 2010,
+        "directors": [
+            "David Fincher"
+        ],
+        "casting": [
+            "Jesse Eisenberg",
+            "Andrew Garfield",
+            "Armie Hammer",
+            "Josh Pence",
+            "Justin Timberlake",
+            "Max Minghella",
+            "Brenda Song",
+            "Rashida Jones",
+            "John Getz",
+            "David Selby"
+        ],
+        "duration": 121,
+        "nbr_watched": 3675308,
+        "nbr_appearence": 386537,
+        "nbr_likes": 1090787,
+        "rating": 0.0,
+        "fans_favoris": 42000,
+        "producers": [
+            "Ceán Chaffin",
+            "Dana Brunetti",
+            "Scott Rudin",
+            "Michael De Luca"
+        ],
+        "writers": [
+            "Aaron Sorkin",
+            "Ben Mezrich"
+        ],
+        "composer": [
+            "Atticus Ross",
+            "Trent Reznor"
+        ],
+        "studio": [
+            "Columbia Pictures",
+            "Relativity Media",
+            "Scott Rudin Productions",
+            "Michael De Luca Productions",
+            "Trigger Street Productions"
+        ],
+        "languages": [
+            "English"
+        ],
+        "genres": [
+            "Drama"
+        ],
+        "themes": [
+            "Humanity and the world around us",
+            "Student coming-of-age challenges",
+            "Teen school antics and laughter",
+            "Powerful poetic and passionate drama",
+            "Fascinating, emotional stories and documentaries"
+        ],
+        "budget": 40000000,
+        "revenue": 224920315,
+        "kind": "movie",
+        "source_page": "https://letterboxd.com/films/popular/"
     }
 ]
