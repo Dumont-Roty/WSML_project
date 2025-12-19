@@ -80,10 +80,10 @@ class PageScrap:
         }
         
     @staticmethod
-    def scrap_tmdb_url(page):
+    def scrap_tmdb_url(page, tmdb_page=None):
         # Récupère le lien TMDB, ouvre une nouvelle page dans le même contexte, bloque CSS/images, scrape budget/revenue
         try:
-            page.wait_for_selector("a[href*='themoviedb.org/movie']", timeout=5000)
+            page.wait_for_selector("a[href*='themoviedb.org/movie']", timeout=1500)
             href = page.locator("a[href*='themoviedb.org/movie']").first.get_attribute('href')
         except Exception:
             href = None
@@ -91,17 +91,22 @@ class PageScrap:
         if not href:
             return {"budget": None, "revenue": None}
 
-        tmdb_page = page.context.new_page()
-        tmdb_page.set_default_timeout(8000)
-        tmdb_page.route(re.compile(r"(\.png|\.jpg|\.jpeg|\.svg|\.woff|\.css)"), lambda r: r.abort())
+        # Si une page TMDB réutilisable est fournie, on la réemploie, sinon on en crée une dédiée
+        new_tmdb_page = None
+        if tmdb_page is None:
+            new_tmdb_page = page.context.new_page()
+            tmdb_page = new_tmdb_page
+            tmdb_page.set_default_timeout(2000)
+            tmdb_page.route(re.compile(r"(\.png|\.jpg|\.jpeg|\.svg|\.webp|\.gif|\.ico|\.woff|\.css|\.mp4|\.webm)"), lambda r: r.abort())
+            tmdb_page.route(re.compile(r"(doubleclick\.net|googlesyndication\.com)"), lambda r: r.abort())
+
         try:
-            tmdb_page.goto(href, wait_until='domcontentloaded', timeout=12000)
-            tmdb_page.wait_for_load_state('networkidle')
+            tmdb_page.goto(href, wait_until='domcontentloaded', timeout=1500)
+            t._dismiss_tmdb_cookies(tmdb_page)
 
             budget = t.scrap_budget(tmdb_page)
             revenue = t.scrap_revenue(tmdb_page)
 
-            # Si une bannière bloque, on tente de la fermer, puis on rescrape ce qui manque.
             if budget is None or revenue is None:
                 try:
                     t._dismiss_tmdb_cookies(tmdb_page)
@@ -116,5 +121,8 @@ class PageScrap:
                 "budget": budget,
                 "revenue": revenue
             }
+        except Exception:
+            return {"budget": None, "revenue": None}
         finally:
-            tmdb_page.close()
+            if new_tmdb_page:
+                tmdb_page.close()

@@ -33,15 +33,13 @@ class TMDBScraping:
         """
         # TMDB affiche généralement Budget dans un bloc Facts sous forme <p><strong>Budget</strong> $79,000,000.00</p>
         selectors = [
-            "p:has(strong:has-text('Budget'))",
-            "li:has-text('Budget') .value",
-            "li:has(strong:has-text('Budget'))"
+            "p:has(strong:has-text('Budget'))"
         ]
 
         budget_text = None
         for sel in selectors:
             try:
-                page.wait_for_selector(sel, timeout=5000)
+                page.wait_for_selector(sel, timeout=1200)
                 budget_text = page.locator(sel).first.inner_text()
                 if budget_text:
                     break
@@ -77,21 +75,13 @@ class TMDBScraping:
             int: The budget of the movie as an integer.
         """
         selectors = [
-            "p:has(strong:has-text('Revenue'))",
-            "li:has-text('Revenue') .value",
-            "li:has(strong:has-text('Revenue'))",
-            "p:has(strong:has-text('Recettes'))",
-            "li:has-text('Recettes') .value",
-            "li:has(strong:has-text('Recettes'))",
-            "p:has(strong:has-text('Box Office'))",
-            "li:has-text('Box Office') .value",
-            "li:has(strong:has-text('Box Office'))"
+            "p:has(strong:has-text('Revenue'))"
         ]
 
         revenue_text = None
         for sel in selectors:
             try:
-                page.wait_for_selector(sel, timeout=5000)
+                page.wait_for_selector(sel, timeout=1200)
                 revenue_text = page.locator(sel).first.inner_text()
                 if revenue_text:
                     break

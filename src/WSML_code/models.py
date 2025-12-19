@@ -15,7 +15,7 @@ class Movie(BaseModel):
     fans_favoris: Optional[int] = None
     producers: List[str] = Field(default_factory=list)
     writers: List[str] = Field(default_factory=list)
-    composer: List[str] = Field(default_factory=list)
+    composer: Optional[List[str]] = Field(default_factory=list)
     studio: List[str] = Field(default_factory=list)
     languages: List[str] = Field(default_factory=list)
     genres: List[str] = Field(default_factory=list)

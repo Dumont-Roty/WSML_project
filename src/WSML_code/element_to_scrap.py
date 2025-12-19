@@ -1,4 +1,4 @@
-from playwright.sync_api import Page
+from playwright.sync_api import Page, TimeoutError
 import re
 
 class Scraping:
@@ -126,7 +126,10 @@ class Scraping:
         Returns:
             float: La note du film
         """
-        page.wait_for_selector(".tooltip.display-rating.-highlight", timeout=5000)
+        try:
+            page.wait_for_selector(".tooltip.display-rating.-highlight", timeout=7000)
+        except TimeoutError:
+            return 0.0
         rate_text = page.locator(".tooltip.display-rating.-highlight").inner_html()
         if rate_text is not None:
             rate = re.search(r"\d+(\.\d+)?", rate_text)
@@ -243,15 +246,25 @@ class Scraping:
         Returns:
             list[str]: Une liste des noms des compositeurs
         """
-        page.click("a[href^='/film/'][href$='/crew/']")
-        page.wait_for_selector("a[href^='/composer/']", timeout=5000)
-        composers = page.locator("a[href^='/composer/']").all()
+        try:
+            page.click("a[href^='/film/'][href$='/crew/']")
+        except Exception:
+            # Si déjà sur l'onglet crew ou lien absent, continuer sans échec.
+            pass
+
+        try:
+            page.wait_for_selector("a[href^='/composer/']", timeout=1500)
+            composers = page.locator("a[href^='/composer/']").all()
+        except Exception:
+            return []
+
         res_composers = []
         for composer in composers:
             composer_name = composer.text_content()
             if composer_name is not None and composer_name.strip() not in res_composers:
                 res_composers.append(composer_name.strip())
-        return res_composers if res_composers else ["Compositeurs non trouvés"]
+
+        return res_composers
 
     @staticmethod
     def scrap_year(page: Page) -> str:
