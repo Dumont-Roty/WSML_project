@@ -96,19 +96,23 @@ class PageScrap:
         if tmdb_page is None:
             new_tmdb_page = page.context.new_page()
             tmdb_page = new_tmdb_page
-            tmdb_page.set_default_timeout(2000)
+            # increase TMDB page timeout to allow slower responses
+            tmdb_page.set_default_timeout(5000)
             tmdb_page.route(re.compile(r"(\.png|\.jpg|\.jpeg|\.svg|\.webp|\.gif|\.ico|\.woff|\.css|\.mp4|\.webm)"), lambda r: r.abort())
             tmdb_page.route(re.compile(r"(doubleclick\.net|googlesyndication\.com)"), lambda r: r.abort())
 
         try:
-            tmdb_page.goto(href, wait_until='domcontentloaded', timeout=1500)
+            # first attempt: navigate with a reasonable timeout
+            tmdb_page.goto(href, wait_until='domcontentloaded', timeout=5000)
             t._dismiss_tmdb_cookies(tmdb_page)
 
             budget = t.scrap_budget(tmdb_page)
             revenue = t.scrap_revenue(tmdb_page)
 
+            # if either value is missing, retry once with a fresh navigation and slightly longer waits
             if budget is None or revenue is None:
                 try:
+                    tmdb_page.goto(href, wait_until='domcontentloaded', timeout=8000)
                     t._dismiss_tmdb_cookies(tmdb_page)
                 except Exception:
                     pass

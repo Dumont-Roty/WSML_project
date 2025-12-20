@@ -17,7 +17,8 @@ class TMDBScraping:
         ]
         for sel in selectors:
             try:
-                page.locator(sel).first.click(timeout=1500)
+                # allow more time for the cookie buttons to appear
+                page.locator(sel).first.click(timeout=3000)
                 break
             except Exception:
                 continue
@@ -39,7 +40,8 @@ class TMDBScraping:
         budget_text = None
         for sel in selectors:
             try:
-                page.wait_for_selector(sel, timeout=1200)
+                # increase selector wait to tolerate slower TMDB responses
+                page.wait_for_selector(sel, timeout=3000)
                 budget_text = page.locator(sel).first.inner_text()
                 if budget_text:
                     break
@@ -81,7 +83,8 @@ class TMDBScraping:
         revenue_text = None
         for sel in selectors:
             try:
-                page.wait_for_selector(sel, timeout=1200)
+                # increase selector wait to tolerate slower TMDB responses
+                page.wait_for_selector(sel, timeout=3000)
                 revenue_text = page.locator(sel).first.inner_text()
                 if revenue_text:
                     break

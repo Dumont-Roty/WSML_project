@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import unicodedata
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from time import perf_counter
 from typing import Iterable, List, Tuple
 from urllib.parse import urljoin
@@ -47,6 +48,22 @@ def detect_kind(href: str, title: str | None) -> str:
     if "/series/" in href_lower or any(keyword in normalized_title for keyword in series_keywords):
         return "series"
     return "movie"
+
+
+def _make_context(playwright, *, headless: bool = True):
+    """Create a fresh browser/context/tmdb_page trio with resource blocking."""
+    chromium = playwright.chromium
+    browser = chromium.launch(headless=headless)
+    context = browser.new_context()
+    context.route(re.compile(r"(\.(?:png|jpg|jpeg|svg|webp|gif|ico|woff|css|mp4|webm))"), lambda route: route.abort())
+    context.route(re.compile(r"(google-analytics\.com|googletagmanager\.com|doubleclick\.net|googlesyndication\.com)"), lambda route: route.abort())
+
+    tmdb_page = context.new_page()
+    tmdb_page.set_default_timeout(2000)
+    tmdb_page.route(re.compile(r"(\.(?:png|jpg|jpeg|svg|webp|gif|ico|woff|css|mp4|webm))"), lambda route: route.abort())
+    tmdb_page.route(re.compile(r"(doubleclick\.net|googlesyndication\.com)"), lambda route: route.abort())
+
+    return browser, context, tmdb_page
 
 
 def collect_film_links(page) -> List[Tuple[str, str]]:
@@ -156,6 +173,24 @@ def scrape_list_page(context, tmdb_page, list_page_url: str) -> Tuple[List[dict]
     return results, next_page
 
 
+def _scrape_list_page_isolated(list_page_url: str, *, headless: bool = True) -> List[dict]:
+    """Scrape a single list page in its own browser context (for parallel runs)."""
+    with sync_playwright() as playwright:
+        browser, context, tmdb_page = _make_context(playwright, headless=headless)
+        try:
+            page_results, _ = scrape_list_page(context, tmdb_page, list_page_url)
+            return page_results
+        finally:
+            try:
+                tmdb_page.close()
+            finally:
+                try:
+                    context.close()
+                finally:
+                    browser.close()
+
+
+# Nombre de grille à scraper
 def list_scrape(max_pages: int = 2, output_path: str = "results_all.json") -> None:
     total_start = perf_counter()
     with sync_playwright() as playwright:
@@ -185,6 +220,62 @@ def list_scrape(max_pages: int = 2, output_path: str = "results_all.json") -> No
 
     total_duration = perf_counter() - total_start
     print(f"[timing] Total list scrape in {total_duration:.2f}s for {len(results)} films")
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(results, f, ensure_ascii=False, indent=4)
+
+# Nombre de grille à scraper en parallèle
+def list_scrape_parallel(
+    max_pages: int = 2,
+    output_path: str = "results_all.json",
+    *,
+    headless: bool = True,
+    workers: int = 2,
+    preserve_page_order: bool = False,
+) -> None:
+    """Scrape multiple list pages concurrently (one browser context per page).
+
+    Concurrency is bounded by ``workers`` to avoid overloading the machine.
+    Each list page is scraped exactly once; results are aggregated and written
+    to ``output_path``.
+    """
+    total_start = perf_counter()
+    # preserve order from list_page_urls, remove duplicates while keeping order
+    urls = list(dict.fromkeys(list_page_urls(max_pages)))
+    url_to_index = {url: idx for idx, url in enumerate(urls)}
+    if not urls:
+        print("[warn] No list pages to scrape")
+        return
+
+    results: List[dict] = []
+    worker_count = max(1, min(workers, len(urls)))
+
+    with ThreadPoolExecutor(max_workers=worker_count) as executor:
+        # map future -> (index, url) so we can re-order if requested
+        futures = {executor.submit(_scrape_list_page_isolated, url, headless=headless): (url_to_index[url], url) for url in urls}
+        if preserve_page_order:
+            results_by_index: dict[int, List[dict]] = {}
+            for future in as_completed(futures):
+                idx, url = futures[future]
+                try:
+                    page_results = future.result()
+                    results_by_index[idx] = page_results
+                except Exception as exc:
+                    print(f"[warn] List page scrape failed for {url}: {exc}")
+            # extend results in page order
+            for idx in sorted(results_by_index.keys()):
+                results.extend(results_by_index[idx])
+        else:
+            for future in as_completed(futures):
+                idx, url = futures[future]
+                try:
+                    page_results = future.result()
+                    results.extend(page_results)
+                except Exception as exc:
+                    print(f"[warn] List page scrape failed for {url}: {exc}")
+
+    total_duration = perf_counter() - total_start
+    print(f"[timing] Total parallel list scrape in {total_duration:.2f}s for {len(results)} films")
 
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(results, f, ensure_ascii=False, indent=4)

@@ -19,11 +19,11 @@
             "Jung Hyeon-jun"
         ],
         "duration": 133,
-        "nbr_watched": 6063092,
-        "nbr_appearence": 762259,
-        "nbr_likes": 3217133,
+        "nbr_watched": 6066376,
+        "nbr_appearence": 762955,
+        "nbr_likes": 3218939,
         "rating": 4.5,
-        "fans_favoris": 149000,
+        "fans_favoris": 150000,
         "producers": [
             "Jang Young-hwan",
             "Kwak Sin-ae",
@@ -33,8 +33,8 @@
         ],
         "writers": [
             "Kim Dae-hwan",
-            "Bong Joon Ho",
-            "Han Jin-won"
+            "Han Jin-won",
+            "Bong Joon Ho"
         ],
         "composer": [
             "Jung Jae-il"
@@ -86,14 +86,14 @@
             "John Lithgow"
         ],
         "duration": 169,
-        "nbr_watched": 6323162,
-        "nbr_appearence": 757206,
-        "nbr_likes": 3056973,
+        "nbr_watched": 6327641,
+        "nbr_appearence": 758121,
+        "nbr_likes": 3059751,
         "rating": 4.4,
-        "fans_favoris": 412000,
+        "fans_favoris": 413000,
         "producers": [
-            "Christopher Nolan",
             "Lynda Obst",
+            "Christopher Nolan",
             "Emma Thomas"
         ],
         "writers": [
@@ -151,17 +151,17 @@
             "Sharon Rooney"
         ],
         "duration": 114,
-        "nbr_watched": 6342419,
-        "nbr_appearence": 570452,
-        "nbr_likes": 2500213,
+        "nbr_watched": 6346980,
+        "nbr_appearence": 570828,
+        "nbr_likes": 2501849,
         "rating": 0.0,
         "fans_favoris": 26000,
         "producers": [
             "Robbie Brenner",
             "David Heyman",
             "Christine Crais",
-            "Margot Robbie",
-            "Tom Ackerley"
+            "Tom Ackerley",
+            "Margot Robbie"
         ],
         "writers": [
             "Noah Baumbach",
@@ -195,8 +195,8 @@
             "Laugh-out-loud relationship entanglements",
             "Funny jokes and crude humor"
         ],
-        "budget": 145000000,
-        "revenue": 1447138421,
+        "budget": null,
+        "revenue": null,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -220,9 +220,9 @@
             "David Andrews"
         ],
         "duration": 139,
-        "nbr_watched": 6263570,
-        "nbr_appearence": 643258,
-        "nbr_likes": 2856435,
+        "nbr_watched": 6267406,
+        "nbr_appearence": 643046,
+        "nbr_likes": 2858561,
         "rating": 4.3,
         "fans_favoris": 196000,
         "producers": [
@@ -262,8 +262,8 @@
             "Surreal and thought-provoking visions of life and death",
             "Powerful poetic and passionate drama"
         ],
-        "budget": null,
-        "revenue": null,
+        "budget": 63000000,
+        "revenue": 100853753,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -287,9 +287,9 @@
             "Callie Hernandez"
         ],
         "duration": 129,
-        "nbr_watched": 5338824,
-        "nbr_appearence": 724063,
-        "nbr_likes": 2389589,
+        "nbr_watched": 5342667,
+        "nbr_appearence": 724999,
+        "nbr_likes": 2391700,
         "rating": 4.1,
         "fans_favoris": 330000,
         "producers": [
@@ -329,8 +329,8 @@
             "Emotional life of renowned artists",
             "Charming romances and delightful chemistry"
         ],
-        "budget": 30000000,
-        "revenue": 509183536,
+        "budget": null,
+        "revenue": null,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -355,9 +355,9 @@
             "Sunita Mani"
         ],
         "duration": 140,
-        "nbr_watched": 4418177,
-        "nbr_appearence": 657026,
-        "nbr_likes": 2125855,
+        "nbr_watched": 4419928,
+        "nbr_appearence": 657499,
+        "nbr_likes": 2126735,
         "rating": 4.3,
         "fans_favoris": 188000,
         "producers": [
@@ -408,8 +408,8 @@
             "Quirky and endearing relationships",
             "Dreamlike, quirky, and surreal storytelling"
         ],
-        "budget": null,
-        "revenue": null,
+        "budget": 25000000,
+        "revenue": 139200000,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -433,16 +433,16 @@
             "Max Kasch"
         ],
         "duration": 107,
-        "nbr_watched": 4818671,
-        "nbr_appearence": 568910,
-        "nbr_likes": 2266280,
+        "nbr_watched": 4821681,
+        "nbr_appearence": 569672,
+        "nbr_likes": 2267962,
         "rating": 4.4,
-        "fans_favoris": 196000,
+        "fans_favoris": 197000,
         "producers": [
+            "David Lancaster",
             "Jason Blum",
             "Michel Litvak",
             "Helen Estabrook",
-            "David Lancaster",
             "Nicholas Britell",
             "Garrick Dion",
             "Stephanie Wilcox",
@@ -499,9 +499,9 @@
             "Benny Safdie"
         ],
         "duration": 181,
-        "nbr_watched": 4593890,
-        "nbr_appearence": 643802,
-        "nbr_likes": 1741988,
+        "nbr_watched": 4596378,
+        "nbr_appearence": 644278,
+        "nbr_likes": 1743023,
         "rating": 4.2,
         "fans_favoris": 50000,
         "producers": [
@@ -512,8 +512,8 @@
         ],
         "writers": [
             "Christopher Nolan",
-            "Martin J. Sherwin",
-            "Kai Bird"
+            "Kai Bird",
+            "Martin J. Sherwin"
         ],
         "composer": [
             "Ludwig Göransson"
@@ -543,8 +543,8 @@
             "Dangerous technology and the apocalypse",
             "Riveting political and presidential drama"
         ],
-        "budget": 100000000,
-        "revenue": 952000000,
+        "budget": null,
+        "revenue": null,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -568,9 +568,9 @@
             "Maria de Medeiros"
         ],
         "duration": 154,
-        "nbr_watched": 5241410,
-        "nbr_appearence": 620676,
-        "nbr_likes": 2254144,
+        "nbr_watched": 5243712,
+        "nbr_appearence": 621253,
+        "nbr_likes": 2255249,
         "rating": 4.2,
         "fans_favoris": 119000,
         "producers": [
@@ -606,8 +606,8 @@
             "Graphic violence and brutal revenge",
             "Dreamlike, quirky, and surreal storytelling"
         ],
-        "budget": 8000000,
-        "revenue": 213928762,
+        "budget": null,
+        "revenue": null,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -631,9 +631,9 @@
             "Blair Slater"
         ],
         "duration": 103,
-        "nbr_watched": 5665970,
-        "nbr_appearence": 443751,
-        "nbr_likes": 2303029,
+        "nbr_watched": 5669885,
+        "nbr_appearence": 444457,
+        "nbr_likes": 2305004,
         "rating": 4.2,
         "fans_favoris": 94000,
         "producers": [
@@ -700,15 +700,15 @@
             "Hugo Diego Garcia"
         ],
         "duration": 141,
-        "nbr_watched": 3477217,
-        "nbr_appearence": 511694,
-        "nbr_likes": 1160991,
+        "nbr_watched": 3479705,
+        "nbr_appearence": 512174,
+        "nbr_likes": 1161879,
         "rating": 0.0,
         "fans_favoris": 31000,
         "producers": [
+            "Eric Fellner",
             "Coralie Fargeat",
-            "Tim Bevan",
-            "Eric Fellner"
+            "Tim Bevan"
         ],
         "writers": [
             "Coralie Fargeat"
@@ -763,14 +763,14 @@
             "Thomas Jay Ryan"
         ],
         "duration": 108,
-        "nbr_watched": 4120854,
-        "nbr_appearence": 602072,
-        "nbr_likes": 1817879,
+        "nbr_watched": 4123240,
+        "nbr_appearence": 603131,
+        "nbr_likes": 1819156,
         "rating": 4.2,
         "fans_favoris": 222000,
         "producers": [
-            "Steve Golin",
-            "Anthony Bregman"
+            "Anthony Bregman",
+            "Steve Golin"
         ],
         "writers": [
             "Charlie Kaufman"
@@ -826,9 +826,9 @@
             "Lil Rel Howery"
         ],
         "duration": 104,
-        "nbr_watched": 5258774,
-        "nbr_appearence": 536156,
-        "nbr_likes": 2193639,
+        "nbr_watched": 5261532,
+        "nbr_appearence": 536708,
+        "nbr_likes": 2194796,
         "rating": 4.1,
         "fans_favoris": 41000,
         "producers": [
@@ -870,8 +870,8 @@
             "Gory, gruesome, and slasher horror",
             "Racism and the powerful fight for justice"
         ],
-        "budget": null,
-        "revenue": null,
+        "budget": 4500000,
+        "revenue": 255407969,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -895,15 +895,15 @@
             "Yao"
         ],
         "duration": 138,
-        "nbr_watched": 3217835,
-        "nbr_appearence": 472649,
-        "nbr_likes": 1386761,
+        "nbr_watched": 3220990,
+        "nbr_appearence": 474055,
+        "nbr_likes": 1388228,
         "rating": 4.1,
         "fans_favoris": 52000,
         "producers": [
+            "Ryan Coogler",
             "Zinzi Coogler",
             "Sev Ohanian",
-            "Ryan Coogler",
             "Kenneth Yu",
             "Ammar Mohamed",
             "Tina Anderson"
@@ -962,9 +962,9 @@
             "Josh Pais"
         ],
         "duration": 122,
-        "nbr_watched": 5811491,
-        "nbr_appearence": 388668,
-        "nbr_likes": 2186512,
+        "nbr_watched": 5814073,
+        "nbr_appearence": 388690,
+        "nbr_likes": 2187542,
         "rating": 0.0,
         "fans_favoris": 31000,
         "producers": [
@@ -974,10 +974,10 @@
             "David Webb"
         ],
         "writers": [
-            "Todd Phillips",
             "Scott Silver",
-            "Bob Kane",
+            "Todd Phillips",
             "Bill Finger",
+            "Bob Kane",
             "Jerry Robinson"
         ],
         "composer": [
@@ -1034,17 +1034,17 @@
             "Chang Chen"
         ],
         "duration": 155,
-        "nbr_watched": 4640637,
-        "nbr_appearence": 458803,
-        "nbr_likes": 1663955,
+        "nbr_watched": 4642698,
+        "nbr_appearence": 459150,
+        "nbr_likes": 1664754,
         "rating": 0.0,
         "fans_favoris": 34000,
         "producers": [
+            "Chris Carreras",
             "Jessica Derhammer",
             "Vasco Xu",
-            "Chris Carreras",
-            "Cale Boyter",
             "Mary Parent",
+            "Cale Boyter",
             "Denis Villeneuve",
             "Joseph M. Caracciolo Jr."
         ],
@@ -1104,9 +1104,9 @@
             "Kimiko Glenn"
         ],
         "duration": 117,
-        "nbr_watched": 5349282,
-        "nbr_appearence": 600057,
-        "nbr_likes": 2604754,
+        "nbr_watched": 5352982,
+        "nbr_appearence": 600592,
+        "nbr_likes": 2606687,
         "rating": 4.4,
         "fans_favoris": 105000,
         "producers": [
@@ -1178,17 +1178,17 @@
             "Henrik Norlén"
         ],
         "duration": 147,
-        "nbr_watched": 4450424,
-        "nbr_appearence": 539565,
-        "nbr_likes": 1644869,
+        "nbr_watched": 4452548,
+        "nbr_appearence": 539872,
+        "nbr_likes": 1645617,
         "rating": 0.0,
         "fans_favoris": 56000,
         "producers": [
             "Lars Knudsen",
             "Beau Ferris",
             "Patrik Andersson",
-            "Tyler Campellone",
             "Jeffrey Penman",
+            "Tyler Campellone",
             "Tintin Scheynius"
         ],
         "writers": [
@@ -1220,8 +1220,8 @@
             "Gothic and eerie haunting horror",
             "Dreamlike, quirky, and surreal storytelling"
         ],
-        "budget": null,
-        "revenue": null,
+        "budget": 9000000,
+        "revenue": 48498408,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -1245,26 +1245,26 @@
             "Cillian Murphy"
         ],
         "duration": 152,
-        "nbr_watched": 5447616,
-        "nbr_appearence": 917798,
-        "nbr_likes": 2393806,
+        "nbr_watched": 5450341,
+        "nbr_appearence": 918457,
+        "nbr_likes": 2395154,
         "rating": 4.5,
         "fans_favoris": 140000,
         "producers": [
-            "Emma Thomas",
-            "Charles Roven",
             "Christopher Nolan",
+            "Charles Roven",
+            "Emma Thomas",
             "Jordan Goldberg"
         ],
         "writers": [
-            "Christopher Nolan",
             "Jonathan Nolan",
+            "Christopher Nolan",
             "Bob Kane",
             "Bill Finger"
         ],
         "composer": [
-            "James Newton Howard",
-            "Hans Zimmer"
+            "Hans Zimmer",
+            "James Newton Howard"
         ],
         "studio": [
             "Warner Bros. Pictures",
@@ -1292,8 +1292,8 @@
             "Explosive and action-packed heroes vs. villains",
             "Heists and thrilling action"
         ],
-        "budget": 185000000,
-        "revenue": 1004558444,
+        "budget": null,
+        "revenue": null,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -1317,21 +1317,21 @@
             "Jayme Lawson"
         ],
         "duration": 177,
-        "nbr_watched": 4564110,
-        "nbr_appearence": 533942,
-        "nbr_likes": 1904355,
+        "nbr_watched": 4566376,
+        "nbr_appearence": 534334,
+        "nbr_likes": 1905432,
         "rating": 4.0,
         "fans_favoris": 92000,
         "producers": [
-            "Dylan Clark",
             "Matt Reeves",
+            "Dylan Clark",
             "Toby Hefferman"
         ],
         "writers": [
             "Peter Craig",
             "Matt Reeves",
-            "Bill Finger",
-            "Bob Kane"
+            "Bob Kane",
+            "Bill Finger"
         ],
         "composer": [
             "Michael Giacchino"
@@ -1361,8 +1361,8 @@
             "Noir and dark crime dramas",
             "Intriguing and suspenseful murder mysteries"
         ],
-        "budget": 185000000,
-        "revenue": 772319315,
+        "budget": null,
+        "revenue": null,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -1386,15 +1386,15 @@
             "Kurtwood Smith"
         ],
         "duration": 129,
-        "nbr_watched": 3817291,
-        "nbr_appearence": 528888,
-        "nbr_likes": 1758058,
+        "nbr_watched": 3822079,
+        "nbr_appearence": 530323,
+        "nbr_likes": 1761177,
         "rating": 4.3,
-        "fans_favoris": 300000,
+        "fans_favoris": 302000,
         "producers": [
+            "Tony Thomas",
             "Steven Haft",
             "Paul Junger Witt",
-            "Tony Thomas",
             "Duncan Henderson"
         ],
         "writers": [
@@ -1450,9 +1450,9 @@
             "Pete Postlethwaite"
         ],
         "duration": 148,
-        "nbr_watched": 5192492,
-        "nbr_appearence": 554879,
-        "nbr_likes": 2049165,
+        "nbr_watched": 5194529,
+        "nbr_appearence": 555401,
+        "nbr_likes": 2050055,
         "rating": 4.2,
         "fans_favoris": 100000,
         "producers": [
@@ -1494,8 +1494,8 @@
             "Explosive and action-packed heroes vs. villains",
             "Thought-provoking sci-fi action and future technology"
         ],
-        "budget": 160000000,
-        "revenue": 839030630,
+        "budget": null,
+        "revenue": null,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -1519,11 +1519,11 @@
             "Willem Dafoe"
         ],
         "duration": 102,
-        "nbr_watched": 4573992,
-        "nbr_appearence": 427641,
-        "nbr_likes": 1557738,
+        "nbr_watched": 4576635,
+        "nbr_appearence": 427476,
+        "nbr_likes": 1558698,
         "rating": 0.0,
-        "fans_favoris": 45000,
+        "fans_favoris": 46000,
         "producers": [
             "Christian Halsey Solomon",
             "Chris Hanley",
@@ -1593,9 +1593,9 @@
             "Katherine Langford"
         ],
         "duration": 131,
-        "nbr_watched": 4874332,
-        "nbr_appearence": 397222,
-        "nbr_likes": 1981851,
+        "nbr_watched": 4879538,
+        "nbr_appearence": 398217,
+        "nbr_likes": 1984001,
         "rating": 0.0,
         "fans_favoris": 45000,
         "producers": [
@@ -1632,8 +1632,8 @@
             "Noir and dark crime dramas",
             "Twisted dark psychological thriller"
         ],
-        "budget": null,
-        "revenue": null,
+        "budget": 40000000,
+        "revenue": 312897920,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -1661,15 +1661,15 @@
         "nbr_appearence": 10,
         "nbr_likes": 10,
         "rating": 4.0,
-        "fans_favoris": 187000,
+        "fans_favoris": 188000,
         "producers": [
             "Andrew Lazar",
             "Jody Hedien",
             "Greg Silverman"
         ],
         "writers": [
-            "Karen McCullah",
             "Kirsten Smith",
+            "Karen McCullah",
             "William Shakespeare"
         ],
         "composer": [
@@ -1698,8 +1698,8 @@
             "Charming romances and delightful chemistry",
             "Quirky and endearing relationships"
         ],
-        "budget": 16000000,
-        "revenue": 53478166,
+        "budget": null,
+        "revenue": null,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -1723,9 +1723,9 @@
             "Léa Seydoux"
         ],
         "duration": 167,
-        "nbr_watched": 3440754,
-        "nbr_appearence": 570469,
-        "nbr_likes": 1460525,
+        "nbr_watched": 3442501,
+        "nbr_appearence": 570929,
+        "nbr_likes": 1461311,
         "rating": 4.4,
         "fans_favoris": 93000,
         "producers": [
@@ -1763,8 +1763,8 @@
             "Fantasy adventure, heroism, and swordplay",
             "Emotional and captivating fantasy storytelling"
         ],
-        "budget": 190000000,
-        "revenue": 714844358,
+        "budget": null,
+        "revenue": null,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -1788,9 +1788,9 @@
             "Koba Hayashi"
         ],
         "duration": 125,
-        "nbr_watched": 4529731,
-        "nbr_appearence": 583591,
-        "nbr_likes": 2090464,
+        "nbr_watched": 4532759,
+        "nbr_appearence": 584228,
+        "nbr_likes": 2092125,
         "rating": 4.4,
         "fans_favoris": 131000,
         "producers": [
@@ -1826,8 +1826,8 @@
             "Kids' animated fun and adventure",
             "Surreal and thought-provoking visions of life and death"
         ],
-        "budget": 19000000,
-        "revenue": 274925095,
+        "budget": null,
+        "revenue": null,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -1853,9 +1853,9 @@
             "Karan Soni"
         ],
         "duration": 140,
-        "nbr_watched": 3931259,
-        "nbr_appearence": 566702,
-        "nbr_likes": 1862868,
+        "nbr_watched": 3934580,
+        "nbr_appearence": 567231,
+        "nbr_likes": 1864506,
         "rating": 4.4,
         "fans_favoris": 84000,
         "producers": [
@@ -1926,17 +1926,17 @@
             "Joanna Lumley"
         ],
         "duration": 180,
-        "nbr_watched": 5033648,
-        "nbr_appearence": 405910,
-        "nbr_likes": 1707958,
+        "nbr_watched": 5036602,
+        "nbr_appearence": 406399,
+        "nbr_likes": 1709084,
         "rating": 0.0,
         "fans_favoris": 44000,
         "producers": [
             "Riza Aziz",
-            "Joey McFarland",
-            "Emma Tillinger Koskoff",
-            "Martin Scorsese",
             "Leonardo DiCaprio",
+            "Emma Tillinger Koskoff",
+            "Joey McFarland",
+            "Martin Scorsese",
             "Ted Griffin",
             "Richard Baratta",
             "Marianne Bower",
@@ -1996,20 +1996,20 @@
             "Grace Chan"
         ],
         "duration": 130,
-        "nbr_watched": 2831159,
-        "nbr_appearence": 374793,
-        "nbr_likes": 1230711,
+        "nbr_watched": 2833935,
+        "nbr_appearence": 375713,
+        "nbr_likes": 1231866,
         "rating": 0.0,
         "fans_favoris": 34000,
         "producers": [
-            "James Gunn",
             "Peter Safran",
+            "James Gunn",
             "Galen Vaisman"
         ],
         "writers": [
             "James Gunn",
-            "Joe Shuster",
-            "Jerry Siegel"
+            "Jerry Siegel",
+            "Joe Shuster"
         ],
         "composer": [
             "John Murphy",
@@ -2063,9 +2063,9 @@
             "Daniel Zacapa"
         ],
         "duration": 127,
-        "nbr_watched": 4110616,
-        "nbr_appearence": 528560,
-        "nbr_likes": 1655693,
+        "nbr_watched": 4112785,
+        "nbr_appearence": 529251,
+        "nbr_likes": 1656766,
         "rating": 4.4,
         "fans_favoris": 123000,
         "producers": [
@@ -2131,9 +2131,9 @@
             "Sebastian Stan"
         ],
         "duration": 108,
-        "nbr_watched": 3794500,
-        "nbr_appearence": 506697,
-        "nbr_likes": 1482132,
+        "nbr_watched": 3796851,
+        "nbr_appearence": 507528,
+        "nbr_likes": 1483271,
         "rating": 4.2,
         "fans_favoris": 122000,
         "producers": [
@@ -2206,9 +2206,9 @@
             "Milena Konstantinova"
         ],
         "duration": 133,
-        "nbr_watched": 2675713,
-        "nbr_appearence": 435111,
-        "nbr_likes": 875868,
+        "nbr_watched": 2676902,
+        "nbr_appearence": 435396,
+        "nbr_likes": 876262,
         "rating": 0.0,
         "fans_favoris": 21000,
         "producers": [
@@ -2280,9 +2280,9 @@
             "Edward Norton"
         ],
         "duration": 100,
-        "nbr_watched": 3774314,
-        "nbr_appearence": 515434,
-        "nbr_likes": 1594190,
+        "nbr_watched": 3775566,
+        "nbr_appearence": 515888,
+        "nbr_likes": 1594739,
         "rating": 4.2,
         "fans_favoris": 91000,
         "producers": [
@@ -2326,8 +2326,8 @@
             "Funny jokes and crude humor",
             "Dreamlike, quirky, and surreal storytelling"
         ],
-        "budget": null,
-        "revenue": null,
+        "budget": 30000000,
+        "revenue": 174600318,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -2351,19 +2351,19 @@
             "Mary Joe Fernández"
         ],
         "duration": 132,
-        "nbr_watched": 2885080,
-        "nbr_appearence": 417295,
-        "nbr_likes": 1003343,
+        "nbr_watched": 2886693,
+        "nbr_appearence": 417671,
+        "nbr_likes": 1003892,
         "rating": 0.0,
         "fans_favoris": 41000,
         "producers": [
             "Amy Pascal",
-            "Rachel O'Connor",
             "Luca Guadagnino",
+            "Rachel O'Connor",
             "Zendaya",
             "Darnell Appling",
-            "Kim H. Winther",
-            "Daniela Venturelli"
+            "Daniela Venturelli",
+            "Kim H. Winther"
         ],
         "writers": [
             "Justin Kuritzkes"
@@ -2418,9 +2418,9 @@
             "Sadie Soverall"
         ],
         "duration": 131,
-        "nbr_watched": 3405810,
-        "nbr_appearence": 288616,
-        "nbr_likes": 939033,
+        "nbr_watched": 3407581,
+        "nbr_appearence": 288864,
+        "nbr_likes": 939547,
         "rating": 0.0,
         "fans_favoris": 16000,
         "producers": [
@@ -2481,9 +2481,9 @@
             "Rebecca Williams"
         ],
         "duration": 142,
-        "nbr_watched": 5190408,
-        "nbr_appearence": 381260,
-        "nbr_likes": 1823042,
+        "nbr_watched": 5194106,
+        "nbr_appearence": 381911,
+        "nbr_likes": 1824762,
         "rating": 4.2,
         "fans_favoris": 99000,
         "producers": [
@@ -2546,14 +2546,14 @@
             "Jordan Rodrigues"
         ],
         "duration": 94,
-        "nbr_watched": 3801854,
-        "nbr_appearence": 504082,
-        "nbr_likes": 1478662,
+        "nbr_watched": 3803415,
+        "nbr_appearence": 504509,
+        "nbr_likes": 1479293,
         "rating": 0.0,
         "fans_favoris": 84000,
         "producers": [
-            "Evelyn O'Neill",
             "Eli Bush",
+            "Evelyn O'Neill",
             "Scott Rudin",
             "Jason Sack",
             "Alex G. Scott"
@@ -2586,8 +2586,8 @@
             "Quirky and endearing relationships",
             "Powerful stories of heartbreak and suffering"
         ],
-        "budget": 10000000,
-        "revenue": 79000000,
+        "budget": null,
+        "revenue": null,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -2611,19 +2611,19 @@
             "Jacky Ido"
         ],
         "duration": 153,
-        "nbr_watched": 4253963,
-        "nbr_appearence": 530279,
-        "nbr_likes": 1750925,
+        "nbr_watched": 4255737,
+        "nbr_appearence": 530764,
+        "nbr_likes": 1751787,
         "rating": 4.4,
         "fans_favoris": 102000,
         "producers": [
             "Lawrence Bender",
             "Henning Molfenter",
-            "Christoph Fisser",
-            "Bruce Moriarty",
             "Pilar Savone",
+            "Carl Woebcken",
+            "Christoph Fisser",
             "William Paul Clark",
-            "Carl Woebcken"
+            "Bruce Moriarty"
         ],
         "writers": [
             "Quentin Tarantino"
@@ -2681,20 +2681,20 @@
             "Lia Beldam"
         ],
         "duration": 144,
-        "nbr_watched": 4053600,
-        "nbr_appearence": 654481,
-        "nbr_likes": 1574217,
+        "nbr_watched": 4056952,
+        "nbr_appearence": 655775,
+        "nbr_likes": 1575766,
         "rating": 4.2,
-        "fans_favoris": 77000,
+        "fans_favoris": 78000,
         "producers": [
             "Stanley Kubrick",
-            "Martin Richards",
+            "Robert Fryer",
             "Mary Lea Johnson",
-            "Robert Fryer"
+            "Martin Richards"
         ],
         "writers": [
-            "Diane Johnson",
             "Stanley Kubrick",
+            "Diane Johnson",
             "Stephen King"
         ],
         "composer": [
@@ -2751,16 +2751,16 @@
             "Hanna Schygulla"
         ],
         "duration": 141,
-        "nbr_watched": 2805723,
-        "nbr_appearence": 455483,
-        "nbr_likes": 1010392,
+        "nbr_watched": 2806707,
+        "nbr_appearence": 455768,
+        "nbr_likes": 1010709,
         "rating": 0.0,
         "fans_favoris": 32000,
         "producers": [
             "Yorgos Lanthimos",
             "Ildikó Kemény",
-            "Kasia Malipan",
             "David Minkowski",
+            "Kasia Malipan",
             "Emma Stone",
             "Ed Guiney",
             "Andrew Lowe"
@@ -2824,11 +2824,11 @@
             "Rachel Majorowski"
         ],
         "duration": 127,
-        "nbr_watched": 3608650,
-        "nbr_appearence": 440617,
-        "nbr_likes": 1444440,
+        "nbr_watched": 3611814,
+        "nbr_appearence": 441537,
+        "nbr_likes": 1446212,
         "rating": 4.4,
-        "fans_favoris": 170000,
+        "fans_favoris": 171000,
         "producers": [
             "Lawrence Bender",
             "Chris Moore"
@@ -2860,8 +2860,8 @@
             "Emotional teen coming-of-age stories",
             "Emotional and touching family dramas"
         ],
-        "budget": null,
-        "revenue": null,
+        "budget": 10000000,
+        "revenue": 225900000,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -2889,7 +2889,7 @@
         "nbr_appearence": 1,
         "nbr_likes": 1,
         "rating": 4.2,
-        "fans_favoris": 96000,
+        "fans_favoris": 97000,
         "producers": [
             "Lawrence Bender",
             "Kwame Parker",
@@ -2952,9 +2952,9 @@
             "Missi Pyle"
         ],
         "duration": 149,
-        "nbr_watched": 3909120,
-        "nbr_appearence": 435293,
-        "nbr_likes": 1412000,
+        "nbr_watched": 3910622,
+        "nbr_appearence": 435776,
+        "nbr_likes": 1412530,
         "rating": 4.1,
         "fans_favoris": 54000,
         "producers": [
@@ -3017,9 +3017,9 @@
             "Reed Birney"
         ],
         "duration": 107,
-        "nbr_watched": 3534906,
-        "nbr_appearence": 296639,
-        "nbr_likes": 1050203,
+        "nbr_watched": 3536549,
+        "nbr_appearence": 296842,
+        "nbr_likes": 1050736,
         "rating": 0.0,
         "fans_favoris": 8,
         "producers": [
@@ -3060,8 +3060,8 @@
             "Dreamlike, quirky, and surreal storytelling",
             "Terrifying, haunted, and supernatural horror"
         ],
-        "budget": null,
-        "revenue": null,
+        "budget": 35000000,
+        "revenue": 79628200,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -3085,15 +3085,15 @@
             "Tracey Walter"
         ],
         "duration": 119,
-        "nbr_watched": 3734039,
-        "nbr_appearence": 529432,
-        "nbr_likes": 1434500,
+        "nbr_watched": 3736456,
+        "nbr_appearence": 530138,
+        "nbr_likes": 1435548,
         "rating": 4.3,
         "fans_favoris": 79000,
         "producers": [
-            "Ron Bozman",
-            "Edward Saxon",
             "Kenneth Utt",
+            "Edward Saxon",
+            "Ron Bozman",
             "Grace Blake"
         ],
         "writers": [
@@ -3153,15 +3153,15 @@
             "Louis Garrel"
         ],
         "duration": 135,
-        "nbr_watched": 3315310,
-        "nbr_appearence": 541063,
-        "nbr_likes": 1487871,
+        "nbr_watched": 3317821,
+        "nbr_appearence": 541885,
+        "nbr_likes": 1489245,
         "rating": 4.2,
-        "fans_favoris": 191000,
+        "fans_favoris": 192000,
         "producers": [
-            "Denise Di Novi",
+            "Amy Pascal",
             "Robin Swicord",
-            "Amy Pascal"
+            "Denise Di Novi"
         ],
         "writers": [
             "Greta Gerwig",
@@ -3192,8 +3192,8 @@
             "Powerful stories of heartbreak and suffering",
             "Charming romances and delightful chemistry"
         ],
-        "budget": 40000000,
-        "revenue": 332103783,
+        "budget": null,
+        "revenue": null,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -3217,9 +3217,9 @@
             "Courtney-Mae Briggs"
         ],
         "duration": 162,
-        "nbr_watched": 2745511,
-        "nbr_appearence": 351796,
-        "nbr_likes": 1002216,
+        "nbr_watched": 2748320,
+        "nbr_appearence": 352272,
+        "nbr_likes": 1003197,
         "rating": 0.0,
         "fans_favoris": 38000,
         "producers": [
@@ -3257,8 +3257,8 @@
             "Catchy songs and hilarious musical comedy",
             "Captivating relationships and charming romance"
         ],
-        "budget": null,
-        "revenue": null,
+        "budget": 150000000,
+        "revenue": 758737211,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -3282,9 +3282,9 @@
             "Anton Bitter"
         ],
         "duration": 139,
-        "nbr_watched": 2480203,
-        "nbr_appearence": 407350,
-        "nbr_likes": 810775,
+        "nbr_watched": 2481367,
+        "nbr_appearence": 407707,
+        "nbr_likes": 811142,
         "rating": 0.0,
         "fans_favoris": 20000,
         "producers": [
@@ -3322,8 +3322,8 @@
             "Touching and sentimental family stories",
             "Passion and romance"
         ],
-        "budget": 6000000,
-        "revenue": 56286295,
+        "budget": null,
+        "revenue": null,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -3347,15 +3347,15 @@
             "Bruce Dern"
         ],
         "duration": 162,
-        "nbr_watched": 3807446,
-        "nbr_appearence": 467684,
-        "nbr_likes": 1266138,
+        "nbr_watched": 3808769,
+        "nbr_appearence": 468036,
+        "nbr_likes": 1266597,
         "rating": 0.0,
         "fans_favoris": 34000,
         "producers": [
-            "David Heyman",
             "Shannon McIntosh",
             "Quentin Tarantino",
+            "David Heyman",
             "William Paul Clark",
             "Daren Metropoulos"
         ],
@@ -3411,7 +3411,7 @@
         "nbr_appearence": 500,
         "nbr_likes": 500,
         "rating": 0.0,
-        "fans_favoris": 53000,
+        "fans_favoris": 54000,
         "producers": [
             "Steven J. Wolfe",
             "Jessica Tuchinsky",
@@ -3480,24 +3480,24 @@
             "Tony Revolori"
         ],
         "duration": 148,
-        "nbr_watched": 4411791,
-        "nbr_appearence": 525831,
-        "nbr_likes": 1618096,
+        "nbr_watched": 4414545,
+        "nbr_appearence": 526203,
+        "nbr_likes": 1619242,
         "rating": 0.0,
         "fans_favoris": 27000,
         "producers": [
             "Emily Fong",
             "David H. Venghaus Jr.",
-            "Amy Pascal",
             "Kevin Feige",
+            "Amy Pascal",
             "Mitchell Bell",
             "Chris Buongiorno"
         ],
         "writers": [
             "Chris McKenna",
             "Erik Sommers",
-            "Stan Lee",
-            "Steve Ditko"
+            "Steve Ditko",
+            "Stan Lee"
         ],
         "composer": [
             "Michael Giacchino"
@@ -3524,8 +3524,8 @@
             "Touching and sentimental family stories",
             "Fantasy adventure, heroism, and swordplay"
         ],
-        "budget": null,
-        "revenue": null,
+        "budget": 200000000,
+        "revenue": 1921847111,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -3549,9 +3549,9 @@
             "Marco Sgrosso"
         ],
         "duration": 132,
-        "nbr_watched": 3536222,
-        "nbr_appearence": 466687,
-        "nbr_likes": 1321351,
+        "nbr_watched": 3538707,
+        "nbr_appearence": 467228,
+        "nbr_likes": 1322576,
         "rating": 0.0,
         "fans_favoris": 149000,
         "producers": [
@@ -3601,8 +3601,8 @@
             "Emotional teen coming-of-age stories",
             "Passion and romance"
         ],
-        "budget": 3500000,
-        "revenue": 43143046,
+        "budget": null,
+        "revenue": null,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -3626,11 +3626,11 @@
             "Joan Cusack"
         ],
         "duration": 103,
-        "nbr_watched": 3679632,
-        "nbr_appearence": 410812,
-        "nbr_likes": 1484356,
+        "nbr_watched": 3683846,
+        "nbr_appearence": 411934,
+        "nbr_likes": 1486885,
         "rating": 0.0,
-        "fans_favoris": 174000,
+        "fans_favoris": 175000,
         "producers": [
             "John Malkovich",
             "Russell Smith",
@@ -3689,16 +3689,16 @@
             "John Carroll Lynch"
         ],
         "duration": 138,
-        "nbr_watched": 4082262,
-        "nbr_appearence": 395155,
-        "nbr_likes": 1435616,
+        "nbr_watched": 4084537,
+        "nbr_appearence": 395798,
+        "nbr_likes": 1436588,
         "rating": 4.2,
         "fans_favoris": 69000,
         "producers": [
             "Bradley J. Fischer",
             "Arnold Messer",
-            "Martin Scorsese",
-            "Mike Medavoy"
+            "Mike Medavoy",
+            "Martin Scorsese"
         ],
         "writers": [
             "Laeta Kalogridis",
@@ -3755,9 +3755,9 @@
             "John Marley"
         ],
         "duration": 175,
-        "nbr_watched": 3300506,
-        "nbr_appearence": 507972,
-        "nbr_likes": 1307089,
+        "nbr_watched": 3302138,
+        "nbr_appearence": 508501,
+        "nbr_likes": 1307796,
         "rating": 4.5,
         "fans_favoris": 112000,
         "producers": [
@@ -3817,9 +3817,9 @@
             "Michael Gambon"
         ],
         "duration": 87,
-        "nbr_watched": 3273211,
-        "nbr_appearence": 532689,
-        "nbr_likes": 1447413,
+        "nbr_watched": 3275241,
+        "nbr_appearence": 532505,
+        "nbr_likes": 1448565,
         "rating": 4.3,
         "fans_favoris": 142000,
         "producers": [
@@ -3862,8 +3862,8 @@
             "Fairy-tale fantasy and enchanted magic",
             "Funny jokes and crude humor"
         ],
-        "budget": null,
-        "revenue": null,
+        "budget": 40000000,
+        "revenue": 46471023,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -3887,9 +3887,9 @@
             "Julius Callahan"
         ],
         "duration": 111,
-        "nbr_watched": 5218076,
-        "nbr_appearence": 391637,
-        "nbr_likes": 1790135,
+        "nbr_watched": 5221727,
+        "nbr_appearence": 392188,
+        "nbr_likes": 1791552,
         "rating": 4.2,
         "fans_favoris": 60000,
         "producers": [
@@ -3949,17 +3949,17 @@
             "Callie Schuttera"
         ],
         "duration": 129,
-        "nbr_watched": 2432557,
-        "nbr_appearence": 314721,
-        "nbr_likes": 771893,
+        "nbr_watched": 2435326,
+        "nbr_appearence": 315751,
+        "nbr_likes": 772653,
         "rating": 0.0,
         "fans_favoris": 4,
         "producers": [
-            "J.D. Lifshitz",
-            "Miri Yoon",
             "Zach Cregger",
             "Roy Lee",
-            "Raphael Margules"
+            "J.D. Lifshitz",
+            "Raphael Margules",
+            "Miri Yoon"
         ],
         "writers": [
             "Zach Cregger"
@@ -3992,8 +3992,8 @@
             "Gothic and eerie haunting horror",
             "Gory, gruesome, and slasher horror"
         ],
-        "budget": 38000000,
-        "revenue": 265894217,
+        "budget": null,
+        "revenue": null,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -4017,9 +4017,9 @@
             "Dana Gourrier"
         ],
         "duration": 165,
-        "nbr_watched": 4006613,
-        "nbr_appearence": 444870,
-        "nbr_likes": 1557841,
+        "nbr_watched": 4008245,
+        "nbr_appearence": 444775,
+        "nbr_likes": 1558567,
         "rating": 4.3,
         "fans_favoris": 71000,
         "producers": [
@@ -4057,8 +4057,8 @@
             "Racism and the powerful fight for justice",
             "Western frontier dramas with a touch of humor"
         ],
-        "budget": null,
-        "revenue": null,
+        "budget": 100000000,
+        "revenue": 425368238,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -4083,9 +4083,9 @@
             "Chadwick Boseman"
         ],
         "duration": 149,
-        "nbr_watched": 4830331,
-        "nbr_appearence": 480482,
-        "nbr_likes": 1638305,
+        "nbr_watched": 4833338,
+        "nbr_appearence": 480897,
+        "nbr_likes": 1639476,
         "rating": 4.0,
         "fans_favoris": 31000,
         "producers": [
@@ -4131,8 +4131,8 @@
             "Action-packed space and alien sagas",
             "Explosive and action-packed heroes vs. villains"
         ],
-        "budget": null,
-        "revenue": null,
+        "budget": 300000000,
+        "revenue": 2052415039,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -4157,32 +4157,32 @@
             "Benedict Cumberbatch"
         ],
         "duration": 181,
-        "nbr_watched": 4699268,
-        "nbr_appearence": 482720,
-        "nbr_likes": 1540880,
+        "nbr_watched": 4702361,
+        "nbr_appearence": 483191,
+        "nbr_likes": 1542133,
         "rating": 0.0,
-        "fans_favoris": 37000,
+        "fans_favoris": 38000,
         "producers": [
             "Kevin Feige",
-            "Mitchell Bell",
             "Ari Costa",
+            "Mitchell Bell",
             "Christopher Markus",
             "Stephen McFeely",
             "Jen Underdahl",
             "JoAnn Perritano"
         ],
         "writers": [
-            "Christopher Markus",
             "Stephen McFeely",
-            "Jim Starlin",
-            "Joe Simon",
-            "Jack Kirby",
-            "Steve Englehart",
+            "Christopher Markus",
             "Steve Gan",
+            "Jack Kirby",
             "Bill Mantlo",
             "Keith Giffen",
             "Stan Lee",
+            "Joe Simon",
+            "Jim Starlin",
             "Larry Lieber",
+            "Steve Englehart",
             "Don Heck"
         ],
         "composer": [
@@ -4208,8 +4208,8 @@
             "Epic adventure and breathtaking battles",
             "Historical battles and epic heroism"
         ],
-        "budget": 356000000,
-        "revenue": 2799439100,
+        "budget": null,
+        "revenue": null,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -4233,9 +4233,9 @@
             "Lanny Joon"
         ],
         "duration": 113,
-        "nbr_watched": 3949456,
-        "nbr_appearence": 285276,
-        "nbr_likes": 1326259,
+        "nbr_watched": 3951495,
+        "nbr_appearence": 285558,
+        "nbr_likes": 1327014,
         "rating": 0.0,
         "fans_favoris": 45000,
         "producers": [
@@ -4273,8 +4273,8 @@
             "Gritty crime and ruthless gangsters",
             "Explosive and action-packed heroes vs. villains"
         ],
-        "budget": null,
-        "revenue": null,
+        "budget": 34000000,
+        "revenue": 226945087,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -4298,9 +4298,9 @@
             "Christy Summerhays"
         ],
         "duration": 128,
-        "nbr_watched": 3205360,
-        "nbr_appearence": 480314,
-        "nbr_likes": 1134719,
+        "nbr_watched": 3206727,
+        "nbr_appearence": 480636,
+        "nbr_likes": 1135207,
         "rating": 0.0,
         "fans_favoris": 49000,
         "producers": [
@@ -4366,9 +4366,9 @@
             "Larry Brandenburg"
         ],
         "duration": 142,
-        "nbr_watched": 3386076,
-        "nbr_appearence": 406205,
-        "nbr_likes": 1338691,
+        "nbr_watched": 3387762,
+        "nbr_appearence": 406746,
+        "nbr_likes": 1339482,
         "rating": 4.6,
         "fans_favoris": 128000,
         "producers": [
@@ -4400,8 +4400,8 @@
             "Gripping, intense violent crime",
             "Surreal and thought-provoking visions of life and death"
         ],
-        "budget": null,
-        "revenue": null,
+        "budget": 25000000,
+        "revenue": 28341469,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -4426,20 +4426,20 @@
             "Belinda McClory"
         ],
         "duration": 136,
-        "nbr_watched": 3936889,
-        "nbr_appearence": 394742,
-        "nbr_likes": 1336769,
+        "nbr_watched": 3938460,
+        "nbr_appearence": 395094,
+        "nbr_likes": 1337325,
         "rating": 4.2,
         "fans_favoris": 56000,
         "producers": [
             "Joel Silver",
-            "Richard Mirisch",
+            "Dan Cracchiolo",
             "Carol Hughes",
-            "Dan Cracchiolo"
+            "Richard Mirisch"
         ],
         "writers": [
-            "Lilly Wachowski",
-            "Lana Wachowski"
+            "Lana Wachowski",
+            "Lilly Wachowski"
         ],
         "composer": [
             "Don Davis"
@@ -4469,8 +4469,8 @@
             "Explosive and action-packed heroes vs. villains",
             "Action-packed space and alien sagas"
         ],
-        "budget": null,
-        "revenue": null,
+        "budget": 63000000,
+        "revenue": 463517383,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -4494,9 +4494,9 @@
             "Jennifer Garner"
         ],
         "duration": 128,
-        "nbr_watched": 2888194,
-        "nbr_appearence": 381228,
-        "nbr_likes": 900174,
+        "nbr_watched": 2890318,
+        "nbr_appearence": 381505,
+        "nbr_likes": 900872,
         "rating": 0.0,
         "fans_favoris": 6,
         "producers": [
@@ -4513,12 +4513,12 @@
             "Ryan Reynolds",
             "Shawn Levy",
             "Zeb Wells",
-            "Len Wein",
-            "John Romita Sr.",
             "Herb Trimpe",
             "Roy Thomas",
-            "Fabian Nicieza",
-            "Rob Liefeld"
+            "John Romita Sr.",
+            "Len Wein",
+            "Rob Liefeld",
+            "Fabian Nicieza"
         ],
         "composer": [
             "Rob Simonsen"
@@ -4573,9 +4573,9 @@
             "Victor Argo"
         ],
         "duration": 114,
-        "nbr_watched": 2891917,
-        "nbr_appearence": 457076,
-        "nbr_likes": 1012859,
+        "nbr_watched": 2893249,
+        "nbr_appearence": 457544,
+        "nbr_likes": 1013379,
         "rating": 4.1,
         "fans_favoris": 69000,
         "producers": [
@@ -4644,10 +4644,10 @@
         "rating": 0.0,
         "fans_favoris": 5,
         "producers": [
-            "Bong Joon Ho",
             "Dooho Choi",
-            "Dede Gardner",
+            "Bong Joon Ho",
             "Jeremy Kleiner",
+            "Dede Gardner",
             "Yeijin Cho"
         ],
         "writers": [
@@ -4682,8 +4682,8 @@
             "Action-packed space and alien sagas",
             "Humanity's odyssey: earth and beyond"
         ],
-        "budget": 118000000,
-        "revenue": 131847147,
+        "budget": null,
+        "revenue": null,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -4707,9 +4707,9 @@
             "Tim Meadows"
         ],
         "duration": 96,
-        "nbr_watched": 4249570,
-        "nbr_appearence": 323719,
-        "nbr_likes": 1325516,
+        "nbr_watched": 4253854,
+        "nbr_appearence": 324455,
+        "nbr_likes": 1327260,
         "rating": 0.0,
         "fans_favoris": 36000,
         "producers": [
@@ -4773,24 +4773,24 @@
             "Dominic Monaghan"
         ],
         "duration": 179,
-        "nbr_watched": 3864747,
-        "nbr_appearence": 430861,
-        "nbr_likes": 1398534,
+        "nbr_watched": 3866503,
+        "nbr_appearence": 431338,
+        "nbr_likes": 1399242,
         "rating": 4.4,
         "fans_favoris": 85000,
         "producers": [
             "Peter Jackson",
             "Barrie M. Osborne",
             "Rick Porras",
-            "Ellen Somers",
             "Jamie Selkirk",
+            "Ellen Somers",
             "Tim Sanders",
             "Fran Walsh"
         ],
         "writers": [
-            "Philippa Boyens",
-            "Fran Walsh",
             "Peter Jackson",
+            "Fran Walsh",
+            "Philippa Boyens",
             "J. R. R. Tolkien"
         ],
         "composer": [
@@ -4818,8 +4818,8 @@
             "Emotional and captivating fantasy storytelling",
             "Historical battles and epic heroism"
         ],
-        "budget": null,
-        "revenue": null,
+        "budget": 93000000,
+        "revenue": 871368364,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     },
@@ -4843,24 +4843,24 @@
             "David Selby"
         ],
         "duration": 121,
-        "nbr_watched": 3675308,
-        "nbr_appearence": 386537,
-        "nbr_likes": 1090787,
+        "nbr_watched": 3676505,
+        "nbr_appearence": 386801,
+        "nbr_likes": 1091163,
         "rating": 0.0,
         "fans_favoris": 42000,
         "producers": [
-            "Ceán Chaffin",
-            "Dana Brunetti",
             "Scott Rudin",
-            "Michael De Luca"
+            "Dana Brunetti",
+            "Michael De Luca",
+            "Ceán Chaffin"
         ],
         "writers": [
             "Aaron Sorkin",
             "Ben Mezrich"
         ],
         "composer": [
-            "Atticus Ross",
-            "Trent Reznor"
+            "Trent Reznor",
+            "Atticus Ross"
         ],
         "studio": [
             "Columbia Pictures",
@@ -4882,8 +4882,8 @@
             "Powerful poetic and passionate drama",
             "Fascinating, emotional stories and documentaries"
         ],
-        "budget": 40000000,
-        "revenue": 224920315,
+        "budget": null,
+        "revenue": null,
         "kind": "movie",
         "source_page": "https://letterboxd.com/films/popular/"
     }
