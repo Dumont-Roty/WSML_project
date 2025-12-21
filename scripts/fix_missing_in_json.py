@@ -31,8 +31,8 @@ sys.path.insert(0, str(SRC_WSML))
 sys.path.insert(0, str(SRC))
 
 try:
-    from WSML_code.page_to_scrap import PageScrap
-    from WSML_code.dismiss_overlay import dismiss_overlay
+    from WSML_code.scrapers.page_scraper import PageScrap
+    from WSML_code.services.dismiss_impl import dismiss_overlay
 except Exception as e:
     print("Import error: make sure you run this from the repository root with the project's venv active.")
     raise

@@ -1,7 +1,7 @@
 from urllib.parse import urljoin
 
-from WSML_code.page_to_scrap import PageScrap
-import WSML_code.page_to_scrap as page_module
+from WSML_code.scrapers.page_scraper import PageScrap
+import WSML_code.scrapers.page_scraper as page_module
 
 
 class DummyLocator:
@@ -98,7 +98,7 @@ def test_scrap_tmdb_url_creates_tmdb_page_when_missing(monkeypatch):
     assert tmdb_page.closed
     assert tmdb_page.routes and len(tmdb_page.routes) == 2
     assert tmdb_page.visited == ["https://themoviedb.org/movie/2"]
-    assert tmdb_page.timeout == 2000
+    assert tmdb_page.timeout == 5000
 
 
 class LinkLocator:

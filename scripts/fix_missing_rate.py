@@ -20,8 +20,8 @@ SRC_WSML = SRC / 'WSML_code'
 sys.path.insert(0, str(SRC_WSML))
 sys.path.insert(0, str(SRC))
 
-from WSML_code.element_to_scrap import Scraping
-from WSML_code.dismiss_overlay import dismiss_overlay
+from WSML_code.scrapers.element_scraper import Scraping
+from WSML_code.services.dismiss_impl import dismiss_overlay
 from playwright.sync_api import sync_playwright
 
 

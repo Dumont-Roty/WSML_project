@@ -5,8 +5,8 @@ from typing import Iterable, List
 
 from playwright.sync_api import sync_playwright
 
-from WSML_code.dismiss_overlay import dismiss_overlay
-from WSML_code.page_to_scrap import PageScrap
+from WSML_code.services.dismiss_impl import dismiss_overlay
+from WSML_code.scrapers.page_scraper import PageScrap
 from models import Movie
 
 
@@ -69,6 +69,22 @@ def main(urls: Iterable[str] | None = None) -> None:
     """
     if urls is None:
         urls = []
+
+
+# Legacy compatibility list: kept for callers that relied on module-level constant.
+URLS_TO_SCRAP: list[str] = [
+    "https://letterboxd.com/film/the-lord-of-the-rings-the-two-towers/",
+    "https://letterboxd.com/film/the-godfather/",
+    "https://letterboxd.com/film/parasite-2019/",
+    "https://letterboxd.com/film/spirited-away/",
+    "https://letterboxd.com/film/la-haine/",
+    "https://letterboxd.com/film/everything-everywhere-all-at-once/",
+    "https://letterboxd.com/film/2001-a-space-odyssey/",
+    "https://letterboxd.com/film/portrait-of-a-lady-on-fire/",
+    "https://letterboxd.com/film/spider-man-into-the-spider-verse/",
+    "https://letterboxd.com/film/interstellar/",
+    "https://letterboxd.com/film/whiplash-2014/",
+]
 
     total_start = perf_counter()
     with sync_playwright() as playwright:
