@@ -1,14 +1,45 @@
-import json
-import re
-from time import perf_counter
-from typing import List
-from playwright.sync_api import sync_playwright
-from page_to_scrap import PageScrap
-from dismiss_overlay import dismiss_overlay
-from models import Movie
+"""Compatibility wrapper for `WSML_code.batch_scrap`.
 
-# Liste des URLs à scraper (une par film)
-URLS_TO_SCRAP: List[str] = [
+The migrated implementation lives in `WSML_code.scrapers.batch_scraper`.
+
+This wrapper keeps module-level symbols patchable for unit tests (notably
+`tests/test_batch_scrap.py`).
+"""
+
+from __future__ import annotations
+
+import importlib
+import json
+
+try:
+    from playwright.sync_api import sync_playwright  # re-export for tests
+except Exception:  # pragma: no cover
+    sync_playwright = None  # type: ignore
+
+try:
+    from WSML_code.dismiss_overlay import dismiss_overlay  # type: ignore
+except Exception:  # pragma: no cover
+    def dismiss_overlay(*_args, **_kwargs):
+        raise RuntimeError("dismiss_overlay unavailable")
+
+try:
+    from WSML_code.page_to_scrap import PageScrap  # type: ignore
+except Exception:  # pragma: no cover
+    PageScrap = None  # type: ignore
+
+
+try:
+    from WSML_code.scrapers.batch_scraper import scrape_one as _impl_scrape_one, main as _impl_main  # type: ignore
+except Exception:  # pragma: no cover
+    def _missing(*_args, **_kwargs):
+        raise RuntimeError("`WSML_code.scrapers.batch_scraper` unavailable; migration in progress")
+
+    _impl_scrape_one = _missing  # type: ignore
+    _impl_main = _missing  # type: ignore
+
+
+# legacy list kept at wrapper level for compatibility; prefer passing explicit urls
+URLS_TO_SCRAP: list[str] = [
     "https://letterboxd.com/film/the-lord-of-the-rings-the-two-towers/",
     "https://letterboxd.com/film/the-godfather/",
     "https://letterboxd.com/film/parasite-2019/",
@@ -22,83 +53,45 @@ URLS_TO_SCRAP: List[str] = [
     "https://letterboxd.com/film/whiplash-2014/",
 ]
 
-def scrape_one(context, tmdb_page, url: str) -> Movie:
-    start = perf_counter()
-    section_timings = {}
-    page = context.new_page()
-    page.set_default_timeout(3000)
-    page.goto(url, wait_until="domcontentloaded", timeout=7000)
-    try:
-        dismiss_overlay(page)
-    except Exception as e:
-        print(f"Overlay dismiss error for {url}: {e}")
-    page.wait_for_selector('.fc-consent-root', state='detached', timeout=2000)
 
-    t0 = perf_counter();
-    cast_block = PageScrap.scrap_cast_page(page)
-    section_timings["cast_page"] = perf_counter() - t0
+def _propagate_hooks():
+    impl = importlib.import_module("WSML_code.scrapers.batch_scraper")
+    setattr(impl, "sync_playwright", sync_playwright)
+    setattr(impl, "json", json)
+    setattr(impl, "dismiss_overlay", dismiss_overlay)
+    setattr(impl, "PageScrap", PageScrap)
+    # allow tests to monkeypatch `WSML_code.batch_scrap.scrape_one`
+    setattr(impl, "scrape_one", scrape_one)
+    return impl
 
-    t0 = perf_counter();
-    crew_block = PageScrap.scrap_crew_page(page)
-    section_timings["crew_page"] = perf_counter() - t0
 
-    t0 = perf_counter();
-    details_block = PageScrap.scrap_details_page(page)
-    section_timings["details_page"] = perf_counter() - t0
+def _scrape_one_wrapper(context, tmdb_page, url: str):
+    # Make sure patched wrapper globals are seen by the implementation.
+    impl = _propagate_hooks()
+    # Avoid recursion when implementation points back to this wrapper.
+    if getattr(impl, "scrape_one", None) is _WRAPPER_SCRAPE_ONE:
+        setattr(impl, "scrape_one", _impl_scrape_one)
+    return _impl_scrape_one(context, tmdb_page, url)
 
-    t0 = perf_counter();
-    genres_block = PageScrap.scrap_genres_themes_page(page)
-    section_timings["genres_themes_page"] = perf_counter() - t0
 
-    t0 = perf_counter();
-    tmdb_block = PageScrap.scrap_tmdb_url(page, tmdb_page)
-    section_timings["tmdb_page"] = perf_counter() - t0
+_WRAPPER_SCRAPE_ONE = _scrape_one_wrapper
+scrape_one = _scrape_one_wrapper
 
-    data = {
-        "url": url,
-        **cast_block,
-        **crew_block,
-        **details_block,
-        **genres_block,
-        **tmdb_block,
-    }
-    movie = Movie(**data)
-    page.close()
-    duration = perf_counter() - start
-    print(f"[timing] {url} scraped in {duration:.2f}s")
-    for section, sec_time in section_timings.items():
-        print(f"   [detail] {section}: {sec_time:.2f}s")
-    return movie
 
-def main() -> None:
-    total_start = perf_counter()
-    with sync_playwright() as playwright:
-        chromium = playwright.chromium
-        browser = chromium.launch(headless=True)
-        context = browser.new_context()
-        context.route(re.compile(r"(\.png|\.jpg|\.jpeg|\.svg|\.webp|\.gif|\.ico|\.woff|\.css|\.mp4|\.webm)"), lambda route: route.abort())
-        context.route(re.compile(r"(google-analytics\.com|googletagmanager\.com|doubleclick\.net|googlesyndication\.com)"), lambda route: route.abort())
+def main():
+    """Compatibility entrypoint: call migrated implementation with legacy URL list."""
+    impl = _propagate_hooks()
+    if getattr(impl, "scrape_one", None) is _WRAPPER_SCRAPE_ONE:
+        setattr(impl, "scrape_one", _impl_scrape_one)
+    return _impl_main(URLS_TO_SCRAP)
 
-        # Page TMDB réutilisée pour éviter le coût d'ouverture à chaque film
-        tmdb_page = context.new_page()
-        tmdb_page.set_default_timeout(2000)
-        tmdb_page.route(re.compile(r"(\.png|\.jpg|\.jpeg|\.svg|\.webp|\.gif|\.ico|\.woff|\.css|\.mp4|\.webm)"), lambda route: route.abort())
-        tmdb_page.route(re.compile(r"(doubleclick\.net|googlesyndication\.com)") , lambda route: route.abort())
 
-        results = []
-        for url in URLS_TO_SCRAP:
-            movie = scrape_one(context, tmdb_page, url)
-            results.append(movie.model_dump())
-
-        tmdb_page.close()
-        context.close()
-        browser.close()
-
-    total_duration = perf_counter() - total_start
-    print(f"[timing] Total run in {total_duration:.2f}s for {len(results)} films")
-
-    with open("results_all.json", "w", encoding="utf-8") as f:
-        json.dump(results, f, ensure_ascii=False, indent=4)
-
-if __name__ == "__main__":
-    main()
+__all__ = [
+    "scrape_one",
+    "main",
+    "URLS_TO_SCRAP",
+    "sync_playwright",
+    "dismiss_overlay",
+    "PageScrap",
+    "json",
+]
