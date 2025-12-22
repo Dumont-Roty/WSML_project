@@ -56,22 +56,16 @@ def scrape_one(context, tmdb_page, url: str) -> Movie:
     print(f"[timing] {url} scraped in {duration:.2f}s")
     for section, sec_time in section_timings.items():
         print(f"   [detail] {section}: {sec_time:.2f}s")
+
+    # Affiche la note (rating) scrappée pour visibilité
+    rating = data.get("rating")
+    if rating is not None:
+        print(f"   [rating] {rating}")
     return movie
 
 
-def main(urls: Iterable[str] | None = None) -> None:
-    """Run the batch scraping run for the provided `urls` iterable.
 
-    The previous implementation had a hardcoded `URLS_TO_SCRAP` constant.
-    The list has been removed from the migrated implementation; callers
-    (or wrappers) should pass an explicit list of URLs. If `urls` is
-    None the function performs no work.
-    """
-    if urls is None:
-        urls = []
-
-
-# Legacy compatibility list: kept for callers that relied on module-level constant.
+    # Legacy compatibility list: kept for callers that relied on module-level constant.
 URLS_TO_SCRAP: list[str] = [
     "https://letterboxd.com/film/the-lord-of-the-rings-the-two-towers/",
     "https://letterboxd.com/film/the-godfather/",
@@ -85,7 +79,11 @@ URLS_TO_SCRAP: list[str] = [
     "https://letterboxd.com/film/interstellar/",
     "https://letterboxd.com/film/whiplash-2014/",
 ]
+def _run_with_playwright(urls: Iterable[str]) -> None:
+    """Internal helper that runs the Playwright crawling for the provided `urls`.
 
+    Separated from `main` to keep the top-level API simple and testable.
+    """
     total_start = perf_counter()
     with sync_playwright() as playwright:
         chromium = playwright.chromium
@@ -109,12 +107,26 @@ URLS_TO_SCRAP: list[str] = [
         context.close()
         browser.close()
 
-    total_duration = perf_counter() - total_start
-    print(f"[timing] Total run in {total_duration:.2f}s for {len(results)} films")
+        total_duration = perf_counter() - total_start
+        print(f"[timing] Total run in {total_duration:.2f}s for {len(results)} films")
 
-    with open("results_all.json", "w", encoding="utf-8") as f:
-        json.dump(results, f, ensure_ascii=False, indent=4)
+        with open("results_all.json", "w", encoding="utf-8") as f:
+            json.dump(results, f, ensure_ascii=False, indent=4)
+
+
+def main(urls: Iterable[str] | None = None) -> None:
+    """Run the batch scraping run for the provided `urls` iterable.
+
+    If `urls` is None the function performs no work (keeps previous behaviour).
+    To run the module as a script with the legacy list, call `main(URLS_TO_SCRAP)`.
+    """
+    if urls is None:
+        # Keep the behavior: when callers explicitly pass None, do nothing.
+        return
+    # Delegate to the Playwright runner
+    _run_with_playwright(list(urls))
 
 
 if __name__ == "__main__":
-    main()
+    # When executed as a script, run the legacy compatibility list by default.
+    main(URLS_TO_SCRAP)

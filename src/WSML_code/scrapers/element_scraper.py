@@ -1,4 +1,5 @@
 from playwright.sync_api import Page, TimeoutError
+import os
 from typing import Optional
 import re
 import json
@@ -67,7 +68,10 @@ class Scraping:
 
     @staticmethod
     def scrap_rate(page: Page) -> Optional[float]:
-        for attempt in range(3):
+        debug = bool(os.getenv("WSML_DEBUG_RATE"))
+
+        # Increase attempts and backoff to be more tolerant of slow pages.
+        for attempt in range(5):
             try:
                 scripts = page.locator("script[type='application/ld+json']").all_text_contents()
                 for s in scripts:
@@ -97,6 +101,8 @@ class Scraping:
 
                     if val is not None:
                         try:
+                            if debug:
+                                print(f"[scrap_rate] found via ld+json: {val}")
                             return float(val)
                         except Exception:
                             pass
@@ -108,6 +114,8 @@ class Scraping:
                 if rate_text:
                     m = re.search(r"\d+(\.\d+)?", rate_text)
                     if m:
+                        if debug:
+                            print(f"[scrap_rate] found via tooltip: {m.group(0)}")
                         return float(m.group(0))
             except Exception:
                 pass
@@ -120,6 +128,8 @@ class Scraping:
                     except Exception:
                         v = None
                     if v:
+                        if debug:
+                            print(f"[scrap_rate] found via meta: {v}")
                         return float(v)
             except Exception:
                 pass
@@ -136,17 +146,32 @@ class Scraping:
                 if attr:
                     m = re.search(r"\d+(\.\d+)?", attr)
                     if m:
+                        if debug:
+                            print(f"[scrap_rate] found via locator: {m.group(0)}")
                         return float(m.group(0))
             except Exception:
                 pass
 
+            # Fallback: scan full page content for common rating patterns (JSON or inline)
             try:
-                time.sleep(0.25 + attempt * 0.25)
+                content = page.content()
+                if content:
+                    m = re.search(r"ratingValue\"\s*[:=]\s*\"?(\d+(?:\.\d+)?)\"?", content)
+                    if m:
+                        if debug:
+                            print(f"[scrap_rate] found via page.content(): {m.group(1)}")
+                        return float(m.group(1))
+            except Exception:
+                pass
+
+            try:
+                time.sleep(0.25 + attempt * 0.35)
             except Exception:
                 pass
             try:
-                if attempt == 1:
-                    page.reload(wait_until='domcontentloaded', timeout=5000)
+                # Try reloading once mid-way to recover from dynamic loads
+                if attempt == 2:
+                    page.reload(wait_until='domcontentloaded', timeout=8000)
             except Exception:
                 pass
 
