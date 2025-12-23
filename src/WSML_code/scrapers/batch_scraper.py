@@ -61,8 +61,12 @@ def scrape_one(context, tmdb_page, url: str) -> Movie:
     rating = data.get("rating")
     if rating is not None:
         print(f"   [rating] {rating}")
-    return movie
 
+    # Affiche budget/revenue TMDB (meme si None)
+    tmdb_info_b = data.get("budget")
+    tmdb_info_r = data.get("revenue")
+    print(f"   [tmdb] budget={tmdb_info_b} revenue={tmdb_info_r}")
+    return movie
 
 
     # Legacy compatibility list: kept for callers that relied on module-level constant.
@@ -117,12 +121,10 @@ def _run_with_playwright(urls: Iterable[str]) -> None:
 def main(urls: Iterable[str] | None = None) -> None:
     """Run the batch scraping run for the provided `urls` iterable.
 
-    If `urls` is None the function performs no work (keeps previous behaviour).
-    To run the module as a script with the legacy list, call `main(URLS_TO_SCRAP)`.
+    If `urls` is None the function uses `URLS_TO_SCRAP` (legacy behaviour).
     """
     if urls is None:
-        # Keep the behavior: when callers explicitly pass None, do nothing.
-        return
+        urls = URLS_TO_SCRAP
     # Delegate to the Playwright runner
     _run_with_playwright(list(urls))
 

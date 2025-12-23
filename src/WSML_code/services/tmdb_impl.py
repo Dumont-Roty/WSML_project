@@ -1,6 +1,30 @@
 from playwright.sync_api import Page
 from typing import Optional
 import re
+import os
+
+
+def _debug_enabled() -> bool:
+    return bool(os.getenv("WSML_DEBUG_TMDB"))
+
+
+def _parse_money(value: str | None) -> Optional[int]:
+    if not value:
+        return None
+    # Keep only digits and separators, then normalize.
+    cleaned = re.sub(r"[^0-9,\.\s]", "", value).strip()
+    if not cleaned:
+        return None
+
+    # If we have spaces/commas/dots as thousands separators, remove them.
+    # We assume TMDB displays currency as an integer amount.
+    digits_only = re.sub(r"[^0-9]", "", cleaned)
+    if not digits_only:
+        return None
+    try:
+        return int(digits_only)
+    except ValueError:
+        return None
 
 class TMDBScraping:
     @staticmethod
@@ -23,68 +47,81 @@ class TMDBScraping:
 
     @staticmethod
     def scrap_budget(page: Page) -> Optional[int]:
+        debug = _debug_enabled()
         selectors = [
-            "p:has(strong:has-text('Budget'))"
+            "p:has(strong:has-text('Budget'))",
+            "li:has(strong:has-text('Budget'))",
+            "*:has-text('Budget')",
         ]
 
-        budget_text = None
-        for sel in selectors:
-            try:
-                page.wait_for_selector(sel, timeout=3000)
-                budget_text = page.locator(sel).first.inner_text()
-                if budget_text:
-                    break
-            except Exception:
-                continue
+        budget_text: str | None = None
+        for timeout in (4000, 8000, 12000):
+            for sel in selectors:
+                try:
+                    page.wait_for_selector(sel, timeout=timeout)
+                    budget_text = page.locator(sel).first.inner_text()
+                    if budget_text and re.search(r"\d", budget_text):
+                        if debug:
+                            print(f"[tmdb] budget via selector {sel!r}: {budget_text!r}")
+                        break
+                except Exception:
+                    continue
+            if budget_text:
+                break
 
         if not budget_text:
             try:
                 body_text = page.inner_text("body")
-                m = re.search(r"Budget\s*\$?[\d,.]+", body_text, re.IGNORECASE)
+                # Capture the number part to avoid parsing the whole label.
+                m = re.search(r"(?i)\bBudget\b\s*[:\-]?\s*[\$€£]?\s*([\d\s.,]+)", body_text)
                 if m:
-                    budget_text = m.group(0)
+                    budget_text = m.group(1)
+                    if debug:
+                        print(f"[tmdb] budget via body regex: {budget_text!r}")
             except Exception:
                 return None
-            if not budget_text:
-                return None
 
-        budget_number = re.sub(r"[^\d.]", "", budget_text)
-        try:
-            return int(float(budget_number)) if budget_number else 0
-        except ValueError:
-            return None
+        return _parse_money(budget_text)
 
     @staticmethod
     def scrap_revenue(page: Page) -> Optional[int]:
+        debug = _debug_enabled()
         selectors = [
-            "p:has(strong:has-text('Revenue'))"
+            "p:has(strong:has-text('Revenue'))",
+            "p:has(strong:has-text('Box Office'))",
+            "li:has(strong:has-text('Revenue'))",
+            "*:has-text('Revenue')",
         ]
 
-        revenue_text = None
-        for sel in selectors:
-            try:
-                page.wait_for_selector(sel, timeout=3000)
-                revenue_text = page.locator(sel).first.inner_text()
-                if revenue_text:
-                    break
-            except Exception:
-                continue
+        revenue_text: str | None = None
+        for timeout in (4000, 8000, 12000):
+            for sel in selectors:
+                try:
+                    page.wait_for_selector(sel, timeout=timeout)
+                    revenue_text = page.locator(sel).first.inner_text()
+                    if revenue_text and re.search(r"\d", revenue_text):
+                        if debug:
+                            print(f"[tmdb] revenue via selector {sel!r}: {revenue_text!r}")
+                        break
+                except Exception:
+                    continue
+            if revenue_text:
+                break
 
         if not revenue_text:
             try:
                 body_text = page.inner_text("body")
-                m = re.search(r"(Revenue|Recettes|Recette|Box Office|Gross)\s*\$?[\d,.]+", body_text, re.IGNORECASE)
+                m = re.search(
+                    r"(?i)\b(?:Revenue|Recettes|Recette|Box Office|Gross)\b\s*[:\-]?\s*[\$€£]?\s*([\d\s.,]+)",
+                    body_text,
+                )
                 if m:
-                    revenue_text = m.group(0)
+                    revenue_text = m.group(1)
+                    if debug:
+                        print(f"[tmdb] revenue via body regex: {revenue_text!r}")
             except Exception:
                 return None
-            if not revenue_text:
-                return None
 
-        revenue_number = re.sub(r"[^\d.]", "", revenue_text)
-        try:
-            return int(float(revenue_number)) if revenue_number else 0
-        except ValueError:
-            return None
+        return _parse_money(revenue_text)
 
 __all__ = ["TMDBScraping"]

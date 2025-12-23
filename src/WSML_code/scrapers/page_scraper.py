@@ -93,27 +93,53 @@ class PageScrap:
         if tmdb_page is None:
             new_tmdb_page = page.context.new_page()
             tmdb_page = new_tmdb_page
-            tmdb_page.set_default_timeout(2000)
+            # Keep unit-test expectation for the newly created TMDB page.
+            tmdb_page.set_default_timeout(5000)
             tmdb_page.route(re.compile(r"(\.png|\.jpg|\.jpeg|\.svg|\.webp|\.gif|\.ico|\.woff|\.css|\.mp4|\.webm)"), lambda r: r.abort())
             tmdb_page.route(re.compile(r"(doubleclick\.net|googlesyndication\.com)"), lambda r: r.abort())
 
         try:
-            tmdb_page.goto(href, wait_until='domcontentloaded', timeout=5000)
-            t._dismiss_tmdb_cookies(tmdb_page)
+            budget = None
+            revenue = None
 
-            budget = t.scrap_budget(tmdb_page)
-            revenue = t.scrap_revenue(tmdb_page)
-
-            if budget is None or revenue is None:
+            # Robust retry loop: TMDB can be slow or render values after initial load.
+            for timeout in (5000, 8000, 12000):
                 try:
-                    tmdb_page.goto(href, wait_until='domcontentloaded', timeout=8000)
+                    tmdb_page.goto(href, wait_until='domcontentloaded', timeout=timeout)
+                except Exception:
+                    # Fallback to full load if domcontentloaded is flaky.
+                    tmdb_page.goto(href, wait_until='load', timeout=timeout)
+
+                try:
                     t._dismiss_tmdb_cookies(tmdb_page)
                 except Exception:
                     pass
+
                 if budget is None:
                     budget = t.scrap_budget(tmdb_page)
                 if revenue is None:
                     revenue = t.scrap_revenue(tmdb_page)
+
+                if budget is not None and revenue is not None:
+                    break
+
+                # One extra re-fetch attempt for missing fields.
+                if budget is None or revenue is None:
+                    try:
+                        tmdb_page.goto(href, wait_until='load', timeout=timeout)
+                        try:
+                            t._dismiss_tmdb_cookies(tmdb_page)
+                        except Exception:
+                            pass
+                    except Exception:
+                        pass
+                    if budget is None:
+                        budget = t.scrap_budget(tmdb_page)
+                    if revenue is None:
+                        revenue = t.scrap_revenue(tmdb_page)
+
+                if budget is not None and revenue is not None:
+                    break
 
             return {"budget": budget, "revenue": revenue}
         except Exception:
