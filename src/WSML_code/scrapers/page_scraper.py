@@ -1,10 +1,23 @@
 from __future__ import annotations
 from urllib.parse import urljoin
 import re
+import os
+from time import perf_counter
 from typing import List, Tuple
 
 from WSML_code.scrapers.element_scraper import Scraping as s
 from WSML_code.services.tmdb_impl import TMDBScraping as t
+
+
+def _tmdb_max_seconds() -> float:
+    """Return the max time budget (seconds) for a TMDB scrape.
+
+    Can be overridden via env var `WSML_TMDB_MAX_SECONDS`. Minimum enforced to 3s.
+    """
+    try:
+        return max(3.0, float(os.getenv("WSML_TMDB_MAX_SECONDS", "20")))
+    except Exception:
+        return 20.0
 
 
 class PageScrap:
@@ -101,42 +114,43 @@ class PageScrap:
         try:
             budget = None
             revenue = None
+            deadline = perf_counter() + _tmdb_max_seconds()
+            debug = bool(os.getenv("WSML_DEBUG_TMDB"))
 
-            # Robust retry loop: TMDB can be slow or render values after initial load.
-            for timeout in (5000, 8000, 12000):
+            # Two attempts with capped per-film deadline; bail out when time budget is exceeded.
+            for timeout in (4000, 7000):
+                remaining_ms = int((deadline - perf_counter()) * 1000)
+                if remaining_ms <= 500:
+                    if debug:
+                        print(f"[tmdb] deadline reached before fetch for {href}")
+                    break
+                effective_timeout = max(1000, min(timeout, remaining_ms))
+
                 try:
-                    tmdb_page.goto(href, wait_until='domcontentloaded', timeout=timeout)
+                    tmdb_page.goto(href, wait_until='domcontentloaded', timeout=effective_timeout)
                 except Exception:
-                    # Fallback to full load if domcontentloaded is flaky.
-                    tmdb_page.goto(href, wait_until='load', timeout=timeout)
+                    try:
+                        tmdb_page.goto(href, wait_until='load', timeout=effective_timeout)
+                    except Exception:
+                        if debug:
+                            print(f"[tmdb] goto failed for {href} with timeout {effective_timeout}ms")
+                        continue
 
                 try:
                     t._dismiss_tmdb_cookies(tmdb_page)
                 except Exception:
                     pass
 
+                # Give TMDB a brief moment to render facts before querying selectors
+                try:
+                    tmdb_page.wait_for_timeout(600)
+                except Exception:
+                    pass
+
                 if budget is None:
-                    budget = t.scrap_budget(tmdb_page)
+                    budget = t.scrap_budget(tmdb_page, deadline=deadline)
                 if revenue is None:
-                    revenue = t.scrap_revenue(tmdb_page)
-
-                if budget is not None and revenue is not None:
-                    break
-
-                # One extra re-fetch attempt for missing fields.
-                if budget is None or revenue is None:
-                    try:
-                        tmdb_page.goto(href, wait_until='load', timeout=timeout)
-                        try:
-                            t._dismiss_tmdb_cookies(tmdb_page)
-                        except Exception:
-                            pass
-                    except Exception:
-                        pass
-                    if budget is None:
-                        budget = t.scrap_budget(tmdb_page)
-                    if revenue is None:
-                        revenue = t.scrap_revenue(tmdb_page)
+                    revenue = t.scrap_revenue(tmdb_page, deadline=deadline)
 
                 if budget is not None and revenue is not None:
                     break

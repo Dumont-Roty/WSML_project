@@ -3,7 +3,9 @@ from __future__ import annotations
 import json
 import re
 import unicodedata
+import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
 from time import perf_counter
 from typing import Iterable, List, Tuple
 from urllib.parse import urljoin
@@ -23,6 +25,10 @@ LIST_PAGE_SELECTOR = "div.pagination a.next"
 LIST_SCROLL_ROUNDS = 12
 LIST_SCROLL_DELAY_MS = 300
 EXPECTED_FRAMES_PER_PAGE = 72
+LIST_PAGE_GOTO_TIMEOUT = 15000
+LIST_CONTAINER_TIMEOUT = 15000
+LIST_FRAME_TIMEOUT = 15000
+LIST_NETWORK_IDLE_TIMEOUT = 12000
 
 
 def list_page_urls(max_pages: int) -> Iterable[str]:
@@ -66,12 +72,33 @@ def _make_context(playwright, *, headless: bool = True):
     return browser, context, tmdb_page
 
 
+class ProgressCounter:
+    """Thread-safe progress counter for films scraped in parallel runs.
+
+    - call `incr(n=1)` each time a film is successfully scraped
+    - read `value()` to get the current count
+    """
+
+    def __init__(self, total_estimate: int = 0):
+        self._lock = threading.Lock()
+        self._count = 0
+        self.total_estimate = total_estimate
+
+    def incr(self, n: int = 1) -> None:
+        with self._lock:
+            self._count += int(n)
+
+    def value(self) -> int:
+        with self._lock:
+            return int(self._count)
+
+
 def collect_film_links(page) -> List[Tuple[str, str]]:
     """Collect every film link from the popular grid with its inferred kind."""
-    page.wait_for_load_state("domcontentloaded", timeout=10000)
+    page.wait_for_load_state("domcontentloaded", timeout=LIST_PAGE_GOTO_TIMEOUT)
     try:
-        page.wait_for_selector(LIST_CONTAINER_SELECTOR, timeout=12000)
-        page.wait_for_selector(LIST_FRAME_SELECTOR, timeout=12000)
+        page.wait_for_selector(LIST_CONTAINER_SELECTOR, timeout=LIST_CONTAINER_TIMEOUT)
+        page.wait_for_selector(LIST_FRAME_SELECTOR, timeout=LIST_FRAME_TIMEOUT)
     except TimeoutError:
         print("[warn] Grid selector not found in time; skipping page")
         return []
@@ -144,13 +171,19 @@ def find_next_list_page(page) -> str | None:
     return urljoin(LIST_BASE_DOMAIN, href)
 
 
-def scrape_list_page(context, tmdb_page, list_page_url: str) -> Tuple[List[dict], str | None]:
+def scrape_list_page(context, tmdb_page, list_page_url: str, progress: ProgressCounter | None = None) -> Tuple[List[dict], str | None]:
     """Visit a list page, collect film URLs, and return results with next URL."""
     page = context.new_page()
     page.set_default_timeout(4000)
-    page.goto(list_page_url, wait_until="domcontentloaded", timeout=7000)
     try:
-        page.wait_for_load_state("networkidle", timeout=8000)
+        page.goto(list_page_url, wait_until="domcontentloaded", timeout=LIST_PAGE_GOTO_TIMEOUT)
+    except TimeoutError as exc:
+        print(f"[warn] List page load timed out for {list_page_url}: {exc}")
+        if hasattr(page, "close"):
+            page.close()
+        return [], None
+    try:
+        page.wait_for_load_state("networkidle", timeout=LIST_NETWORK_IDLE_TIMEOUT)
     except TimeoutError:
         pass
     try:
@@ -160,11 +193,27 @@ def scrape_list_page(context, tmdb_page, list_page_url: str) -> Tuple[List[dict]
 
     results: List[dict] = []
     for film_url, kind in collect_film_links(page):
-        movie = scrape_one(context, tmdb_page, film_url)
-        data = movie.model_dump()
+        try:
+            movie = scrape_one(context, tmdb_page, film_url)
+        except Exception as exc:
+            print(f"[warn] Failed to scrape film {film_url} on list page {list_page_url}: {exc}")
+            # continue scraping other films from this page
+            continue
+        try:
+            data = movie.model_dump()
+        except Exception as exc:
+            print(f"[warn] Failed to serialize movie {film_url} on list page {list_page_url}: {exc}")
+            continue
         data["kind"] = kind
         data["source_page"] = list_page_url
         results.append(data)
+        # update shared progress counter if provided (thread-safe)
+        try:
+            if progress is not None:
+                progress.incr(1)
+        except Exception:
+            # don't let progress errors stop scraping
+            pass
 
     next_page = find_next_list_page(page)
 
@@ -173,12 +222,12 @@ def scrape_list_page(context, tmdb_page, list_page_url: str) -> Tuple[List[dict]
     return results, next_page
 
 
-def _scrape_list_page_isolated(list_page_url: str, *, headless: bool = True) -> List[dict]:
+def _scrape_list_page_isolated(list_page_url: str, *, headless: bool = True, progress: ProgressCounter | None = None) -> List[dict]:
     """Scrape a single list page in its own browser context (for parallel runs)."""
     with sync_playwright() as playwright:
         browser, context, tmdb_page = _make_context(playwright, headless=headless)
         try:
-            page_results, _ = scrape_list_page(context, tmdb_page, list_page_url)
+            page_results, _ = scrape_list_page(context, tmdb_page, list_page_url, progress=progress)
             return page_results
         finally:
             try:
@@ -191,8 +240,34 @@ def _scrape_list_page_isolated(list_page_url: str, *, headless: bool = True) -> 
 
 
 # Nombre de grille à scraper
-def list_scrape(max_pages: int = 2, output_path: str = "results_all.json") -> None:
+def list_scrape(
+    max_pages: int = 2,
+    output_path: str = "results_all.json",
+    *,
+    start_page: int = 1,
+    end_page: int | None = None,
+) -> None:
+    """Sequential scrape with optional `start_page`/`end_page` (1-based, inclusive).
+
+    If `end_page` is None it defaults to `max_pages`. Pages outside [1, max_pages]
+    are clipped. Results are written to `output_path`.
+    """
     total_start = perf_counter()
+    # Normalize start/end
+    if start_page < 1:
+        start_page = 1
+    if end_page is None:
+        end_page = max_pages
+    else:
+        end_page = min(end_page, max_pages)
+    if start_page > end_page:
+        print(f"[warn] start_page ({start_page}) > end_page ({end_page}); nothing to do")
+        return
+
+    # Build the page URL slice to process
+    all_urls = list(list_page_urls(max_pages))
+    urls = all_urls[start_page - 1 : end_page]
+
     with sync_playwright() as playwright:
         chromium = playwright.chromium
         browser = chromium.launch(headless=True)
@@ -206,13 +281,9 @@ def list_scrape(max_pages: int = 2, output_path: str = "results_all.json") -> No
         tmdb_page.route(re.compile(r"(doubleclick\.net|googlesyndication\.com)"), lambda route: route.abort())
 
         results: List[dict] = []
-        current_url = f"{LIST_BASE_DOMAIN}{LIST_BASE_PATH}"
-        page_count = 0
-        while current_url and page_count < max_pages:
-            page_count += 1
-            page_results, next_url = scrape_list_page(context, tmdb_page, current_url)
+        for url in urls:
+            page_results, _ = scrape_list_page(context, tmdb_page, url)
             results.extend(page_results)
-            current_url = next_url
 
         tmdb_page.close()
         context.close()
@@ -232,6 +303,8 @@ def list_scrape_parallel(
     headless: bool = True,
     workers: int = 2,
     preserve_page_order: bool = False,
+    start_page: int = 1,
+    end_page: int | None = None,
 ) -> None:
     """Scrape multiple list pages concurrently (one browser context per page).
 
@@ -241,7 +314,18 @@ def list_scrape_parallel(
     """
     total_start = perf_counter()
     # preserve order from list_page_urls, remove duplicates while keeping order
-    urls = list(dict.fromkeys(list_page_urls(max_pages)))
+    all_urls = list(dict.fromkeys(list_page_urls(max_pages)))
+    # Normalize start/end bounds (1-based inclusive)
+    if start_page < 1:
+        start_page = 1
+    if end_page is None:
+        end_page = max_pages
+    else:
+        end_page = min(end_page, max_pages)
+    if start_page > end_page:
+        print(f"[warn] start_page ({start_page}) > end_page ({end_page}); nothing to do")
+        return
+    urls = all_urls[start_page - 1 : end_page]
     url_to_index = {url: idx for idx, url in enumerate(urls)}
     if not urls:
         print("[warn] No list pages to scrape")
@@ -249,10 +333,18 @@ def list_scrape_parallel(
 
     results: List[dict] = []
     worker_count = max(1, min(workers, len(urls)))
+    total_pages = len(urls)
+    expected_total_frames = total_pages * EXPECTED_FRAMES_PER_PAGE
+    completed_pages = 0
+    progress = ProgressCounter(total_estimate=expected_total_frames)
 
     with ThreadPoolExecutor(max_workers=worker_count) as executor:
         # map future -> (index, url) so we can re-order if requested
-        futures = {executor.submit(_scrape_list_page_isolated, url, headless=headless): (url_to_index[url], url) for url in urls}
+        futures = {
+            executor.submit(_scrape_list_page_isolated, url, headless=headless, progress=progress): (url_to_index[url], url)
+            for url in urls
+        }
+
         if preserve_page_order:
             results_by_index: dict[int, List[dict]] = {}
             for future in as_completed(futures):
@@ -262,6 +354,15 @@ def list_scrape_parallel(
                     results_by_index[idx] = page_results
                 except Exception as exc:
                     print(f"[warn] List page scrape failed for {url}: {exc}")
+                finally:
+                    completed_pages += 1
+                    remaining_pages = total_pages - completed_pages
+                    scraped_count = progress.value()
+                    films_remaining = max(0, expected_total_frames - scraped_count)
+                    print(
+                        f"[progress] scraped: {scraped_count}/{expected_total_frames} ({completed_pages}/{total_pages} pages). "
+                        f"remaining pages: {remaining_pages}, films remaining (est.): {films_remaining}"
+                    )
             # extend results in page order
             for idx in sorted(results_by_index.keys()):
                 results.extend(results_by_index[idx])
@@ -273,6 +374,15 @@ def list_scrape_parallel(
                     results.extend(page_results)
                 except Exception as exc:
                     print(f"[warn] List page scrape failed for {url}: {exc}")
+                finally:
+                    completed_pages += 1
+                    remaining_pages = total_pages - completed_pages
+                    scraped_count = progress.value()
+                    films_remaining = max(0, expected_total_frames - scraped_count)
+                    print(
+                        f"[progress] scraped: {scraped_count}/{expected_total_frames} ({completed_pages}/{total_pages} pages). "
+                        f"remaining pages: {remaining_pages}, films remaining (est.): {films_remaining}"
+                    )
 
     total_duration = perf_counter() - total_start
     print(f"[timing] Total parallel list scrape in {total_duration:.2f}s for {len(results)} films")
