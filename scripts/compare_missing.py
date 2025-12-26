@@ -1,10 +1,12 @@
-"""
-Compare old missing CSV (`missing_tmdb.csv`) with a new scraping JSON result (e.g. `results_2pages.json`).
-Prints which URLs from the old file are still missing TMDB budget/revenue, and which ones are now present.
+"""Compare une ancienne liste de manquants TMDB avec de nouveaux résultats JSON.
 
-Usage (PowerShell):
-  $env:PYTHONPATH = 'src;src/WSML_code'
-  .\.venv\Scripts\python .\scripts\compare_missing.py --old missing_tmdb.csv --new results_2pages.json
+Lit un CSV (ex. `missing_tmdb.csv`) et un JSON récent (ex. `results_2pages.json`).
+Affiche combien d'URLs sont encore manquantes, lesquelles sont désormais présentes
+et celles absentes du nouveau JSON. Utile pour suivre la progression du scraping TMDB.
+
+Usage (PowerShell) :
+    $env:PYTHONPATH = 'src;src/WSML_code'
+    .\.venv\Scripts\python .\scripts\compare_missing.py --old missing_tmdb.csv --new results_2pages.json
 
 """
 import argparse
@@ -15,6 +17,7 @@ from typing import Any, Dict, Optional
 
 
 def find_url(record: Dict[str, Any]) -> Optional[str]:
+    """Retourne l'URL Letterboxd si elle est identifiable dans un enregistrement."""
     # Common key
     if 'url' in record and record['url']:
         return record['url']
@@ -26,6 +29,7 @@ def find_url(record: Dict[str, Any]) -> Optional[str]:
 
 
 def extract_tmdb_values(record: Dict[str, Any]):
+    """Extrait budget/revenue possibles d'un enregistrement (top-level ou champ tmdb)."""
     # Try multiple possible shapes: top-level 'budget'/'revenue', or nested 'tmdb'
     budget = None
     revenue = None
@@ -54,6 +58,7 @@ def extract_tmdb_values(record: Dict[str, Any]):
 
 
 def is_present(value) -> bool:
+    """Vrai si la valeur existe et n'est ni vide ni zéro numérique."""
     if value is None:
         return False
     if isinstance(value, (int, float)):
@@ -65,6 +70,7 @@ def is_present(value) -> bool:
 
 
 def main(old_csv: Path, new_json: Path):
+    """Compare l'ancien CSV de manquants avec le nouveau JSON et affiche un résumé."""
     old = list(csv.DictReader(old_csv.open(encoding='utf-8')))
     old_map = {r['url']: r for r in old}
     old_urls = set(old_map.keys())

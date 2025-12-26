@@ -299,14 +299,20 @@ class Scraping:
 
     @staticmethod
     def scrap_themes(page: Page) -> list[str]:
-        page.click("a[href^='/film/'][href$='/genres/']")
-        page.wait_for_selector("a[href^='/films/theme/'], a[href^='/films/mini-theme/']", timeout=5000)
-        themes_elements = page.locator("a[href^='/films/theme/'], a[href^='/films/mini-theme/']").all()
+        try:
+            page.click("a[href^='/film/'][href$='/genres/']")
+        except Exception:
+            return []
+        try:
+            page.wait_for_selector("a[href^='/films/theme/'], a[href^='/films/mini-theme/']", timeout=4000)
+            themes_elements = page.locator("a[href^='/films/theme/'], a[href^='/films/mini-theme/']").all()
+        except Exception:
+            return []
         res_themes = []
         for element in themes_elements:
             theme_name = element.text_content()
             if theme_name is not None:
                 res_themes.append(theme_name.strip())
-        return res_themes if res_themes else ["Thèmes non trouvés"]
+        return res_themes
 
 __all__ = ["Scraping"]

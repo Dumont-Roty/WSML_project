@@ -1,21 +1,19 @@
-"""
-Targeted TMDB updater script
-Reads `missing_tmdb.csv` from repository root and writes `missing_tmdb_updated.csv`.
-Designed to be run from the repository root, using the project's virtualenv.
+"""Met à jour de façon ciblée budget/revenue TMDB à partir d'un CSV de manquants.
 
-Usage (PowerShell):
-  # Temporarily ensure imports work and run
-  $env:PYTHONPATH = 'src;src/WSML_code'
-  .\.venv\Scripts\python .\scripts\targeted_update_tmdb.py
+Lit `missing_tmdb.csv`, revisite chaque URL et écrit `missing_tmdb_updated.csv` avec
+les nouveaux budgets/revenues et un statut. Conçu pour être lancé depuis la racine du
+repo avec le virtualenv actif.
 
-Or activate venv then run:
-  . .venv\Scripts\Activate.ps1
-  python .\scripts\targeted_update_tmdb.py --input missing_tmdb.csv --output missing_tmdb_updated.csv
+Usage (PowerShell) :
+    $env:PYTHONPATH = 'src;src/WSML_code'
+    .\.venv\Scripts\python .\scripts\targeted_update_tmdb.py
 
-Options:
-  --headless / --no-headless : run Playwright headless (default: headless)
-  --delay SECONDS : optional delay between pages (default: 0.2)
+Ou après activation du venv :
+    python .\scripts\targeted_update_tmdb.py --input missing_tmdb.csv --output missing_tmdb_updated.csv
 
+Options :
+    --headless / --no-headless : exécution Playwright headless (défaut headless)
+    --delay SECONDS : délai optionnel entre pages (défaut 0.2)
 """
 import sys
 from pathlib import Path
@@ -43,6 +41,7 @@ from playwright.sync_api import sync_playwright
 
 
 def run(input_path: Path, output_path: Path, headless: bool = True, delay: float = 0.2):
+    """Revisite les URLs du CSV et écrit un CSV mis à jour avec budget/revenue/status."""
     rows = list(csv.DictReader(input_path.open(encoding='utf-8')))
     print(f'Loaded {len(rows)} rows from {input_path}')
 
