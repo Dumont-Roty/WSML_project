@@ -1,4 +1,4 @@
-from WSML_code.dismiss_overlay import dismiss_overlay
+from WSML_code.services.dismiss_impl import dismiss_overlay
 
 
 class LocatorStub:

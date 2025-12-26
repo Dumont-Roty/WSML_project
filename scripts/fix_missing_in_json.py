@@ -1,16 +1,12 @@
-"""
-Fix missing TMDB budget/revenue in an existing results JSON by revisiting
-the Letterboxd film pages and fetching TMDB values.
+"""Récupère budget/revenue TMDB manquants en revisitant les pages Letterboxd.
 
-Usage (PowerShell) from repo root where .venv exists:
-  $env:PYTHONPATH = 'src;src/WSML_code'
-  .\.venv\Scripts\python .\scripts\fix_missing_in_json.py --input results_parallel.json --missing csv/missing_tmdb.csv --output results_parallel_fixed.json
+Lit un JSON de résultats et une liste de films manquants (CSV ou txt). Pour chaque
+URL, visite la page Letterboxd et récupère budget/revenue via `PageScrap.scrap_tmdb_url`,
+puis écrit un JSON mis à jour.
 
-Notes:
-- The script will read the input JSON (list of film dicts) and a missing-list
-  (CSV with a `manquant` column or a plain text file of URLs). It will try
-  to recover `budget` and `revenue` for each missing URL using the project's
-  `PageScrap.scrap_tmdb_url` helper and write an updated JSON file.
+Usage (PowerShell) depuis la racine du repo :
+    $env:PYTHONPATH = 'src;src/WSML_code'
+    .\.venv\Scripts\python .\scripts\fix_missing_in_json.py --input results_parallel.json --missing csv/missing_tmdb.csv --output results_parallel_fixed.json
 """
 from __future__ import annotations
 
@@ -31,8 +27,8 @@ sys.path.insert(0, str(SRC_WSML))
 sys.path.insert(0, str(SRC))
 
 try:
-    from WSML_code.page_to_scrap import PageScrap
-    from WSML_code.dismiss_overlay import dismiss_overlay
+    from WSML_code.scrapers.page_scraper import PageScrap
+    from WSML_code.services.dismiss_impl import dismiss_overlay
 except Exception as e:
     print("Import error: make sure you run this from the repository root with the project's venv active.")
     raise
@@ -41,12 +37,11 @@ from playwright.sync_api import sync_playwright
 
 
 def load_missing_list(path: Path) -> List[str]:
-    """Return list of URLs to attempt recovery for.
+    """Retourne la liste des URLs à tenter de récupérer.
 
-    Accepts either a plain text file (one URL per line) or a CSV that contains
-    a `url` column and optionally a `manquant` column (will select rows where
-    `manquant` == 'manquant'). If CSV has no `manquant` column, all URLs are
-    returned.
+    Accepte un fichier texte (une URL par ligne) ou un CSV avec une colonne `url`
+    et optionnellement `manquant` (on sélectionne les lignes où `manquant` == 'manquant').
+    Si le CSV n'a pas de colonne `manquant`, toutes les URLs sont renvoyées.
     """
     if not path.exists():
         raise FileNotFoundError(path)
@@ -91,6 +86,7 @@ def load_missing_list(path: Path) -> List[str]:
 
 
 def build_url_map(data: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+    """Indexe les enregistrements par URL (ou première URL ressemblant à Letterboxd)."""
     m: Dict[str, Dict[str, Any]] = {}
     for rec in data:
         url = rec.get("url")
@@ -113,6 +109,7 @@ def fix_missing(
     delay: float = 0.2,
     timeout_ms: int = 12000,
 ):
+    """Répare budget/revenue manquants en mettant à jour le JSON de résultats."""
     data = json.loads(input_json.read_text(encoding="utf-8"))
     if not isinstance(data, list):
         raise RuntimeError("Expected top-level JSON array of film dicts")
@@ -199,6 +196,7 @@ def fix_missing(
 
 
 def main():
+    """Parse les arguments CLI et lance `fix_missing`."""
     p = argparse.ArgumentParser()
     p.add_argument("--input", default="results_parallel.json")
     p.add_argument("--missing", default="csv/missing_tmdb.csv", help="CSV or txt file listing missing URLs")

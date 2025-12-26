@@ -24,3 +24,7 @@ dependencies = [
 letterboxd-scrape = "WSML_code.scraping:main"
 letterboxd-scrape-pw = "WSML_code.scraping:main_playwright"
 letterboxd-scrape-static = "WSML_code.scraping:main_static"
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "src/WSML_code"]
+testpaths = ["src/WSML_code/tests"]

@@ -1,26 +1,14 @@
 import json
 import re
 from time import perf_counter
-from typing import List
+from typing import Iterable, List
+
 from playwright.sync_api import sync_playwright
-from page_to_scrap import PageScrap
-from dismiss_overlay import dismiss_overlay
+
+from WSML_code.services.dismiss_impl import dismiss_overlay
+from WSML_code.scrapers.page_scraper import PageScrap
 from models import Movie
 
-# Liste des URLs à scraper (une par film)
-URLS_TO_SCRAP: List[str] = [
-    "https://letterboxd.com/film/the-lord-of-the-rings-the-two-towers/",
-    "https://letterboxd.com/film/the-godfather/",
-    "https://letterboxd.com/film/parasite-2019/",
-    "https://letterboxd.com/film/spirited-away/",
-    "https://letterboxd.com/film/la-haine/",
-    "https://letterboxd.com/film/everything-everywhere-all-at-once/",
-    "https://letterboxd.com/film/2001-a-space-odyssey/",
-    "https://letterboxd.com/film/portrait-of-a-lady-on-fire/",
-    "https://letterboxd.com/film/spider-man-into-the-spider-verse/",
-    "https://letterboxd.com/film/interstellar/",
-    "https://letterboxd.com/film/whiplash-2014/",
-]
 
 def scrape_one(context, tmdb_page, url: str) -> Movie:
     start = perf_counter()
@@ -68,9 +56,38 @@ def scrape_one(context, tmdb_page, url: str) -> Movie:
     print(f"[timing] {url} scraped in {duration:.2f}s")
     for section, sec_time in section_timings.items():
         print(f"   [detail] {section}: {sec_time:.2f}s")
+
+    # Affiche la note (rating) scrappée pour visibilité
+    rating = data.get("rating")
+    if rating is not None:
+        print(f"   [rating] {rating}")
+
+    # Affiche budget/revenue TMDB (meme si None)
+    tmdb_info_b = data.get("budget")
+    tmdb_info_r = data.get("revenue")
+    print(f"   [tmdb] budget={tmdb_info_b} revenue={tmdb_info_r}")
     return movie
 
-def main() -> None:
+
+    # Legacy compatibility list: kept for callers that relied on module-level constant.
+URLS_TO_SCRAP: list[str] = [
+    "https://letterboxd.com/film/the-lord-of-the-rings-the-two-towers/",
+    "https://letterboxd.com/film/the-godfather/",
+    "https://letterboxd.com/film/parasite-2019/",
+    "https://letterboxd.com/film/spirited-away/",
+    "https://letterboxd.com/film/la-haine/",
+    "https://letterboxd.com/film/everything-everywhere-all-at-once/",
+    "https://letterboxd.com/film/2001-a-space-odyssey/",
+    "https://letterboxd.com/film/portrait-of-a-lady-on-fire/",
+    "https://letterboxd.com/film/spider-man-into-the-spider-verse/",
+    "https://letterboxd.com/film/interstellar/",
+    "https://letterboxd.com/film/whiplash-2014/",
+]
+def _run_with_playwright(urls: Iterable[str]) -> None:
+    """Internal helper that runs the Playwright crawling for the provided `urls`.
+
+    Separated from `main` to keep the top-level API simple and testable.
+    """
     total_start = perf_counter()
     with sync_playwright() as playwright:
         chromium = playwright.chromium
@@ -83,10 +100,10 @@ def main() -> None:
         tmdb_page = context.new_page()
         tmdb_page.set_default_timeout(2000)
         tmdb_page.route(re.compile(r"(\.png|\.jpg|\.jpeg|\.svg|\.webp|\.gif|\.ico|\.woff|\.css|\.mp4|\.webm)"), lambda route: route.abort())
-        tmdb_page.route(re.compile(r"(doubleclick\.net|googlesyndication\.com)") , lambda route: route.abort())
+        tmdb_page.route(re.compile(r"(doubleclick\.net|googlesyndication\.com)" ) , lambda route: route.abort())
 
         results = []
-        for url in URLS_TO_SCRAP:
+        for url in urls:
             movie = scrape_one(context, tmdb_page, url)
             results.append(movie.model_dump())
 
@@ -94,11 +111,24 @@ def main() -> None:
         context.close()
         browser.close()
 
-    total_duration = perf_counter() - total_start
-    print(f"[timing] Total run in {total_duration:.2f}s for {len(results)} films")
+        total_duration = perf_counter() - total_start
+        print(f"[timing] Total run in {total_duration:.2f}s for {len(results)} films")
 
-    with open("results_all.json", "w", encoding="utf-8") as f:
-        json.dump(results, f, ensure_ascii=False, indent=4)
+        with open("results_all.json", "w", encoding="utf-8") as f:
+            json.dump(results, f, ensure_ascii=False, indent=4)
+
+
+def main(urls: Iterable[str] | None = None) -> None:
+    """Run the batch scraping run for the provided `urls` iterable.
+
+    If `urls` is None the function uses `URLS_TO_SCRAP` (legacy behaviour).
+    """
+    if urls is None:
+        urls = URLS_TO_SCRAP
+    # Delegate to the Playwright runner
+    _run_with_playwright(list(urls))
+
 
 if __name__ == "__main__":
-    main()
+    # When executed as a script, run the legacy compatibility list by default.
+    main(URLS_TO_SCRAP)

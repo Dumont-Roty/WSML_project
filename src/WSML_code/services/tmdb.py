@@ -2,8 +2,8 @@
 Expose le module sous `WSML_code.services.tmdb`.
 """
 try:
-    from WSML_code import scrap_tmdb as scrap_tmdb  # type: ignore
+    from WSML_code.services.tmdb_impl import TMDBScraping as TMDBScraping  # type: ignore
 except Exception:  # pragma: no cover
-    scrap_tmdb = None
+    TMDBScraping = None
 
-__all__ = ["scrap_tmdb"]
+__all__ = ["TMDBScraping"]

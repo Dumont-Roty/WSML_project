@@ -1,8 +1,8 @@
 from typing import Dict
 
 import builtins
-import WSML_code.batch_scrap as batch_scrap_module
-from WSML_code.batch_scrap import scrape_one
+import WSML_code.scrapers.batch_scraper as batch_scrap_module
+from WSML_code.scrapers.batch_scraper import scrape_one
 from models import Movie
 
 
@@ -56,12 +56,12 @@ SECTION_VALUE: Dict[str, Dict[str, object]] = {
 
 
 def register_sections(monkeypatch):
-    monkeypatch.setattr("WSML_code.batch_scrap.dismiss_overlay", lambda *_: True)
-    monkeypatch.setattr("WSML_code.batch_scrap.PageScrap.scrap_cast_page", lambda *_: SECTION_VALUE["cast"])
-    monkeypatch.setattr("WSML_code.batch_scrap.PageScrap.scrap_crew_page", lambda *_: SECTION_VALUE["crew"])
-    monkeypatch.setattr("WSML_code.batch_scrap.PageScrap.scrap_details_page", lambda *_: SECTION_VALUE["details"])
-    monkeypatch.setattr("WSML_code.batch_scrap.PageScrap.scrap_genres_themes_page", lambda *_: SECTION_VALUE["genres"])
-    monkeypatch.setattr("WSML_code.batch_scrap.PageScrap.scrap_tmdb_url", lambda *_: SECTION_VALUE["tmdb"])
+    monkeypatch.setattr("WSML_code.scrapers.batch_scraper.dismiss_overlay", lambda *_: True)
+    monkeypatch.setattr("WSML_code.scrapers.batch_scraper.PageScrap.scrap_cast_page", lambda *_: SECTION_VALUE["cast"])
+    monkeypatch.setattr("WSML_code.scrapers.batch_scraper.PageScrap.scrap_crew_page", lambda *_: SECTION_VALUE["crew"])
+    monkeypatch.setattr("WSML_code.scrapers.batch_scraper.PageScrap.scrap_details_page", lambda *_: SECTION_VALUE["details"])
+    monkeypatch.setattr("WSML_code.scrapers.batch_scraper.PageScrap.scrap_genres_themes_page", lambda *_: SECTION_VALUE["genres"])
+    monkeypatch.setattr("WSML_code.scrapers.batch_scraper.PageScrap.scrap_tmdb_url", lambda *_: SECTION_VALUE["tmdb"])
 
 
 def test_scrape_one_builds_movie(monkeypatch):
@@ -87,7 +87,7 @@ def test_scrape_one_handles_overlay_failures(monkeypatch):
     def fail(page):
         raise RuntimeError("boom")
 
-    monkeypatch.setattr("WSML_code.batch_scrap.dismiss_overlay", fail)
+    monkeypatch.setattr("WSML_code.scrapers.batch_scraper.dismiss_overlay", fail)
     context = DummyContext()
     tmdb_page = DummyTMDBPage()
 
@@ -105,7 +105,7 @@ def test_scrape_one_calls_tmdb_without_reusable_page(monkeypatch):
         seen["tmdb_page"] = tmdb_page
         return SECTION_VALUE["tmdb"]
 
-    monkeypatch.setattr("WSML_code.batch_scrap.PageScrap.scrap_tmdb_url", tmdb_stub)
+    monkeypatch.setattr("WSML_code.scrapers.batch_scraper.PageScrap.scrap_tmdb_url", tmdb_stub)
 
     context = DummyContext()
 
@@ -224,10 +224,10 @@ def test_main_runs_with_mocked_playwright(monkeypatch):
     def fake_dump(data, *_args, **_kwargs):
         dumped["data"] = data
 
-    monkeypatch.setattr("WSML_code.batch_scrap.sync_playwright", fake_sync_playwright)
-    monkeypatch.setattr("WSML_code.batch_scrap.scrape_one", fake_scrape_one)
+    monkeypatch.setattr("WSML_code.scrapers.batch_scraper.sync_playwright", fake_sync_playwright)
+    monkeypatch.setattr("WSML_code.scrapers.batch_scraper.scrape_one", fake_scrape_one)
     monkeypatch.setattr(builtins, "open", lambda *args, **kwargs: DummyFile())
-    monkeypatch.setattr("WSML_code.batch_scrap.json.dump", fake_dump)
+    monkeypatch.setattr("WSML_code.scrapers.batch_scraper.json.dump", fake_dump)
 
     batch_scrap_module.main()
 

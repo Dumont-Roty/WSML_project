@@ -1,8 +1,12 @@
-"""Analyze rating values in `results_parallel.json` and print summary as JSON.
+"""Résume les notes d'un fichier de résultats JSON.
 
-Usage (PowerShell):
-  $env:PYTHONPATH='src;src/WSML_code'
-  .\.venv\Scripts\python .\scripts\analyze_ratings.py
+Lit `results_parallel.json` (sinon `results_parallel_20.json`), calcule les stats
+de base (moyenne/médiane/min/max/écart-type), un histogramme par pas de 0,5 et
+affiche les 10 meilleurs/pire. Imprime le résumé au format JSON sur stdout.
+
+Usage (PowerShell) :
+    $env:PYTHONPATH='src;src/WSML_code'
+    .\.venv\Scripts\python .\scripts\analyze_ratings.py
 """
 from pathlib import Path
 import json
@@ -11,6 +15,7 @@ import math
 
 
 def main(path: Path):
+    """Calcule les statistiques des notes et les affiche en JSON."""
     data = json.loads(path.read_text(encoding='utf-8'))
     ratings = []
     records = []
@@ -30,7 +35,7 @@ def main(path: Path):
     present = len(ratings)
     missing = total - present
 
-    out = {
+    out: dict = {
         'total_records': total,
         'ratings_present': present,
         'ratings_missing': missing,
@@ -71,12 +76,12 @@ def main(path: Path):
 
 
 if __name__ == '__main__':
-    p = Path('results_parallel.json')
+    p = Path('results_31_40.json')
     if not p.exists():
         # fallback to 20-pages file if present
-        p2 = Path('results_parallel_20.json')
+        p2 = Path('results_21_30.json')
         if p2.exists():
             p = p2
         else:
-            raise SystemExit('results_parallel.json not found')
+            raise SystemExit('results_31_40.json not found')
     main(p)

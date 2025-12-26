@@ -1,10 +1,13 @@
-"""Fix missing ratings in a results JSON by re-visiting film pages.
+"""Corrige les notes manquantes en revisitant les pages des films.
 
-Usage (PowerShell):
-  $env:PYTHONPATH='src;src/WSML_code'
-  .\.venv\Scripts\python .\scripts\fix_missing_rate.py --input results_parallel.json --output results_parallel_rates_fixed.json --dry-run
+Charge un JSON de résultats, identifie les enregistrements sans note (ou note 0),
+et peut revisiter chaque page pour récupérer la note via `Scraping.scrap_rate`.
 
-To actually run the Playwright browser visits, omit `--dry-run`.
+Usage (PowerShell) :
+    $env:PYTHONPATH='src;src/WSML_code'
+    .\.venv\Scripts\python .\scripts\fix_missing_rate.py --input results_parallel.json --output results_parallel_rates_fixed.json --dry-run
+
+Oter `--dry-run` pour lancer réellement les visites Playwright.
 """
 from pathlib import Path
 import argparse
@@ -20,12 +23,13 @@ SRC_WSML = SRC / 'WSML_code'
 sys.path.insert(0, str(SRC_WSML))
 sys.path.insert(0, str(SRC))
 
-from WSML_code.element_to_scrap import Scraping
-from WSML_code.dismiss_overlay import dismiss_overlay
-from playwright.sync_api import sync_playwright
+from WSML_code.scrapers.element_scraper import Scraping
+from WSML_code.services.dismiss_impl import dismiss_overlay
+from playwright.sync_api import sync_playwright, Page
 
 
 def find_missing(data):
+    """Retourne les (index, enregistrement) dont la note est absente ou vaut 0."""
     targets = []
     for i, rec in enumerate(data):
         r = rec.get('rating')
@@ -44,6 +48,7 @@ def find_missing(data):
 
 
 def run(input_path: Path, output_path: Path, headless: bool = True, delay: float = 0.2, dry_run: bool = True):
+    """Optionnellement revisite les films à note manquante pour récupérer la note."""
     data = json.loads(input_path.read_text(encoding='utf-8'))
     targets = find_missing(data)
     print(f'Loaded {len(data)} records; {len(targets)} targets with missing/zero ratings')
@@ -67,9 +72,14 @@ def run(input_path: Path, output_path: Path, headless: bool = True, delay: float
         for idx, rec in targets:
             url = rec.get('url')
             print(f'[{idx}] Visiting {url}')
+            page: Optional[Page] = None
             try:
+                # create page first, then validate URL to avoid calling goto(None)
                 page = context.new_page()
                 page.set_default_timeout(8000)
+                if not isinstance(url, str):
+                    print('  Skipping record without valid url')
+                    continue
                 page.goto(url, wait_until='domcontentloaded', timeout=10000)
                 try:
                     dismiss_overlay(page)
@@ -87,10 +97,11 @@ def run(input_path: Path, output_path: Path, headless: bool = True, delay: float
             except Exception as e:
                 print('  Error visiting page:', e)
             finally:
-                try:
-                    page.close()
-                except Exception:
-                    pass
+                if page is not None:
+                    try:
+                        page.close()
+                    except Exception:
+                        pass
             if delay:
                 time.sleep(delay)
 

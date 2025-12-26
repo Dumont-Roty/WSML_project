@@ -1,6 +1,6 @@
 from typing import Any, Protocol, cast
 
-from WSML_code.element_to_scrap import Scraping
+from WSML_code.scrapers.element_scraper import Scraping
 
 
 
