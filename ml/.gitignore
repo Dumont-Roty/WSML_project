@@ -1,0 +1,11 @@
+# Python
+.venv_ml/
+__pycache__/
+*.pyc
+
+# Data and models
+data/
+models/
+
+# Jupyter
+.ipynb_checkpoints/

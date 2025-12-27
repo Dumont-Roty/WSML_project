@@ -5,8 +5,17 @@ import os
 from time import perf_counter
 from typing import List, Tuple
 
+
 from WSML_code.scrapers.element_scraper import Scraping as s
 from WSML_code.services.tmdb_impl import TMDBScraping as t
+
+
+def safe(call, default=None):
+    """Appelle call(), retourne default si exception."""
+    try:
+        return call()
+    except Exception:
+        return default
 
 
 def _tmdb_max_seconds() -> float:
@@ -24,16 +33,16 @@ class PageScrap:
     @staticmethod
     def scrap_cast_page(page):
         return {
-            "title": s.scrap_title(page),
-            "year": s.scrap_year(page),
-            "directors": s.scrap_directors(page),
-            "casting": s.scrap_casting(page),
-            "duration": s.scrap_duree(page),
-            "nbr_watched": s.nbr_watched(page),
-            "nbr_appearence": s.scrap_appearence(page),
-            "nbr_likes": s.scrap_like(page),
-            "rating": s.scrap_rate(page),
-            "fans_favoris": s.scrap_nbr_fan(page),
+            "title": safe(lambda: s.scrap_title(page), None),
+            "year": safe(lambda: s.scrap_year(page), None),
+            "directors": safe(lambda: s.scrap_directors(page), []),
+            "casting": safe(lambda: s.scrap_casting(page), []),
+            "duration": safe(lambda: s.scrap_duree(page), None),
+            "nbr_watched": safe(lambda: s.nbr_watched(page), None),
+            "nbr_appearence": safe(lambda: s.scrap_appearence(page), None),
+            "nbr_likes": safe(lambda: s.scrap_like(page), None),
+            "rating": safe(lambda: s.scrap_rate(page), None),
+            "fans_favoris": safe(lambda: s.scrap_nbr_fan(page), None),
         }
 
     @staticmethod
@@ -48,11 +57,10 @@ class PageScrap:
                 page.locator("a[href*='/crew/']").first.click()
             except Exception:
                 pass
-
         return {
-            "producers": s.scrap_producers(page),
-            "writers": s.scrap_writers(page),
-            "composer": s.scrap_composer(page),
+            "producers": safe(lambda: s.scrap_producers(page), []),
+            "writers": safe(lambda: s.scrap_writers(page), []),
+            "composer": safe(lambda: s.scrap_composer(page), []),
         }
 
     @staticmethod
@@ -67,10 +75,9 @@ class PageScrap:
                 page.locator("a[href*='/details/']").first.click()
             except Exception:
                 pass
-
         return {
-            "studio": s.scrap_studios(page),
-            "languages": s.scrap_languages(page),
+            "studio": safe(lambda: s.scrap_studios(page), []),
+            "languages": safe(lambda: s.scrap_languages(page), []),
         }
 
     @staticmethod
@@ -85,10 +92,9 @@ class PageScrap:
                 page.locator("a[href*='/genres/']").first.click()
             except Exception:
                 pass
-
         return {
-            "genres": s.scrap_genres(page),
-            "themes": s.scrap_themes(page),
+            "genres": safe(lambda: s.scrap_genres(page), []),
+            "themes": safe(lambda: s.scrap_themes(page), []),
         }
 
     @staticmethod

@@ -240,8 +240,8 @@ class Scraping:
         except Exception:
             pass
         try:
-            page.wait_for_selector("a[href^='/composer/']", timeout=1500)
-            composers = page.locator("a[href^='/composer/']").all()
+            page.wait_for_selector("a[href^='/composer/'],a[href^='/composers/']", timeout=1500)
+            composers = page.locator("a[href^='/composer/'],a[href^='/composers/']").all()
         except Exception:
             return []
         res_composers = []
@@ -264,8 +264,8 @@ class Scraping:
     @staticmethod
     def scrap_studios(page: Page) -> list[str]:
         page.click("a[href^='/film/'][href$='/details/']")
-        page.wait_for_selector("a[href^='/studio/']", timeout=5000)
-        studios = page.locator("a[href^='/studio/']").all()
+        page.wait_for_selector("a[href^='/studio/'],a[href^='/studios/']", timeout=5000)
+        studios = page.locator("a[href^='/studio/'],a[href^='/studios/']").all()
         res_studios = []
         for studio in studios:
             studio_name = studio.text_content()
@@ -287,9 +287,9 @@ class Scraping:
 
     @staticmethod
     def scrap_genres(page: Page) -> list[str]:
-        page.click("a[href^='/film/'][href$='/genres/']")
-        page.wait_for_selector("a[href^='/films/genre/']", timeout=5000)
-        genres_elements = page.locator("a[href^='/films/genre/']").all()
+        page.click("a[href^='/film/'][href$='/genres/'], a[href^='/film/'][href$='/genre/']")
+        page.wait_for_selector("a[href^='/films/genre/'], a[href^='/film/'][href$='/genre/']", timeout=5000)
+        genres_elements = page.locator("a[href^='/films/genre/'], a[href^='/film/'][href$='/genre/']").all()
         res_genres = []
         for element in genres_elements:
             genre_name = element.text_content()
@@ -300,7 +300,7 @@ class Scraping:
     @staticmethod
     def scrap_themes(page: Page) -> list[str]:
         try:
-            page.click("a[href^='/film/'][href$='/genres/']")
+            page.click("a[href^='/film/'][href$='/genres/'], a[href^='/film/'][href$='/genre/']")
         except Exception:
             return []
         try:
