@@ -5,3 +5,6 @@ lightgbm
 streamlit
 jupyter
 joblib
+polars
+matplotlib
+seaborn

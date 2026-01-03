@@ -4,10 +4,7 @@ Chaque fichier d'entrée doit contenir une liste d'objets JSON (résultats séri
 Par défaut, les enregistrements sont dédupliqués par `url` si présente; sinon ils
 sont ajoutés tels quels. Le résultat est écrit dans un fichier JSON.
 
-Usage (PowerShell) :
-    $env:PYTHONPATH='src;src/WSML_code'
-    .\.venv\Scripts\python .\scripts\merge_results.py results_page1.json results_11_20.json results_21_30.json results_31_40.json --output merged_results.json
-    
+Usage (PowerShell) :    
     $env:PYTHONPATH='src;src/WSML_code'
     .\.venv\Scripts\python .\scripts\merge_results.py results_1.json results_2.json results_3.json results_4.json --output merged_results.json
 

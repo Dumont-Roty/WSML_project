@@ -1,22 +1,48 @@
 from __future__ import annotations
-import os
-import pandas as pd
+import argparse
 from pathlib import Path
-from typing import Optional
 
-data_dir = Path(os.getenv("ML_DATA_DIR", Path(__file__).parents[1] / "data"))
-
-def load_merged(path: Optional[Path] = None) -> pd.DataFrame:
-    if path is None:
-        path = data_dir / "merged_results.json"
-    return pd.read_json(path)
+import pandas as pd
 
 
-def basic_clean(df: pd.DataFrame) -> pd.DataFrame:
-    # example: convert year to int, fill missing ratings with NaN
-    df = df.copy()
-    if 'year' in df.columns:
-        df['year'] = pd.to_numeric(df['year'], errors='coerce').astype('Int64')
-    if 'rating' in df.columns:
-        df['rating'] = pd.to_numeric(df['rating'], errors='coerce')
-    return df
+def main() -> int:
+	parser = argparse.ArgumentParser(description="Exploration rapide des valeurs manquantes")
+	parser.add_argument("--input", default="ml/data/final_results_28.json", help="Chemin du JSON")
+	parser.add_argument(
+		"--save-heatmap",
+		default=None,
+		help="Chemin PNG de sortie pour la heatmap des NaN (optionnel)",
+	)
+	args = parser.parse_args()
+
+	inp = Path(args.input)
+	df = pd.read_json(inp)
+
+	print("\n--- Missing values (par colonne) ---")
+	print(df.isnull().sum().sort_values(ascending=False).head(30))
+
+	print("\n--- DataFrame info ---")
+	df.info()
+
+	if args.save_heatmap:
+		import matplotlib
+
+		matplotlib.use("Agg")
+		import matplotlib.pyplot as plt
+		import seaborn as sns
+
+		out = Path(args.save_heatmap)
+		out.parent.mkdir(parents=True, exist_ok=True)
+
+		plt.figure(figsize=(12, 6))
+		sns.heatmap(df.isnull(), cbar=False, cmap="viridis")
+		plt.title("Valeurs manquantes par ligne/colonne")
+		plt.tight_layout()
+		plt.savefig(out, dpi=150)
+		print(f"\nHeatmap sauvegardée: {out}")
+
+	return 0
+
+
+if __name__ == "__main__":
+	raise SystemExit(main())
