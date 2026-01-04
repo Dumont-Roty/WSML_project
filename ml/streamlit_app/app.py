@@ -68,13 +68,17 @@ def _format_money(value: float) -> str:
     if not np.isfinite(value):
         return "—"
     v = float(value)
+    def _with_comma(val: float, fmt: str) -> str:
+        s = fmt.format(val)
+        return s.replace('.', ',')
+
     if v >= 1_000_000_000:
-        return f"{v/1_000_000_000:.2f} Md"
+        return f"{_with_comma(v/1_000_000_000, '{:.2f}')} Md"
     if v >= 1_000_000:
-        return f"{v/1_000_000:.2f} M"
+        return f"{_with_comma(v/1_000_000, '{:.2f}')} M"
     if v >= 1_000:
-        return f"{v/1_000:.1f} k"
-    return f"{v:.0f}"
+        return f"{_with_comma(v/1_000, '{:.1f}')} k"
+    return f"{int(round(v))}"
 
 
 @st.cache_data
@@ -133,8 +137,84 @@ def _flatten_unique_lists(df: pd.DataFrame, col: str, top_k: int) -> list[str]:
     return [name for name, _ in ranked[:top_k]]
 
 
-st.set_page_config(page_title="Prédiction de note", layout="centered")
-st.title("Prédiction de note (rating 0–5)")
+#------------ Streamlit App ------------#
+
+st.set_page_config(page_title="Estimateur Letterboxd — note & budget de film", layout="wide")
+
+# Thème / couleurs — facile à ajuster si besoin (valeurs inspirées de Letterboxd)
+LETTERBOXD_COLORS = {
+    "bg": "#0b0b0b",
+    "text": "#E6E6E6",
+    "accent": "#2AB44B",
+    "accent_dark": "#1B5E20",
+}
+
+st.markdown(
+        f"""
+        <style>
+        :root {{
+            --lb-bg: {LETTERBOXD_COLORS['bg']};
+            --lb-text: {LETTERBOXD_COLORS['text']};
+            --lb-accent: {LETTERBOXD_COLORS['accent']};
+            --lb-accent-dark: {LETTERBOXD_COLORS['accent_dark']};
+        }}
+        .stApp, .css-1d391kg, .block-container {{
+            background-color: var(--lb-bg) !important;
+            color: var(--lb-text) !important;
+        }}
+        .stButton>button {{
+            background-color: var(--lb-accent) !important;
+            color: #fff !important;
+            border: none !important;
+        }}
+        .stMetric {{
+            color: var(--lb-text) !important;
+        }}
+        .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
+            color: var(--lb-accent) !important;
+        }}
+        .stSlider > div > div {{
+            color: var(--lb-text) !important;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+)
+
+st.title("Estimateur Letterboxd — note et budget de film (note 0–5)")
+
+# Presets / Templates
+PRESETS: dict[str, dict] = {
+    "Petit budget": {
+        "budget": 500_000.0,
+        "revenue": 2_000_000.0,
+        "duration": 85.0,
+        "year": 2018.0,
+        "genres": ["Drama"],
+    },
+    "Indépendant": {
+        "budget": 1_000_000.0,
+        "revenue": 5_000_000.0,
+        "duration": 95.0,
+        "year": 2016.0,
+        "genres": ["Drama", "Art House"],
+    },
+    "Blockbuster": {
+        "budget": 150_000_000.0,
+        "revenue": 800_000_000.0,
+        "duration": 130.0,
+        "year": 2022.0,
+        "genres": ["Action", "Adventure"],
+    },
+}
+
+# Preset selector (sidebar)
+st.sidebar.subheader("Presets / Templates")
+preset_choice = st.sidebar.selectbox("Choisir un preset", options=["Aucun"] + list(PRESETS.keys()), index=0)
+preset_values: dict[str, object] = PRESETS.get(preset_choice, {}) if preset_choice != "Aucun" else {}
+
+# Film de référence selector moved to sidebar (will be overwritten later if dataset missing)
+st.sidebar.subheader("Film de référence")
 
 numeric_cols, identity_cols, features = _load_schema(METRICS_PATH)
 if not features:
@@ -178,24 +258,57 @@ for col in features:
     else:
         medians[col] = 0.0
 
-st.write(
+st.sidebar.write(
     "Renseigne les caractéristiques de ton film fictif, puis clique sur **Prédire**. "
     "La prédiction est bornée dans l'intervalle [0, 5]."
 )
+st.sidebar.caption(
+    "Note: l'estimation du budget est fournie à titre indicatif et sert d'aide pour affiner l'estimation de la note finale (elle n'est pas une vérité)."
+)
 
-st.subheader("Film de référence (pour suggérer des valeurs réalistes)")
 ref_row: dict[str, Any] | None = None
 if ref_df.empty:
-    st.info("Aucun film de référence disponible (final_results_28.json / merged_results.json introuvable ou vide).")
+    st.sidebar.info("Aucun film de référence disponible (final_results_28.json / merged_results.json introuvable ou vide).")
 else:
     df_labels = ref_df[["title", "year"]].copy()
     df_labels["year"] = pd.to_numeric(df_labels["year"], errors="coerce").fillna(0).astype(int)
     df_labels["_label"] = df_labels.apply(lambda r: f"{r['title']} ({r['year']})", axis=1)
     labels = ["Aucun"] + df_labels["_label"].tolist()
-    choice = st.selectbox("Choisir un film", options=labels, index=0)
+    choice = st.sidebar.selectbox("Choisir un film", options=labels, index=0)
     if choice != "Aucun":
         idx = int(df_labels.index[df_labels["_label"] == choice][0])
         ref_row = {str(k): v for k, v in ref_df.loc[idx].to_dict().items()}
+
+    # Affiche vignette et métadonnées du film sélectionné dans la sidebar
+    if ref_row is not None:
+        img_keys = ["poster", "poster_url", "image", "poster_path", "posterImage", "posterUrl"]
+        img_url = None
+        for k in img_keys:
+            if k in ref_row and ref_row.get(k):
+                img_url = ref_row.get(k)
+                break
+        if img_url:
+            try:
+                st.sidebar.image(img_url, width=160)
+            except Exception:
+                pass
+        title = ref_row.get("title") or ""
+        year = ref_row.get("year") or ""
+        st.sidebar.markdown(f"**{title}**  ")
+        st.sidebar.caption(f"Année: {year}")
+        def _join_if_list(x):
+            if isinstance(x, list):
+                return ", ".join([str(i) for i in x[:8]]) + ("…" if len(x) > 8 else "")
+            return str(x) if x is not None else ""
+        directors = _join_if_list(ref_row.get("directors") or ref_row.get("director"))
+        genres = _join_if_list(ref_row.get("genres"))
+        duration = ref_row.get("duration")
+        if directors:
+            st.sidebar.text(f"Réalisateur(s): {directors}")
+        if genres:
+            st.sidebar.text(f"Genres: {genres}")
+        if duration:
+            st.sidebar.text(f"Durée: {duration} minutes")
 
 
 name_options = {
@@ -230,8 +343,10 @@ def _optional_slider(
     fallback_min: float,
     fallback_max: float,
     suggested: float | None,
+    preset_values: dict | None = None,
 ) -> tuple[bool, float]:
-    use = st.checkbox(f"Utiliser {label}", value=False, key=f"use_{feature}")
+    pre_has = bool(preset_values and feature in preset_values)
+    use = st.checkbox(f"Utiliser {label}", value=pre_has, key=f"use_{feature}")
     _suggestion_caption(label, suggested)
     if not use:
         return False, float(medians.get(feature, 0.0))
@@ -239,11 +354,24 @@ def _optional_slider(
     series = stats_df[feature] if feature in stats_df.columns else pd.Series(dtype=float)
     lo, hi = _q_range(series, fallback_min=fallback_min, fallback_max=fallback_max)
     default = float(medians.get(feature, 0.0))
+    if preset_values and feature in preset_values:
+        try:
+            default = float(preset_values.get(feature))
+        except Exception:
+            default = default
 
     if is_int:
         val = st.slider(label, int(lo), int(hi), int(round(default)), key=f"val_{feature}")
         return True, float(val)
-    val = st.slider(label, float(lo), float(hi), float(default), key=f"val_{feature}")
+
+    # For floats we show two decimals in the slider and add a formatted caption
+    val = st.slider(label, float(lo), float(hi), float(default), key=f"val_{feature}", format="%.2f")
+    # Affiche une légende lisible pour les montants en millions
+    if feature in ("budget", "revenue"):
+        try:
+            st.caption(f"Valeur sélectionnée : {_format_money(float(val))} (affiché en millions)")
+        except Exception:
+            pass
     return True, float(val)
 
 
@@ -252,8 +380,10 @@ def _optional_multiselect_count(
     feature: str,
     label: str,
     ref_col: str,
+    preset_values: dict | None = None
 ) -> tuple[bool, float]:
-    use = st.checkbox(f"Utiliser {label}", value=False, key=f"use_{feature}")
+    pre_has = bool(preset_values and feature in preset_values)
+    use = st.checkbox(f"Utiliser {label}", value=pre_has, key=f"use_{feature}")
     suggested_list: list[str] | None = None
     if ref_row is not None:
         ref_val = ref_row.get(ref_col)
@@ -265,7 +395,11 @@ def _optional_multiselect_count(
         return False, float(medians.get(feature, 0.0))
 
     options = name_options.get(ref_col, [])
-    selected = st.multiselect(label, options=options, default=[], key=f"val_{feature}")
+    default_sel: list[str] = []
+    # support preset lists
+    if preset_values and feature in preset_values and isinstance(preset_values.get(feature), list):
+        default_sel = [str(x) for x in preset_values.get(feature)]
+    selected = st.multiselect(label, options=options, default=default_sel, key=f"val_{feature}")
     return True, float(len(selected))
 
 
@@ -274,8 +408,10 @@ def _optional_multiselect_list(
     feature: str,
     label: str,
     ref_col: str,
+    preset_values: dict | None = None
 ) -> tuple[bool, list[str]]:
-    use = st.checkbox(f"Utiliser {label}", value=False, key=f"use_{feature}")
+    pre_has = bool(preset_values and feature in preset_values)
+    use = st.checkbox(f"Utiliser {label}", value=pre_has, key=f"use_{feature}")
     suggested_list: list[str] | None = None
     if ref_row is not None:
         ref_val = ref_row.get(ref_col)
@@ -287,7 +423,10 @@ def _optional_multiselect_list(
         return False, ["__MISSING__"]
 
     options = name_options.get(ref_col, [])
-    selected = st.multiselect(label, options=options, default=[], key=f"val_{feature}")
+    default_sel: list[str] = []
+    if preset_values and feature in preset_values and isinstance(preset_values.get(feature), list):
+        default_sel = [str(x) for x in preset_values.get(feature)]
+    selected = st.multiselect(label, options=options, default=default_sel, key=f"val_{feature}")
     return True, [str(x) for x in selected]
 
 
@@ -296,6 +435,7 @@ used: dict[str, bool] = {}
 
 
 st.subheader("Chiffres (curseurs, optionnels)")
+nums_container = st.container()
 numeric_specs = [
     ("year", "Année", True, 1880.0, 2100.0),
     ("duration", "Durée (minutes)", True, 0.0, 400.0),
@@ -306,7 +446,8 @@ numeric_specs = [
     ("nbr_likes", "Nombre de likes", True, 0.0, 1_000_000.0),
     ("fans_favoris", "Fans / favoris", True, 0.0, 500_000.0),
 ]
-
+cols = nums_container.columns(2)
+col_idx = 0
 for feature, label, is_int, fmin, fmax in numeric_specs:
     if feature not in features:
         continue
@@ -318,19 +459,25 @@ for feature, label, is_int, fmin, fmax in numeric_specs:
                 suggested = float(ref_val)
             except Exception:
                 suggested = None
-    u, v = _optional_slider(
-        feature=feature,
-        label=label,
-        is_int=is_int,
-        fallback_min=fmin,
-        fallback_max=fmax,
-        suggested=suggested,
-    )
+    with cols[col_idx % 2]:
+        u, v = _optional_slider(
+            feature=feature,
+            label=label,
+            is_int=is_int,
+            fallback_min=fmin,
+            fallback_max=fmax,
+            suggested=suggested,
+            preset_values=preset_values,
+        )
     used[feature] = u
     values[feature] = v
+    col_idx += 1
 
 
 st.subheader("Personnes / catégories (menus déroulants, optionnels)")
+people_container = st.container()
+cols_p = people_container.columns(2)
+colp_idx = 0
 if identity_cols:
     role_map = [
         ("directors", "Réalisateurs", "directors"),
@@ -346,9 +493,11 @@ if identity_cols:
     for feature, label, ref_col in role_map:
         if feature not in features:
             continue
-        u, v = _optional_multiselect_list(feature=feature, label=label, ref_col=ref_col)
+        with cols_p[colp_idx % 2]:
+            u, v = _optional_multiselect_list(feature=feature, label=label, ref_col=ref_col, preset_values=preset_values)
         used[feature] = u
         values[feature] = v
+        colp_idx += 1
 else:
     role_map = [
         ("directors_count", "Réalisateurs", "directors"),
@@ -364,9 +513,11 @@ else:
     for feature, label, ref_col in role_map:
         if feature not in features:
             continue
-        u, v = _optional_multiselect_count(feature=feature, label=label, ref_col=ref_col)
+        with cols_p[colp_idx % 2]:
+            u, v = _optional_multiselect_count(feature=feature, label=label, ref_col=ref_col, preset_values=preset_values)
         used[feature] = u
         values[feature] = v
+        colp_idx += 1
 
 
 for feature in features:
@@ -399,7 +550,7 @@ if st.button("Prédire"):
                     qh = float(budget_interval.get("resid_q_high", 0.0))
                     low = float(np.expm1(pred_log + ql))
                     high = float(np.expm1(pred_log + qh))
-                st.subheader("Suggestion de budget")
+                st.subheader("Suggestion de budget (aide pour la note)")
                 if low is not None and high is not None:
                     st.write(
                         f"Budget estimé: **{_format_money(pred_budget)}** (fourchette ~80%: "
