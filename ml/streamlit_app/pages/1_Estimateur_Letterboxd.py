@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
+import urllib.error
+import urllib.request
 from pathlib import Path
 from typing import Any
 
@@ -89,6 +92,149 @@ def _load_reference_df(path: Path) -> pd.DataFrame:
     if not path.exists():
         return pd.DataFrame()
     return pd.read_json(path)
+
+
+@st.cache_data(ttl=24 * 60 * 60)
+def _fetch_html(url: str) -> str:
+    req = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
+        },
+        method="GET",
+    )
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        raw = resp.read()
+    return raw.decode("utf-8", errors="ignore")
+
+
+def _extract_letterboxd_poster_url(html: str) -> str | None:
+    # Letterboxd meta tags can sometimes point to the page header/backdrop.
+    # We want the actual poster (usually a.ltrbxd.com/resized/film-poster/...).
+
+    def _img_tag_to_url(tag: str) -> str | None:
+        # Prefer the largest in srcset (usually last)
+        m_srcset = re.search(r"\bsrcset=\"([^\"]+)\"", tag, flags=re.IGNORECASE)
+        if m_srcset:
+            parts = [p.strip() for p in m_srcset.group(1).split(",") if p.strip()]
+            if parts:
+                last = parts[-1]
+                last_url = last.split(" ")[0].strip()
+                if last_url.startswith("http"):
+                    return last_url
+
+        m_src = re.search(r"\bsrc=\"([^\"]+)\"", tag, flags=re.IGNORECASE)
+        if m_src:
+            u = m_src.group(1).strip()
+            if u.startswith("http"):
+                return u
+        return None
+
+    def _pick_best(urls: list[str]) -> str | None:
+        urls = [u.strip() for u in urls if isinstance(u, str) and u.strip()]
+        urls = [u for u in urls if u.startswith("http")]
+        if not urls:
+            return None
+
+        # Prefer real poster crops
+        posters = [u for u in urls if "film-poster" in u]
+        if posters:
+            # Prefer the standard crop if present
+            for u in posters:
+                if "-230-" in u and "-345-" in u:
+                    return u
+            return posters[0]
+
+        # Never return backdrops
+        urls = [u for u in urls if "/upload/" not in u and "backdrop" not in u]
+        return urls[0] if urls else None
+
+    # 0) Best: extract poster from the actual poster column (never the backdrop)
+    m_poster_col = re.search(r"\bid=\"js-poster-col\"", html, flags=re.IGNORECASE)
+    if m_poster_col:
+        start = m_poster_col.start()
+        window = html[start : start + 25000]
+        # Prefer <img alt="Poster for ..."> if present in that window
+        for img in re.finditer(r"<img\b[^>]*>", window, flags=re.IGNORECASE | re.DOTALL):
+            tag = img.group(0)
+            if re.search(r"\balt=\"Poster\s+for\b", tag, flags=re.IGNORECASE):
+                u = _img_tag_to_url(tag)
+                if u:
+                    return u
+        # Fallback: any image inside poster col
+        for img in re.finditer(r"<img\b[^>]*>", window, flags=re.IGNORECASE | re.DOTALL):
+            u = _img_tag_to_url(img.group(0))
+            if u:
+                return u
+
+    # 1) Strongest remaining: direct film-poster URLs anywhere in the HTML
+    film_posters = re.findall(
+        r"https?://a\.ltrbxd\.com/resized/film-poster/[^\"'\s<>]+",
+        html,
+        flags=re.IGNORECASE,
+    )
+    best = _pick_best(film_posters)
+    if best:
+        return best
+
+    candidates: list[str] = []
+
+    # 2) Next: scan <img> tags (poster is often <img class="image" ...>)
+    for img in re.finditer(
+        r"<img\b[^>]*\bclass=\"[^\"]*\bimage\b[^\"]*\"[^>]*>",
+        html,
+        flags=re.IGNORECASE,
+    ):
+        tag = img.group(0)
+        m_srcset = re.search(r"\bsrcset=\"([^\"]+)\"", tag, flags=re.IGNORECASE)
+        if m_srcset:
+            # Prefer the largest in srcset (usually last)
+            parts = [p.strip() for p in m_srcset.group(1).split(",") if p.strip()]
+            if parts:
+                last = parts[-1]
+                last_url = last.split(" ")[0].strip()
+                if last_url.startswith("http"):
+                    candidates.append(last_url)
+
+        m_src = re.search(r"\bsrc=\"([^\"]+)\"", tag, flags=re.IGNORECASE)
+        if m_src:
+            u = m_src.group(1).strip()
+            if u.startswith("http"):
+                candidates.append(u)
+
+    best = _pick_best(candidates)
+    if best:
+        return best
+
+    # 3) Meta tags as a last resort (only if they point to film-poster)
+    meta_candidates: list[str] = []
+    for pat in (
+        r"property=\"og:image\"\s+content=\"([^\"]+)\"",
+        r"property=\"og:image:secure_url\"\s+content=\"([^\"]+)\"",
+        r"name=\"twitter:image\"\s+content=\"([^\"]+)\"",
+    ):
+        m = re.search(pat, html, flags=re.IGNORECASE)
+        if m:
+            u = m.group(1).strip()
+            if u.startswith("http"):
+                meta_candidates.append(u)
+
+    best = _pick_best(meta_candidates)
+    if best and "film-poster" in best:
+        return best
+
+    return None
+
+
+@st.cache_data(ttl=24 * 60 * 60)
+def _get_letterboxd_poster_url(letterboxd_url: str, _cache_bust: str = "v3") -> str | None:
+    try:
+        html = _fetch_html(letterboxd_url)
+        return _extract_letterboxd_poster_url(html)
+    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, ValueError):
+        return None
 
 
 @st.cache_data
@@ -184,6 +330,9 @@ st.markdown(
 )
 
 st.title("Prédire la note Letterboxd (0–5)")
+st.markdown(
+    "Renseigne les caractéristiques de ton film fictif, puis clique sur **Prédire**. "
+)
 
 # Presets / Templates
 PRESETS: dict[str, dict] = {
@@ -209,11 +358,6 @@ PRESETS: dict[str, dict] = {
         "genres": ["Action", "Adventure"],
     },
 }
-
-# Preset selector (sidebar)
-st.sidebar.subheader("Presets / Templates")
-preset_choice = st.sidebar.selectbox("Choisir un preset", options=["Aucun"] + list(PRESETS.keys()), index=0)
-preset_values: dict[str, object] = PRESETS.get(preset_choice, {}) if preset_choice != "Aucun" else {}
 
 # Film de référence
 st.sidebar.subheader("Film de référence")
@@ -258,10 +402,6 @@ for col in features:
     else:
         medians[col] = 0.0
 
-st.sidebar.write(
-    "Renseigne les caractéristiques de ton film fictif, puis clique sur **Prédire**. "
-    "La prédiction est bornée dans l'intervalle [0, 5]."
-)
 
 st.sidebar.caption(
     "Note: l'estimation du budget est fournie à titre indicatif et sert d'aide pour affiner l'estimation de la note finale (elle n'est pas une vérité)."
@@ -282,21 +422,29 @@ else:
 
     # Poster + metadata
     if ref_row is not None:
-        img_keys = ["poster", "poster_url", "image", "poster_path", "posterImage", "posterUrl"]
-        img_url = None
-        for k in img_keys:
-            if k in ref_row and ref_row.get(k):
-                img_url = ref_row.get(k)
+        lb_url = None
+        for k in ("url", "letterboxd_url", "letterboxd", "link"):
+            v = ref_row.get(k)
+            if isinstance(v, str) and v.strip():
+                lb_url = v.strip()
                 break
-        if img_url:
-            try:
-                st.sidebar.image(img_url, width=160)
-            except Exception:
-                pass
+
+        if lb_url and lb_url.startswith("http"):
+            poster_url = _get_letterboxd_poster_url(lb_url)
+            if poster_url:
+                try:
+                    st.sidebar.image(poster_url, width=160)
+                except Exception:
+                    pass
+            else:
+                st.sidebar.caption("Poster: indisponible (non trouvé sur Letterboxd).")
+
         title = ref_row.get("title") or ""
         year = ref_row.get("year") or ""
         st.sidebar.markdown(f"**{title}**  ")
         st.sidebar.caption(f"Année: {year}")
+        if lb_url:
+            st.sidebar.caption(f"Lien Letterboxd: {lb_url}")
 
         def _join_if_list(x):
             if isinstance(x, list):
@@ -312,6 +460,12 @@ else:
             st.sidebar.text(f"Genres: {genres}")
         if duration:
             st.sidebar.text(f"Durée: {duration} minutes")
+
+# Preset selector (sidebar)
+st.sidebar.subheader("Presets / Templates")
+preset_choice = st.sidebar.selectbox("Choisir un preset", options=["Aucun"] + list(PRESETS.keys()), index=0)
+preset_values: dict[str, object] = PRESETS.get(preset_choice, {}) if preset_choice != "Aucun" else {}
+
 
 name_options = {
     "directors": _flatten_unique_lists(ref_df, "directors", top_k=200),
@@ -369,7 +523,7 @@ def _optional_slider(
     val = st.slider(label, float(lo), float(hi), float(default), key=f"val_{feature}", format="%.2f")
     if feature in ("budget", "revenue"):
         try:
-            st.caption(f"Valeur sélectionnéea0: {_format_money(float(val))} (affiché en millions)")
+            st.caption(f"Valeur sélectionnée : {_format_money(float(val))} (affiché en millions)")
         except Exception:
             pass
     return True, float(val)
