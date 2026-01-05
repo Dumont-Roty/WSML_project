@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any
@@ -12,6 +14,14 @@ import joblib
 import numpy as np
 import pandas as pd
 import streamlit as st
+
+
+def _sanitize_widget_suffix(s: str) -> str:
+    s = (s or "").strip()
+    if not s:
+        return "manual"
+    s = re.sub(r"[^a-zA-Z0-9_]+", "_", s)
+    return s[:80] if len(s) > 80 else s
 
 
 # Bootstrap paths so `ml.*` is importable (IdentityHasher is pickled as ml.src.identity_hasher.IdentityHasher)
@@ -110,9 +120,204 @@ def _fetch_html(url: str) -> str:
     return raw.decode("utf-8", errors="ignore")
 
 
+def _tmdb_api_key() -> str | None:
+    # Prefer Streamlit secrets, then environment variable
+    try:
+        key = st.secrets.get("TMDB_API_KEY")  # type: ignore[attr-defined]
+        if isinstance(key, str) and key.strip():
+            return key.strip()
+    except Exception:
+        pass
+    key = os.environ.get("TMDB_API_KEY")
+    return key.strip() if isinstance(key, str) and key.strip() else None
+
+
+def _extract_tmdb_movie_id(letterboxd_html: str) -> int | None:
+    # Common patterns on Letterboxd pages
+    for pat in (
+        r"data-tmdb-id\s*=\s*['\"](\d+)['\"]",
+        r"themoviedb\.org/movie/(\d+)",
+        r"tmdb\.org/movie/(\d+)",
+    ):
+        m = re.search(pat, letterboxd_html, flags=re.IGNORECASE)
+        if m:
+            try:
+                return int(m.group(1))
+            except Exception:
+                return None
+    return None
+
+
+@st.cache_data(ttl=24 * 60 * 60)
+def _tmdb_get_json(path: str, *, language: str = "fr-FR", params: dict[str, object] | None = None) -> dict[str, Any] | None:
+    api_key = _tmdb_api_key()
+    if not api_key:
+        return None
+
+    base = "https://api.themoviedb.org/3"
+    url = urllib.parse.urljoin(base + "/", path.lstrip("/"))
+    query: dict[str, str] = {"api_key": api_key, "language": language}
+    if isinstance(params, dict):
+        for k, v in params.items():
+            if v is None:
+                continue
+            query[str(k)] = str(v)
+    qs = urllib.parse.urlencode(query)
+    url = f"{url}?{qs}"
+
+    req = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+            "Accept": "application/json,*/*;q=0.8",
+        },
+        method="GET",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            raw = resp.read()
+        return json.loads(raw.decode("utf-8", errors="ignore"))
+    except Exception:
+        return None
+
+
+@st.cache_data(ttl=7 * 24 * 60 * 60)
+def _tmdb_image_base_url() -> str:
+    payload = _tmdb_get_json("/configuration", language="en-US")
+    if isinstance(payload, dict):
+        images = payload.get("images")
+        if isinstance(images, dict):
+            base = images.get("secure_base_url") or images.get("base_url")
+            if isinstance(base, str) and base.startswith("http"):
+                return base
+    return "https://image.tmdb.org/t/p/"
+
+
+def _tmdb_profile_url(profile_path: str, *, size: str = "w185") -> str:
+    base = _tmdb_image_base_url()
+    return urllib.parse.urljoin(base, f"{size}{profile_path}")
+
+
+@st.cache_data(ttl=7 * 24 * 60 * 60)
+def _tmdb_person_profile_url_by_name(name: str) -> str | None:
+    q = (name or "").strip()
+    if not q:
+        return None
+    payload = _tmdb_get_json(
+        "/search/person",
+        language="en-US",
+        params={"query": q, "page": 1, "include_adult": "false"},
+    )
+    if not isinstance(payload, dict):
+        return None
+    results = payload.get("results")
+    if not isinstance(results, list):
+        return None
+    for row in results:
+        if not isinstance(row, dict):
+            continue
+        profile_path = row.get("profile_path")
+        if isinstance(profile_path, str) and profile_path.strip():
+            return _tmdb_profile_url(profile_path.strip(), size="w185")
+    return None
+
+
+def _render_selected_people_thumbnails(
+    names: list[str],
+    *,
+    title: str = "Sélection",
+    known_photos: dict[str, str] | None = None,
+    max_items: int = 32,
+    thumb_size_px: int = 56,
+) -> None:
+    if not names:
+        return
+    st.caption(f"{title} (aperçu)")
+    cols = st.columns(min(8, len(names)))
+    for i, name in enumerate(names[: int(max_items)]):
+        with cols[i % len(cols)]:
+            url = None
+            if isinstance(known_photos, dict):
+                url = known_photos.get(name)
+            if not url:
+                url = _tmdb_person_profile_url_by_name(name)
+            if url:
+                try:
+                    st.image(url, width=int(thumb_size_px))
+                except Exception:
+                    pass
+
+
+@st.cache_data(ttl=24 * 60 * 60)
+def _tmdb_movie_cast(tmdb_movie_id: int, *, top_n: int = 9) -> list[dict[str, Any]]:
+    payload = _tmdb_get_json(f"/movie/{tmdb_movie_id}/credits")
+    if not isinstance(payload, dict):
+        return []
+    cast = payload.get("cast")
+    if not isinstance(cast, list):
+        return []
+
+    out: list[dict[str, Any]] = []
+    for row in cast:
+        if not isinstance(row, dict):
+            continue
+        profile_path = row.get("profile_path")
+        if not isinstance(profile_path, str) or not profile_path.strip():
+            continue
+        name = row.get("name")
+        character = row.get("character")
+        out.append(
+            {
+                "name": str(name) if name is not None else "",
+                "character": str(character) if character is not None else "",
+                "profile_url": _tmdb_profile_url(profile_path.strip(), size="w185"),
+            }
+        )
+        if len(out) >= int(top_n):
+            break
+    return out
+
+
 def _extract_letterboxd_poster_url(html: str) -> str | None:
     # Letterboxd meta tags can sometimes point to the page header/backdrop.
     # We want the actual poster (usually a.ltrbxd.com/resized/film-poster/...).
+
+    _CROP_DIMS_RE = re.compile(r"-(\d+)-(\d+)-(\d+)-(\d+)-crop", flags=re.IGNORECASE)
+
+    def _looks_like_poster_url(url: str) -> bool:
+        u = (url or "").strip().lower()
+        if not u.startswith("http"):
+            return False
+        if "empty-poster" in u:
+            return False
+        # Real poster/CDN URLs are served from a.ltrbxd.com; placeholders/icons often aren't.
+        if "a.ltrbxd.com" not in u:
+            return False
+
+        m = _CROP_DIMS_RE.search(u)
+        if not m:
+            # If we can't infer dimensions, be conservative.
+            return "film-poster" in u
+
+        try:
+            a, b, c, d = (int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4)))
+        except Exception:
+            return False
+
+        width = max(a, b)
+        height = max(c, d)
+        if width <= 0 or height <= 0:
+            return False
+
+        # Reject tiny images (flags/icons)
+        if width < 150 or height < 200:
+            return False
+
+        # Posters are portrait (~2:3 => height/width ~ 1.5). Backdrops are landscape (~16:9).
+        if height <= width:
+            return False
+        ratio = height / width
+        return 1.25 <= ratio <= 1.85
 
     def _img_tag_to_url(tag: str) -> str | None:
         # Prefer the largest in srcset (usually last)
@@ -123,18 +328,28 @@ def _extract_letterboxd_poster_url(html: str) -> str | None:
                 last = parts[-1]
                 last_url = last.split(" ")[0].strip()
                 if last_url.startswith("http"):
+                    if "empty-poster" in last_url:
+                        return None
                     return last_url
 
         m_src = re.search(r"\bsrc=\"([^\"]+)\"", tag, flags=re.IGNORECASE)
         if m_src:
             u = m_src.group(1).strip()
             if u.startswith("http"):
+                if "empty-poster" in u:
+                    return None
                 return u
         return None
 
     def _pick_best(urls: list[str]) -> str | None:
         urls = [u.strip() for u in urls if isinstance(u, str) and u.strip()]
         urls = [u for u in urls if u.startswith("http")]
+        urls = [u for u in urls if "empty-poster" not in u]
+        if not urls:
+            return None
+
+        # Filter to plausible poster URLs (avoids backdrops and small icons)
+        urls = [u for u in urls if _looks_like_poster_url(u)]
         if not urls:
             return None
 
@@ -147,35 +362,54 @@ def _extract_letterboxd_poster_url(html: str) -> str | None:
                     return u
             return posters[0]
 
-        # Never return backdrops
-        urls = [u for u in urls if "/upload/" not in u and "backdrop" not in u]
-        return urls[0] if urls else None
+        # Otherwise, accept the best poster-like URL (typically /resized/sm/upload/...)
+        for u in urls:
+            if "-230-" in u and "-345-" in u:
+                return u
+        return urls[0]
+
+    def _extract_candidates_from_text(text: str) -> list[str]:
+        # Capture both classic film-poster URLs and sm/upload poster crops.
+        return re.findall(
+            r"https?://a\.ltrbxd\.com/resized/(?:film-poster|sm/upload)/[^\"'\s<>]+",
+            text,
+            flags=re.IGNORECASE,
+        )
 
     # 0) Best: extract poster from the actual poster column (never the backdrop)
-    m_poster_col = re.search(r"\bid=\"js-poster-col\"", html, flags=re.IGNORECASE)
+    m_poster_col = re.search(r"\bid\s*=\s*(['\"])js-poster-col\1", html, flags=re.IGNORECASE)
     if m_poster_col:
         start = m_poster_col.start()
-        window = html[start : start + 25000]
+        # The HTML can be large; keep a generous window to include the poster markup.
+        window = html[start : start + 150000]
         # Prefer <img alt="Poster for ..."> if present in that window
+        poster_col_candidates: list[str] = []
         for img in re.finditer(r"<img\b[^>]*>", window, flags=re.IGNORECASE | re.DOTALL):
             tag = img.group(0)
             if re.search(r"\balt=\"Poster\s+for\b", tag, flags=re.IGNORECASE):
                 u = _img_tag_to_url(tag)
                 if u:
-                    return u
+                    poster_col_candidates.append(u)
+        best = _pick_best(poster_col_candidates)
+        if best:
+            return best
         # Fallback: any image inside poster col
+        poster_col_candidates = []
         for img in re.finditer(r"<img\b[^>]*>", window, flags=re.IGNORECASE | re.DOTALL):
             u = _img_tag_to_url(img.group(0))
             if u:
-                return u
+                poster_col_candidates.append(u)
+        best = _pick_best(poster_col_candidates)
+        if best:
+            return best
 
-    # 1) Strongest remaining: direct film-poster URLs anywhere in the HTML
-    film_posters = re.findall(
-        r"https?://a\.ltrbxd\.com/resized/film-poster/[^\"'\s<>]+",
-        html,
-        flags=re.IGNORECASE,
-    )
-    best = _pick_best(film_posters)
+        # Still nothing? Directly scan this region for crop URLs.
+        best = _pick_best(_extract_candidates_from_text(window))
+        if best:
+            return best
+
+    # 1) Strongest remaining: direct crop URLs anywhere in the HTML
+    best = _pick_best(_extract_candidates_from_text(html))
     if best:
         return best
 
@@ -229,10 +463,141 @@ def _extract_letterboxd_poster_url(html: str) -> str | None:
 
 
 @st.cache_data(ttl=24 * 60 * 60)
-def _get_letterboxd_poster_url(letterboxd_url: str, _cache_bust: str = "v3") -> str | None:
+def _get_letterboxd_poster_url(letterboxd_url: str, _cache_bust: str = "v6") -> str | None:
     try:
         html = _fetch_html(letterboxd_url)
-        return _extract_letterboxd_poster_url(html)
+        poster = _extract_letterboxd_poster_url(html)
+        if poster:
+            return poster
+
+        def _looks_like_poster_final_url(url: str) -> bool:
+            u = (url or "").strip().lower()
+            if not u.startswith("http"):
+                return False
+            if "empty-poster" in u:
+                return False
+            if "a.ltrbxd.com" not in u:
+                return False
+            if "backdrop" in u:
+                return False
+
+            m = re.search(r"-(\d+)-(\d+)-(\d+)-(\d+)-crop", u)
+            if not m:
+                return "film-poster" in u
+            try:
+                a, b, c, d = (int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4)))
+            except Exception:
+                return False
+            width = max(a, b)
+            height = max(c, d)
+            if width < 150 or height < 200:
+                return False
+            if height <= width:
+                return False
+            ratio = height / width
+            return 1.25 <= ratio <= 1.85
+
+        def _pick_best_candidate(urls: list[str]) -> str | None:
+            urls = [u.strip() for u in urls if isinstance(u, str) and u.strip()]
+            urls = [u for u in urls if _looks_like_poster_final_url(u)]
+            if not urls:
+                return None
+            for u in urls:
+                if "-0-230-0-345-crop" in u:
+                    return u
+            return urls[0]
+
+        def _extract_candidate_urls(text: str) -> list[str]:
+            return re.findall(
+                r"https?://a\.ltrbxd\.com/resized/(?:film-poster|sm/upload)/[^\"'\s<>]+",
+                text,
+                flags=re.IGNORECASE,
+            )
+
+        # Fallback A: use the JSON details endpoint embedded in the HTML.
+        # This is often present even when the poster <img> is JS-injected.
+        details_endpoints: list[str] = []
+        for m in re.finditer(r"data-details-endpoint\s*=\s*(['\"])(.*?)\1", html, flags=re.IGNORECASE | re.DOTALL):
+            p = (m.group(2) or "").strip()
+            if p:
+                details_endpoints.append(p)
+        # If not present, try the conventional /json/ endpoint.
+        if not details_endpoints:
+            details_endpoints.append("json/")
+
+        for ep in details_endpoints[:2]:
+            try:
+                details_url = urllib.parse.urljoin(letterboxd_url, ep)
+                req = urllib.request.Request(
+                    details_url,
+                    headers={
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                        "Accept": "application/json,text/javascript,*/*;q=0.8",
+                        "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
+                        "X-Requested-With": "XMLHttpRequest",
+                    },
+                    method="GET",
+                )
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    raw = resp.read()
+                text = raw.decode("utf-8", errors="ignore")
+                best = _pick_best_candidate(_extract_candidate_urls(text))
+                if best:
+                    return best
+            except Exception:
+                continue
+
+        # If the poster is loaded dynamically, the HTML often contains a resolver endpoint like:
+        # data-poster-url="/film/<slug>/image-150/" (which may redirect to the real image).
+        poster_paths: list[str] = []
+        for m in re.finditer(r"data-poster-url\s*=\s*(['\"])(.*?)\1", html, flags=re.IGNORECASE | re.DOTALL):
+            p = (m.group(2) or "").strip()
+            if not p:
+                continue
+            if "empty-poster" in p:
+                continue
+            poster_paths.append(p)
+
+        for p in poster_paths[:3]:
+            try:
+                resolved_url = urllib.parse.urljoin(letterboxd_url, p)
+                req = urllib.request.Request(
+                    resolved_url,
+                    headers={
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+                        "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
+                    },
+                    method="GET",
+                )
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    final_url = resp.geturl()
+                    content_type = (resp.headers.get("Content-Type") or "").lower()
+                    raw = resp.read()
+
+                # If we landed on an actual image, the final URL is the one we want.
+                if final_url.startswith("http") and (
+                    content_type.startswith("image/")
+                    or ".jpg" in final_url.lower()
+                    or ".jpeg" in final_url.lower()
+                    or ".png" in final_url.lower()
+                ):
+                    # Only accept real posters (avoid flags/icons/backdrops)
+                    if _looks_like_poster_final_url(final_url):
+                        return final_url
+
+                # Otherwise, try to extract a film-poster URL from the returned HTML.
+                try:
+                    text = raw.decode("utf-8", errors="ignore")
+                except Exception:
+                    text = ""
+                poster2 = _extract_letterboxd_poster_url(text)
+                if poster2:
+                    return poster2
+            except Exception:
+                continue
+
+        return None
     except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, ValueError):
         return None
 
@@ -408,6 +773,9 @@ st.sidebar.caption(
 )
 
 ref_row: dict[str, Any] | None = None
+ref_lb_url: str | None = None
+ref_tmdb_id: int | None = None
+prefill_from_ref = st.sidebar.checkbox("Préremplir depuis le film de référence", value=False, key="prefill_from_ref")
 if ref_df.empty:
     st.sidebar.info("Aucun film de référence disponible (final_results_28.json / merged_results.json introuvable ou vide).")
 else:
@@ -429,6 +797,8 @@ else:
                 lb_url = v.strip()
                 break
 
+        ref_lb_url = lb_url
+
         if lb_url and lb_url.startswith("http"):
             poster_url = _get_letterboxd_poster_url(lb_url)
             if poster_url:
@@ -438,6 +808,40 @@ else:
                     pass
             else:
                 st.sidebar.caption("Poster: indisponible (non trouvé sur Letterboxd).")
+
+            # Option A — TMDB: actor headshots (requires TMDB_API_KEY)
+            api_key = _tmdb_api_key()
+            if api_key:
+                try:
+                    lb_html = _fetch_html(lb_url)
+                    tmdb_id = _extract_tmdb_movie_id(lb_html)
+                except Exception:
+                    tmdb_id = None
+
+                ref_tmdb_id = tmdb_id
+
+                if tmdb_id:
+                    cast = _tmdb_movie_cast(tmdb_id, top_n=9)
+                    if cast:
+                        st.sidebar.subheader("Casting (TMDB)")
+                        cols_cast = st.sidebar.columns(3)
+                        for i, member in enumerate(cast):
+                            with cols_cast[i % 3]:
+                                try:
+                                    st.image(member["profile_url"], use_container_width=True)
+                                except Exception:
+                                    pass
+                                name = str(member.get("name") or "")
+                                role = str(member.get("character") or "")
+                                st.caption(name)
+                                #if role:
+                                #    st.caption(role)
+                    else:
+                        st.sidebar.caption("Casting TMDB: indisponible.")
+                else:
+                    st.sidebar.caption("TMDB: ID du film introuvable sur la page Letterboxd.")
+            else:
+                st.sidebar.caption("Pour voir les photos des acteurs, configure TMDB_API_KEY (Streamlit secrets ou variable d'environnement).")
 
         title = ref_row.get("title") or ""
         year = ref_row.get("year") or ""
@@ -465,6 +869,14 @@ else:
 st.sidebar.subheader("Presets / Templates")
 preset_choice = st.sidebar.selectbox("Choisir un preset", options=["Aucun"] + list(PRESETS.keys()), index=0)
 preset_values: dict[str, object] = PRESETS.get(preset_choice, {}) if preset_choice != "Aucun" else {}
+
+# Widget state suffix: when prefill is enabled, keys depend on the selected reference movie.
+# This makes widgets initialize with reference defaults without overwriting user edits until the reference changes.
+if prefill_from_ref and isinstance(ref_row, dict):
+    _ref_token = f"{ref_row.get('title')}_{ref_row.get('year')}_{'id' if identity_cols else 'count'}"
+else:
+    _ref_token = "manual"
+WIDGET_STATE_SUFFIX = _sanitize_widget_suffix(_ref_token)
 
 
 name_options = {
@@ -501,8 +913,21 @@ def _optional_slider(
     suggested: float | None,
     preset_values: dict | None = None,
 ) -> tuple[bool, float]:
+    state_suffix = globals().get("WIDGET_STATE_SUFFIX", "manual")
+    use_key = f"use_{feature}_{state_suffix}"
+    val_key = f"val_{feature}_{state_suffix}"
+
     pre_has = bool(preset_values and feature in preset_values)
-    use = st.checkbox(f"Utiliser {label}", value=pre_has, key=f"use_{feature}")
+
+    prefill_value = None
+    prefill_used = False
+    if bool(globals().get("prefill_from_ref")) and isinstance(globals().get("ref_row"), dict):
+        rr = globals().get("ref_row")
+        if isinstance(rr, dict) and feature in rr and rr.get(feature) is not None:
+            prefill_value = rr.get(feature)
+            prefill_used = True
+
+    use = st.checkbox(f"Utiliser {label}", value=(prefill_used or pre_has), key=use_key)
     _suggestion_caption(label, suggested)
     if not use:
         return False, float(medians.get(feature, 0.0))
@@ -510,17 +935,28 @@ def _optional_slider(
     series = stats_df[feature] if feature in stats_df.columns else pd.Series(dtype=float)
     lo, hi = _q_range(series, fallback_min=fallback_min, fallback_max=fallback_max)
     default = float(medians.get(feature, 0.0))
+    if prefill_value is not None:
+        try:
+            default = float(prefill_value)
+        except Exception:
+            default = default
     if preset_values and feature in preset_values:
         try:
-            default = float(preset_values.get(feature))
+            pv = preset_values.get(feature)
+            if pv is not None:
+                default = float(pv)
         except Exception:
             default = default
 
+    # Clamp to slider range to avoid StreamlitValueAboveMaxError
+    if np.isfinite(default):
+        default = float(min(max(default, float(lo)), float(hi)))
+
     if is_int:
-        val = st.slider(label, int(lo), int(hi), int(round(default)), key=f"val_{feature}")
+        val = st.slider(label, int(lo), int(hi), int(round(default)), key=val_key)
         return True, float(val)
 
-    val = st.slider(label, float(lo), float(hi), float(default), key=f"val_{feature}", format="%.2f")
+    val = st.slider(label, float(lo), float(hi), float(default), key=val_key, format="%.2f")
     if feature in ("budget", "revenue"):
         try:
             st.caption(f"Valeur sélectionnée : {_format_money(float(val))} (affiché en millions)")
@@ -536,8 +972,28 @@ def _optional_multiselect_count(
     ref_col: str,
     preset_values: dict | None = None,
 ) -> tuple[bool, float]:
+    state_suffix = globals().get("WIDGET_STATE_SUFFIX", "manual")
+    use_key = f"use_{feature}_{state_suffix}"
+    val_key = f"val_{feature}_{state_suffix}"
+
+    prefill_list: list[str] = []
+    prefill_used = False
+    if bool(globals().get("prefill_from_ref")) and isinstance(globals().get("ref_row"), dict):
+        rr = globals().get("ref_row")
+        if isinstance(rr, dict):
+            val = rr.get(ref_col)
+            if ref_col == "directors" and val is None:
+                val = rr.get("director")
+            if isinstance(val, list):
+                prefill_list = [str(x) for x in val if str(x).strip()]
+            elif isinstance(val, str) and val.strip():
+                prefill_list = [val.strip()]
+            if ref_col in {"directors", "casting", "producers", "writers", "composer"}:
+                prefill_list = prefill_list[:5]
+            prefill_used = bool(prefill_list)
+
     pre_has = bool(preset_values and feature in preset_values)
-    use = st.checkbox(f"Utiliser {label}", value=pre_has, key=f"use_{feature}")
+    use = st.checkbox(f"Utiliser {label}", value=(prefill_used or pre_has), key=use_key)
     suggested_list: list[str] | None = None
     if ref_row is not None:
         ref_val = ref_row.get(ref_col)
@@ -550,9 +1006,32 @@ def _optional_multiselect_count(
 
     options = name_options.get(ref_col, [])
     default_sel: list[str] = []
-    if preset_values and feature in preset_values and isinstance(preset_values.get(feature), list):
-        default_sel = [str(x) for x in preset_values.get(feature)]
-    selected = st.multiselect(label, options=options, default=default_sel, key=f"val_{feature}")
+    if prefill_list:
+        default_sel = prefill_list
+    if preset_values and feature in preset_values:
+        pv = preset_values.get(feature)
+        if isinstance(pv, list):
+            default_sel = [str(x) for x in pv]
+    default_sel = [x for x in default_sel if x in options]
+    selected = st.multiselect(label, options=options, default=default_sel, key=val_key)
+
+    # TMDB-enhanced UX for people-like lists: show small photos for selected names.
+    if selected and _tmdb_api_key() and ref_col in {"directors", "casting", "producers", "writers", "composer"}:
+        known: dict[str, str] = {}
+        # For casting, prefer exact photos from the reference movie cast when available.
+        if ref_col == "casting" and ref_tmdb_id:
+            cast = _tmdb_movie_cast(int(ref_tmdb_id), top_n=60) or []
+            for member in cast:
+                name = str(member.get("name") or "").strip()
+                url = str(member.get("profile_url") or "").strip()
+                if name and url:
+                    known[name] = url
+        _render_selected_people_thumbnails(
+            [str(x) for x in selected],
+            title=("Acteurs sélectionnés" if ref_col == "casting" else "Personnes sélectionnées"),
+            known_photos=known,
+        )
+
     return True, float(len(selected))
 
 
@@ -563,8 +1042,28 @@ def _optional_multiselect_list(
     ref_col: str,
     preset_values: dict | None = None,
 ) -> tuple[bool, list[str]]:
+    state_suffix = globals().get("WIDGET_STATE_SUFFIX", "manual")
+    use_key = f"use_{feature}_{state_suffix}"
+    val_key = f"val_{feature}_{state_suffix}"
+
+    prefill_list: list[str] = []
+    prefill_used = False
+    if bool(globals().get("prefill_from_ref")) and isinstance(globals().get("ref_row"), dict):
+        rr = globals().get("ref_row")
+        if isinstance(rr, dict):
+            val = rr.get(ref_col)
+            if ref_col == "directors" and val is None:
+                val = rr.get("director")
+            if isinstance(val, list):
+                prefill_list = [str(x) for x in val if str(x).strip()]
+            elif isinstance(val, str) and val.strip():
+                prefill_list = [val.strip()]
+            if ref_col in {"directors", "casting", "producers", "writers", "composer"}:
+                prefill_list = prefill_list[:5]
+            prefill_used = bool(prefill_list)
+
     pre_has = bool(preset_values and feature in preset_values)
-    use = st.checkbox(f"Utiliser {label}", value=pre_has, key=f"use_{feature}")
+    use = st.checkbox(f"Utiliser {label}", value=(prefill_used or pre_has), key=use_key)
     suggested_list: list[str] | None = None
     if ref_row is not None:
         ref_val = ref_row.get(ref_col)
@@ -577,9 +1076,31 @@ def _optional_multiselect_list(
 
     options = name_options.get(ref_col, [])
     default_sel: list[str] = []
-    if preset_values and feature in preset_values and isinstance(preset_values.get(feature), list):
-        default_sel = [str(x) for x in preset_values.get(feature)]
-    selected = st.multiselect(label, options=options, default=default_sel, key=f"val_{feature}")
+    if prefill_list:
+        default_sel = prefill_list
+    if preset_values and feature in preset_values:
+        pv = preset_values.get(feature)
+        if isinstance(pv, list):
+            default_sel = [str(x) for x in pv]
+    default_sel = [x for x in default_sel if x in options]
+    selected = st.multiselect(label, options=options, default=default_sel, key=val_key)
+
+    # TMDB-enhanced UX for people-like lists: show small photos for selected names.
+    if selected and _tmdb_api_key() and ref_col in {"directors", "casting", "producers", "writers", "composer"}:
+        known: dict[str, str] = {}
+        # For casting, prefer exact photos from the reference movie cast when available.
+        if ref_col == "casting" and ref_tmdb_id:
+            cast = _tmdb_movie_cast(int(ref_tmdb_id), top_n=60) or []
+            for member in cast:
+                name = str(member.get("name") or "").strip()
+                url = str(member.get("profile_url") or "").strip()
+                if name and url:
+                    known[name] = url
+        _render_selected_people_thumbnails(
+            [str(x) for x in selected],
+            title=("Acteurs sélectionnés" if ref_col == "casting" else "Personnes sélectionnées"),
+            known_photos=known,
+        )
     return True, [str(x) for x in selected]
 
 
@@ -632,56 +1153,50 @@ people_container = st.container()
 cols_p = people_container.columns(2)
 colp_idx = 0
 
-if identity_cols:
-    role_map = [
-        ("directors", "Réalisateurs", "directors"),
-        ("casting", "Acteurs / casting", "casting"),
-        ("producers", "Producteurs", "producers"),
-        ("writers", "Scénaristes", "writers"),
-        ("composer", "Compositeurs", "composer"),
-        ("studio", "Studios", "studio"),
-        ("languages", "Langues", "languages"),
-        ("genres", "Genres", "genres"),
-        ("themes", "Thèmes", "themes"),
-    ]
-    for feature, label, ref_col in role_map:
-        if feature not in features:
-            continue
-        with cols_p[colp_idx % 2]:
+role_map_identity = [
+    ("directors", "Réalisateurs", "directors"),
+    ("casting", "Acteurs / casting", "casting"),
+    ("producers", "Producteurs", "producers"),
+    ("writers", "Scénaristes", "writers"),
+    ("composer", "Compositeurs", "composer"),
+    ("studio", "Studios", "studio"),
+    ("languages", "Langues", "languages"),
+    ("genres", "Genres", "genres"),
+    ("themes", "Thèmes", "themes"),
+]
+role_map_count = [
+    ("directors_count", "Réalisateurs", "directors"),
+    ("casting_count", "Acteurs / casting", "casting"),
+    ("producers_count", "Producteurs", "producers"),
+    ("writers_count", "Scénaristes", "writers"),
+    ("composer_count", "Compositeurs", "composer"),
+    ("studio_count", "Studios", "studio"),
+    ("languages_count", "Langues", "languages"),
+    ("genres_count", "Genres", "genres"),
+    ("themes_count", "Thèmes", "themes"),
+]
+role_map = role_map_identity if identity_cols else role_map_count
+for feature, label, ref_col in role_map:
+    if feature not in features:
+        continue
+    with cols_p[colp_idx % 2]:
+        if identity_cols:
             u, v = _optional_multiselect_list(
                 feature=feature,
                 label=label,
                 ref_col=ref_col,
                 preset_values=preset_values,
             )
-        used[feature] = u
-        values[feature] = v
-        colp_idx += 1
-else:
-    role_map = [
-        ("directors_count", "Réalisateurs", "directors"),
-        ("casting_count", "Acteurs / casting", "casting"),
-        ("producers_count", "Producteurs", "producers"),
-        ("writers_count", "Scénaristes", "writers"),
-        ("composer_count", "Compositeurs", "composer"),
-        ("studio_count", "Studios", "studio"),
-        ("languages_count", "Langues", "languages"),
-        ("genres_count", "Genres", "genres"),
-        ("themes_count", "Thèmes", "themes"),
-    ]
-    for feature, label, ref_col in role_map:
-        if feature not in features:
-            continue
-        with cols_p[colp_idx % 2]:
+        else:
             u, v = _optional_multiselect_count(
                 feature=feature,
                 label=label,
                 ref_col=ref_col,
                 preset_values=preset_values,
             )
-        used[feature] = u
-        values[feature] = v
-        colp_idx += 1
+    used[feature] = u
+    values[feature] = v
+    colp_idx += 1
 
 for feature in features:
     if feature not in values:

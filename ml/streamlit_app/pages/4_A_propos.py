@@ -20,6 +20,7 @@ def _apply_letterboxd_theme() -> None:
         "text": "#E6E6E6",
         "accent": "#2AB44B",
         "accent_dark": "#1B5E20",
+        "orange": "#ff8000",
     }
 
     st.markdown(
@@ -28,7 +29,7 @@ def _apply_letterboxd_theme() -> None:
         :root {{
           --lb-bg: {letterboxd_colors['bg']};
           --lb-text: {letterboxd_colors['text']};
-          --lb-accent: {letterboxd_colors['accent']};
+          --lb-orange: {letterboxd_colors['orange']};
           --lb-accent-dark: {letterboxd_colors['accent_dark']};
         }}
         .stApp, .block-container {{
@@ -36,7 +37,7 @@ def _apply_letterboxd_theme() -> None:
           color: var(--lb-text) !important;
         }}
         .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
-          color: var(--lb-accent) !important;
+          color: var(--lb-orange) !important;
         }}
         </style>
         """,
