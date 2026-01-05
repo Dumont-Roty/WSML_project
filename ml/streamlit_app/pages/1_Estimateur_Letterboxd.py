@@ -841,7 +841,14 @@ else:
                     pass
             else:
                 st.sidebar.caption("Poster: indisponible (non trouvé sur Letterboxd).")
-
+                
+        title = ref_row.get("title") or ""
+        year = ref_row.get("year") or ""
+        st.sidebar.markdown(f"**{title}**  ")
+        st.sidebar.caption(f"Année: {year}")        
+        if lb_url:
+            st.sidebar.caption(f"Lien Letterboxd: {lb_url}")
+                
             # Option A — TMDB: actor headshots (requires TMDB_API_KEY)
             api_key = _tmdb_api_key()
             if api_key:
@@ -854,7 +861,7 @@ else:
                 ref_tmdb_id = tmdb_id
 
                 if tmdb_id:
-                    cast = _tmdb_movie_cast(tmdb_id, top_n=9)
+                    cast = _tmdb_movie_cast(tmdb_id, top_n=3)
                     if cast:
                         st.sidebar.subheader("Casting (TMDB)")
                         cols_cast = st.sidebar.columns(3)
@@ -876,14 +883,7 @@ else:
             else:
                 st.sidebar.caption(
                     "Pour voir les photos des acteurs, configure TMDB_API_KEY (Streamlit secrets ou variable d'environnement)."
-                )
-
-        title = ref_row.get("title") or ""
-        year = ref_row.get("year") or ""
-        st.sidebar.markdown(f"**{title}**  ")
-        st.sidebar.caption(f"Année: {year}")
-        if lb_url:
-            st.sidebar.caption(f"Lien Letterboxd: {lb_url}")
+                )       
 
         def _join_if_list(x):
             if isinstance(x, list):
@@ -901,6 +901,7 @@ else:
             st.sidebar.text(f"Durée: {duration} minutes")
 
 # Preset selector (sidebar)
+
 st.sidebar.subheader("Presets / Templates")
 preset_choice = st.sidebar.selectbox("Choisir un preset", options=["Aucun"] + list(PRESETS.keys()), index=0)
 preset_values: dict[str, object] = PRESETS.get(preset_choice, {}) if preset_choice != "Aucun" else {}
