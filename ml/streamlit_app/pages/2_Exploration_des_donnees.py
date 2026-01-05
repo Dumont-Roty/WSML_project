@@ -197,16 +197,16 @@ if "rating" in filtered.columns and numeric_candidates:
 else:
     st.info("Corrélations indisponibles (colonnes manquantes).")
 
-# Average ratings by theme
-if "themes" in filtered.columns and "rating" in filtered.columns:
-    st.subheader("Note moyenne par thème")
-    tmp = filtered[["themes", "rating"]].dropna()
-    tmp = tmp[tmp["themes"].apply(lambda x: isinstance(x, list))]
+# Average ratings by genre
+if "genres" in filtered.columns and "rating" in filtered.columns:
+    st.subheader("Note moyenne par genre")
+    tmp = filtered[["genres", "rating"]].dropna()
+    tmp = tmp[tmp["genres"].apply(lambda x: isinstance(x, list))]
     if not tmp.empty:
-        exploded = tmp.explode("themes")
-        grp = exploded.groupby("themes", as_index=False)["rating"].mean().sort_values("rating", ascending=False).head(30)
-        st.bar_chart(grp.set_index("themes"))
-
+        exploded = tmp.explode("genres")
+        grp = exploded.groupby("genres", as_index=False)["rating"].mean().sort_values("rating", ascending=False).head(30)
+        st.bar_chart(grp.set_index("genres"))
+        
 # Table + export
 st.subheader("Table")
 show_cols = [c for c in ["title", "year", "rating", "budget", "revenue", "duration", "directors", "genres", "themes"] if c in filtered.columns]

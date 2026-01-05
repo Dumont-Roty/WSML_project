@@ -606,9 +606,17 @@ def _get_letterboxd_poster_url(letterboxd_url: str, _cache_bust: str = "v6") -> 
 def _load_train_features(path: Path, features: list[str]) -> pd.DataFrame:
     if not path.exists():
         return pd.DataFrame()
-    df = pd.read_parquet(path)
-    cols = [c for c in features if c in df.columns]
-    return df[cols].copy()
+    requested = [str(c) for c in features if c is not None and str(c).strip()]
+    requested = list(dict.fromkeys(requested))  # stable de-dup
+
+    # Prefer column-projection when possible to avoid loading the whole parquet.
+    try:
+        df = pd.read_parquet(path, columns=requested)
+        return df.copy()
+    except Exception:
+        df = pd.read_parquet(path)
+        cols = [c for c in requested if c in df.columns]
+        return df[cols].copy()
 
 
 def _safe_median(series: pd.Series, default: float = 0.0) -> float:
@@ -644,10 +652,21 @@ def _flatten_unique_lists(df: pd.DataFrame, col: str, top_k: int) -> list[str]:
             flat.append(v.strip())
     if not flat:
         return []
+
+    def _norm_name(s: str) -> str:
+        s = (s or "").replace("\u00a0", " ").strip()
+        s = re.sub(r"\s+", " ", s)
+        return s
+
     counts: dict[str, int] = {}
     for name in flat:
-        counts[name] = counts.get(name, 0) + 1
+        n = _norm_name(str(name))
+        if not n:
+            continue
+        counts[n] = counts.get(n, 0) + 1
     ranked = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+    if top_k <= 0:
+        return [name for name, _ in ranked]
     return [name for name, _ in ranked[:top_k]]
 
 
@@ -755,9 +774,23 @@ if BUDGET_MODEL_PATH.exists() and BUDGET_METRICS_PATH.exists():
 
 ref_df = _load_reference_df(REF_DATA_PATH)
 if ref_df.empty:
+    # Fallback only (some environments may not ship final_results_28.json at runtime).
     ref_df = _load_reference_df(MERGED_RESULTS_PATH)
 
-train_df = _load_train_features(TRAIN_PATH, features)
+NAME_OPTION_COLS = [
+    "directors",
+    "casting",
+    "producers",
+    "writers",
+    "composer",
+    "studio",
+    "languages",
+    "genres",
+    "themes",
+]
+
+train_cols = sorted(set([*features, *NAME_OPTION_COLS]))
+train_df = _load_train_features(TRAIN_PATH, train_cols)
 stats_df = train_df if not train_df.empty else ref_df
 
 medians: dict[str, float] = {}
@@ -834,14 +867,16 @@ else:
                                 name = str(member.get("name") or "")
                                 role = str(member.get("character") or "")
                                 st.caption(name)
-                                #if role:
-                                #    st.caption(role)
+                                # if role:
+                                #     st.caption(role)
                     else:
                         st.sidebar.caption("Casting TMDB: indisponible.")
                 else:
                     st.sidebar.caption("TMDB: ID du film introuvable sur la page Letterboxd.")
             else:
-                st.sidebar.caption("Pour voir les photos des acteurs, configure TMDB_API_KEY (Streamlit secrets ou variable d'environnement).")
+                st.sidebar.caption(
+                    "Pour voir les photos des acteurs, configure TMDB_API_KEY (Streamlit secrets ou variable d'environnement)."
+                )
 
         title = ref_row.get("title") or ""
         year = ref_row.get("year") or ""
@@ -879,16 +914,21 @@ else:
 WIDGET_STATE_SUFFIX = _sanitize_widget_suffix(_ref_token)
 
 
+# Note: train.parquet contains engineered "*_count" features, not the original name lists.
+# So we build the option lists from the reference JSON.
+names_df = ref_df
+
 name_options = {
-    "directors": _flatten_unique_lists(ref_df, "directors", top_k=200),
-    "casting": _flatten_unique_lists(ref_df, "casting", top_k=400),
-    "producers": _flatten_unique_lists(ref_df, "producers", top_k=200),
-    "writers": _flatten_unique_lists(ref_df, "writers", top_k=200),
-    "composer": _flatten_unique_lists(ref_df, "composer", top_k=200),
-    "studio": _flatten_unique_lists(ref_df, "studio", top_k=200),
-    "languages": _flatten_unique_lists(ref_df, "languages", top_k=150),
-    "genres": _flatten_unique_lists(ref_df, "genres", top_k=150),
-    "themes": _flatten_unique_lists(ref_df, "themes", top_k=250),
+    # top_k=0 => "all" (users expect to be able to type-search any known entry).
+    "directors": _flatten_unique_lists(names_df, "directors", top_k=0),
+    "casting": _flatten_unique_lists(names_df, "casting", top_k=0),
+    "producers": _flatten_unique_lists(names_df, "producers", top_k=0),
+    "writers": _flatten_unique_lists(names_df, "writers", top_k=0),
+    "composer": _flatten_unique_lists(names_df, "composer", top_k=0),
+    "studio": _flatten_unique_lists(names_df, "studio", top_k=0),
+    "languages": _flatten_unique_lists(names_df, "languages", top_k=0),
+    "genres": _flatten_unique_lists(names_df, "genres", top_k=0),
+    "themes": _flatten_unique_lists(names_df, "themes", top_k=0),
 }
 
 
