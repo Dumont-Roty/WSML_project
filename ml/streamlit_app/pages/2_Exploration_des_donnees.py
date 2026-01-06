@@ -6,6 +6,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import streamlit as st
+from ml.streamlit_app.helpers import Helpers as H
 
 
 def _bootstrap_repo_path() -> Path:
@@ -16,34 +17,6 @@ def _bootstrap_repo_path() -> Path:
     return repo_root
 
 
-def _apply_letterboxd_theme() -> None:
-    letterboxd_colors = {
-        "bg": "#0b0b0b",
-        "text": "#E6E6E6",
-        "accent": "#2AB44B",
-        "accent_dark": "#1B5E20",
-    }
-
-    st.markdown(
-        f"""
-        <style>
-        :root {{
-          --lb-bg: {letterboxd_colors['bg']};
-          --lb-text: {letterboxd_colors['text']};
-          --lb-accent: {letterboxd_colors['accent']};
-          --lb-accent-dark: {letterboxd_colors['accent_dark']};
-        }}
-        .stApp, .block-container {{
-          background-color: var(--lb-bg) !important;
-          color: var(--lb-text) !important;
-        }}
-        .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
-          color: var(--lb-accent) !important;
-        }}
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
 
 
 def _flatten_unique_lists(df: pd.DataFrame, col: str, top_k: int = 250) -> list[str]:
@@ -92,7 +65,7 @@ ref_data_path = ml_dir / "data" / "final_results_28.json"
 merged_results_path = repo_root / "merged_results.json"
 
 st.set_page_config(page_title="Exploration des données — Letterboxd", layout="wide")
-_apply_letterboxd_theme()
+H.apply_letterboxd_theme()
 
 st.title("Exploration des données")
 

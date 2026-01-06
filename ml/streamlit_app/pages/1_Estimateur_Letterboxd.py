@@ -43,45 +43,7 @@ from ml.streamlit_app.helpers import Helpers as H
 # ------------ Streamlit page ------------
 
 st.set_page_config(page_title="Estimateur — Prédiction de note Letterboxd", layout="wide")
-
-LETTERBOXD_COLORS = {
-    "bg": "#0b0b0b",
-    "text": "#E6E6E6",
-    "accent": "#2AB44B",
-    "accent_dark": "#1B5E20",
-}
-
-st.markdown(
-    f"""
-    <style>
-    :root {{
-        --lb-bg: {LETTERBOXD_COLORS['bg']};
-        --lb-text: {LETTERBOXD_COLORS['text']};
-        --lb-accent: {LETTERBOXD_COLORS['accent']};
-        --lb-accent-dark: {LETTERBOXD_COLORS['accent_dark']};
-    }}
-    .stApp, .block-container {{
-        background-color: var(--lb-bg) !important;
-        color: var(--lb-text) !important;
-    }}
-    .stButton>button {{
-        background-color: var(--lb-accent) !important;
-        color: #fff !important;
-        border: none !important;
-    }}
-    .stMetric {{
-        color: var(--lb-text) !important;
-    }}
-    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
-        color: var(--lb-accent) !important;
-    }}
-    .stSlider > div > div {{
-        color: var(--lb-text) !important;
-    }}
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+H.apply_letterboxd_theme()
 
 st.title("Prédire la note Letterboxd (0–5)")
 st.markdown(
@@ -238,7 +200,7 @@ else:
                         for i, member in enumerate(cast):
                             with cols_cast[i % 3]:
                                 try:
-                                    st.image(member["profile_url"], use_container_width=True)
+                                    st.image(member["profile_url"], width='stretch')
                                 except Exception:
                                     pass
                                 name = str(member.get("name") or "")
@@ -425,6 +387,39 @@ for feature in features:
             values[feature] = float(medians.get(feature, 0.0))
         used[feature] = False
 
+# Suggestion de budget (liée aux infos du film/personnes), seulement si le budget n'est pas renseigné.
+if budget_model is not None and budget_features and (not used.get("budget", False)):
+    # S'assurer que toutes les features du modèle budget existent dans `values`.
+    for k in budget_features:
+        if k not in values:
+            if identity_cols and k in identity_cols:
+                values[k] = ["__MISSING__"]
+            else:
+                values[k] = float(medians.get(k, 0.0))
+
+    st.subheader("Suggestion de budget (si manquant)")
+    try:
+        Xb = pd.DataFrame([{k: values.get(k) for k in budget_features}], columns=budget_features)
+        pred_log = float(np.asarray(budget_model.predict(Xb)).reshape(-1)[0])
+        pred_budget = float(np.expm1(pred_log))
+
+        low = high = None
+        if isinstance(budget_interval, dict):
+            ql = float(budget_interval.get("resid_q_low", 0.0))
+            qh = float(budget_interval.get("resid_q_high", 0.0))
+            low = float(np.expm1(pred_log + ql))
+            high = float(np.expm1(pred_log + qh))
+
+        if low is not None and high is not None:
+            st.write(
+                f"Budget estimé: **{H.format_money(pred_budget)}** (fourchette ~80%: "
+                f"**{H.format_money(low)} – {H.format_money(high)}**)."
+            )
+        else:
+            st.write(f"Budget estimé: **{H.format_money(pred_budget)}** (intervalle indisponible).")
+    except Exception as e:
+        st.warning(f"Impossible de calculer la suggestion de budget: {e}")
+
 st.divider()
 if st.button("Prédire"):
     X = pd.DataFrame([values], columns=features)
@@ -434,28 +429,15 @@ if st.button("Prédire"):
         st.success("Prédiction terminée")
         st.metric("Note prédite", f"{y_pred:.2f} / 5")
 
-        if budget_model is not None and budget_features:
-            Xb = pd.DataFrame([{k: values.get(k) for k in budget_features}], columns=budget_features)
-            try:
-                pred_log = float(np.asarray(budget_model.predict(Xb)).reshape(-1)[0])
-                pred_budget = float(np.expm1(pred_log))
-                low = high = None
-                if isinstance(budget_interval, dict):
-                    ql = float(budget_interval.get("resid_q_low", 0.0))
-                    qh = float(budget_interval.get("resid_q_high", 0.0))
-                    low = float(np.expm1(pred_log + ql))
-                    high = float(np.expm1(pred_log + qh))
-
-                st.subheader("Suggestion de budget (aide pour la note)")
-                if low is not None and high is not None:
-                    st.write(
-                        f"Budget estimé: **{H.format_money(pred_budget)}** (fourchette ~80%: "
-                        f"**{H.format_money(low)} – {H.format_money(high)}**)."
-                    )
-                else:
-                    st.write(f"Budget estimé: **{H.format_money(pred_budget)}** (intervalle indisponible).")
-            except Exception as e:
-                st.warning(f"Impossible de calculer la suggestion de budget: {e}")
+        # Indice de fiabilité basé sur la complétude des champs fournis
+        try:
+            q = H.prediction_quality_info(used, numeric_cols, identity_cols)
+            pct = int(round(100.0 * float(q.get("completeness", 0.0))))
+            lvl = q.get("level", "unknown")
+            msg = q.get("message", "")
+            st.info(f"Confiance estimée : **{pct}%** — _{lvl.capitalize()}_. {msg}")
+        except Exception:
+            pass
 
         used_cols = [c for c in features if used.get(c)]
         if used_cols:

@@ -393,6 +393,14 @@ def _apply_letterboxd_theme() -> None:
         .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
           color: var(--lb-accent) !important;
         }}
+                /* Hide slider tick marks and labels to reduce visual clutter */
+                .stSlider .rc-slider-mark, .stSlider .rc-slider-mark-text, .stSlider label {{
+                    display: none !important;
+                }}
+                /* Compact the slider container so captions align neatly */
+                .stSlider {{
+                    margin-bottom: 0.3rem !important;
+                }}
         </style>
         """,
         unsafe_allow_html=True,
@@ -408,6 +416,14 @@ def _suggestion_caption(label: str, suggested: object | None) -> None:
             short = ", ".join(map(str, suggested[:12]))
             st.caption(f"Suggestion (référence) — {label}: {short}{'…' if len(suggested) > 12 else ''}")
         return
+    # If numeric, format large numbers as money for readability
+    try:
+        if isinstance(suggested, (int, float, np.number)):
+            s = _format_money(float(suggested))
+            st.caption(f"Suggestion (référence) — {label}: {s}")
+            return
+    except Exception:
+        pass
     st.caption(f"Suggestion (référence) — {label}: {suggested}")
 
 
@@ -439,7 +455,26 @@ def _optional_slider(
             prefill_used = True
 
     use = st.checkbox(f"Utiliser {label}", value=(prefill_used or pre_has), key=use_key)
-    _suggestion_caption(label, suggested)
+    # Show suggestion only when it's not simply the same as the prefill-from-ref
+    try:
+        def _suggestion_matches_prefill(sugg, prefill):
+            if prefill is None:
+                return False
+            if isinstance(sugg, list) and isinstance(prefill, list):
+                return set(sugg) <= set(prefill)
+            try:
+                # numeric comparison
+                if (isinstance(sugg, (int, float, np.number)) or isinstance(prefill, (int, float, np.number))):
+                    return float(sugg) == float(prefill)
+            except Exception:
+                pass
+            # fallback to string equality
+            return str(sugg) == str(prefill)
+
+        if not (prefill_from_ref and prefill_used and _suggestion_matches_prefill(suggested, prefill_value)):
+            _suggestion_caption(label, suggested)
+    except Exception:
+        _suggestion_caption(label, suggested)
     if not use:
         return False, float(medians.get(feature, 0.0))
 
@@ -463,15 +498,34 @@ def _optional_slider(
         default = float(min(max(default, float(lo)), float(hi)))
 
     if is_int:
+        if feature in ("budget", "revenue"):
+            val = st.number_input(label, min_value=int(lo), max_value=int(hi), value=int(round(default)), key=val_key, step=1)
+            try:
+                st.caption(f"Valeur sélectionnée : {_format_money(float(val))} (affiché en millions)")
+            except Exception:
+                pass
+            return True, float(val)
+
         val = st.slider(label, int(lo), int(hi), int(round(default)), key=val_key)
+        try:
+            st.caption(f"Valeur sélectionnée : {int(round(val))}")
+        except Exception:
+            pass
         return True, float(val)
 
-    val = st.slider(label, float(lo), float(hi), float(default), key=val_key, format="%.2f")
     if feature in ("budget", "revenue"):
+        val = st.number_input(label, min_value=int(float(lo)), max_value=int(float(hi)), value=int(round(float(default))), key=val_key, step=1)
         try:
             st.caption(f"Valeur sélectionnée : {_format_money(float(val))} (affiché en millions)")
         except Exception:
             pass
+        return True, float(val)
+
+    val = st.slider(label, float(lo), float(hi), float(default), key=val_key, format="%.2f")
+    try:
+        st.caption(f"Valeur sélectionnée : {float(val):.2f}")
+    except Exception:
+        pass
     return True, float(val)
 
 
@@ -513,7 +567,12 @@ def _optional_multiselect_count(
         ref_val = ref_row.get(ref_col)
         if isinstance(ref_val, list):
             suggested_list = [str(x) for x in ref_val]
-    _suggestion_caption(label, suggested_list)
+    # If prefill_from_ref is active and the suggested list corresponds to the prefill list, don't show caption
+    try:
+        if not (prefill_from_ref and prefill_used and suggested_list is not None and set(suggested_list) <= set(prefill_list)):
+            _suggestion_caption(label, suggested_list)
+    except Exception:
+        _suggestion_caption(label, suggested_list)
 
     if not use:
         return False, float(medians.get(feature, 0.0))
@@ -585,7 +644,12 @@ def _optional_multiselect_list(
         ref_val = ref_row.get(ref_col)
         if isinstance(ref_val, list):
             suggested_list = [str(x) for x in ref_val]
-    _suggestion_caption(label, suggested_list)
+    # If prefill_from_ref is active and the suggested list corresponds to the prefill list, don't show caption
+    try:
+        if not (prefill_from_ref and prefill_used and suggested_list is not None and set(suggested_list) <= set(prefill_list)):
+            _suggestion_caption(label, suggested_list)
+    except Exception:
+        _suggestion_caption(label, suggested_list)
 
     if not use:
         return False, ["__MISSING__"]
@@ -616,6 +680,45 @@ def _optional_multiselect_list(
             known_photos=known,
         )
     return True, [str(x) for x in selected]
+
+
+def _prediction_quality_info(used_flags: dict[str, bool], numeric_cols: list[str], identity_cols: list[str]) -> dict[str, object]:
+    """Estimate a simple prediction quality indicator based on which fields were provided.
+
+    - `used_flags` maps feature name -> bool (True if user provided/used the feature)
+    - `numeric_cols` and `identity_cols` are lists of expected features from the input schema
+
+    Returns a dict with:
+    - `completeness`: float (0..1)
+    - `level`: one of 'high', 'medium', 'low'
+    - `message`: short human-friendly explanation
+    """
+    num_total = len(numeric_cols) + len(identity_cols)
+    if num_total == 0:
+        return {"completeness": 1.0, "level": "high", "message": "Aucun champ requis listé dans le schéma."}
+
+    provided = 0
+    for c in numeric_cols:
+        if used_flags.get(c):
+            provided += 1
+    for c in identity_cols:
+        # for identity columns, accept either the explicit use flag (e.g. 'use_casting') or the column name
+        if used_flags.get(c) or used_flags.get(f"use_{c}"):
+            provided += 1
+
+    completeness = float(provided) / float(num_total)
+
+    if completeness >= 0.8:
+        level = "high"
+        msg = "La prédiction utilise la plupart des champs; confiance raisonnable." 
+    elif completeness >= 0.5:
+        level = "medium"
+        msg = "Plusieurs champs manquent; la prédiction peut être moins précise." 
+    else:
+        level = "low"
+        msg = "Peu d'informations fournies; la prédiction est indicative et peu fiable." 
+
+    return {"completeness": completeness, "level": level, "message": msg, "provided": provided, "total": num_total}
 
 
 class Helpers:
@@ -660,3 +763,4 @@ class Helpers:
     optional_slider = staticmethod(_optional_slider)
     optional_multiselect_count = staticmethod(_optional_multiselect_count)
     optional_multiselect_list = staticmethod(_optional_multiselect_list)
+    prediction_quality_info = staticmethod(_prediction_quality_info)
