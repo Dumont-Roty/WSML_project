@@ -194,6 +194,24 @@ def _tmdb_profile_url(profile_path: str, *, size: str = "w185") -> str:
     return urllib.parse.urljoin(base, f"{size}{profile_path}")
 
 
+@st.cache_data(ttl=24 * 60 * 60)
+def _tmdb_movie_images(tmdb_movie_id: int) -> dict[str, str] | None:
+    """Return best-effort poster/backdrop URLs for a TMDB movie."""
+    payload = _tmdb_get_json(f"/movie/{tmdb_movie_id}", language="fr-FR")
+    if not isinstance(payload, dict):
+        return None
+    poster_path = payload.get("poster_path")
+    backdrop_path = payload.get("backdrop_path")
+    out: dict[str, str] = {}
+    if isinstance(poster_path, str) and poster_path.strip():
+        out["poster_url"] = _tmdb_profile_url(poster_path.strip(), size="w342")
+        out["poster_url_large"] = _tmdb_profile_url(poster_path.strip(), size="w780")
+    if isinstance(backdrop_path, str) and backdrop_path.strip():
+        out["backdrop_url"] = _tmdb_profile_url(backdrop_path.strip(), size="w780")
+        out["backdrop_url_large"] = _tmdb_profile_url(backdrop_path.strip(), size="original")
+    return out or None
+
+
 @st.cache_data(ttl=7 * 24 * 60 * 60)
 def _tmdb_person_profile_url_by_name(name: str) -> str | None:
     q = (name or "").strip()
@@ -386,13 +404,163 @@ def _apply_letterboxd_theme() -> None:
           --lb-accent: {letterboxd_colors['accent']};
           --lb-accent-dark: {letterboxd_colors['accent_dark']};
         }}
-        .stApp, .block-container {{
-          background-color: var(--lb-bg) !important;
-          color: var(--lb-text) !important;
-        }}
-        .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
-          color: var(--lb-accent) !important;
-        }}
+
+                /* Global layout: closer to a Letterboxd-like centered column */
+                .stApp, .block-container {{
+                    background-color: var(--lb-bg) !important;
+                    color: var(--lb-text) !important;
+                }}
+                .block-container {{
+                    max-width: 1100px !important;
+                    padding-top: 1.6rem !important;
+                    padding-bottom: 2.0rem !important;
+                }}
+
+                /* Head/toolbar transparency */
+                [data-testid="stHeader"], [data-testid="stToolbar"], [data-testid="stDecoration"] {{
+                    background: transparent !important;
+                }}
+
+                /* Sidebar: subtle panel */
+                [data-testid="stSidebar"] {{
+                    background: rgba(255, 255, 255, 0.02) !important;
+                    border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+                }}
+                [data-testid="stSidebar"] img {{
+                    border-radius: 10px !important;
+                }}
+
+                /* Typography accents */
+                .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
+                    color: var(--lb-accent) !important;
+                }}
+                .stMarkdown p, .stMarkdown li {{
+                    color: var(--lb-text) !important;
+                }}
+                .stCaption {{
+                    color: rgba(230, 230, 230, 0.72) !important;
+                }}
+
+                /* Buttons */
+                .stButton > button {{
+                    background-color: var(--lb-accent) !important;
+                    color: #ffffff !important;
+                    border: none !important;
+                    border-radius: 10px !important;
+                    font-weight: 600 !important;
+                    padding: 0.6rem 1rem !important;
+                }}
+                .stButton > button:hover {{
+                    background-color: var(--lb-accent-dark) !important;
+                }}
+
+                /* Inputs: darker fields with subtle borders */
+                input, textarea {{
+                    background: rgba(255, 255, 255, 0.03) !important;
+                    color: var(--lb-text) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.10) !important;
+                    border-radius: 10px !important;
+                }}
+                input:focus, textarea:focus {{
+                    outline: none !important;
+                    border-color: rgba(42, 180, 75, 0.60) !important;
+                    box-shadow: 0 0 0 2px rgba(42, 180, 75, 0.18) !important;
+                }}
+
+                /* Cards: make common containers feel like panels */
+                [data-testid="stVerticalBlockBorderWrapper"] {{
+                    background: rgba(255, 255, 255, 0.02) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    border-radius: 12px !important;
+                }}
+
+                /* Film hero (Letterboxd-like header) */
+                .lb-hero {{
+                    position: relative;
+                    overflow: hidden;
+                    border-radius: 12px;
+                    border: 1px solid rgba(255, 255, 255, 0.10);
+                    background: rgba(255, 255, 255, 0.02);
+                    margin: 0.5rem 0 1rem 0;
+                }}
+                .lb-hero-bg {{
+                    position: absolute;
+                    inset: 0;
+                    background-position: center;
+                    background-size: cover;
+                    filter: blur(14px);
+                    transform: scale(1.06);
+                    opacity: 0.35;
+                }}
+                .lb-hero-overlay {{
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(90deg, rgba(11, 11, 11, 0.92) 0%, rgba(11, 11, 11, 0.70) 55%, rgba(11, 11, 11, 0.85) 100%);
+                }}
+                .lb-hero-content {{
+                    position: relative;
+                    display: flex;
+                    gap: 1rem;
+                    padding: 1rem;
+                    align-items: flex-start;
+                }}
+                .lb-hero-poster {{
+                    width: 140px;
+                    flex: 0 0 140px;
+                    border-radius: 10px;
+                    border: 1px solid rgba(255, 255, 255, 0.14);
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+                }}
+                .lb-hero-title {{
+                    font-size: 1.4rem;
+                    font-weight: 800;
+                    line-height: 1.2;
+                    color: var(--lb-text);
+                    margin: 0;
+                }}
+                .lb-hero-subtitle {{
+                    margin-top: 0.25rem;
+                    color: rgba(230, 230, 230, 0.72);
+                    font-size: 0.95rem;
+                }}
+                .lb-hero-link a {{
+                    color: var(--lb-accent);
+                    text-decoration: none;
+                    font-weight: 600;
+                }}
+                .lb-hero-link a:hover {{
+                    text-decoration: underline;
+                }}
+
+                .lb-hero-cast {{
+                    margin-top: 0.75rem;
+                    display: flex;
+                    gap: 0.6rem;
+                    flex-wrap: wrap;
+                    align-items: flex-start;
+                }}
+                .lb-cast-item {{
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    width: 78px;
+                }}
+                .lb-cast-img {{
+                    width: 62px;
+                    height: 62px;
+                    border-radius: 999px;
+                    object-fit: cover;
+                    border: 1px solid rgba(255, 255, 255, 0.14);
+                    background: rgba(255, 255, 255, 0.04);
+                }}
+                .lb-cast-name {{
+                    margin-top: 0.25rem;
+                    font-size: 0.78rem;
+                    line-height: 1.1;
+                    text-align: center;
+                    color: rgba(230, 230, 230, 0.82);
+                }}
+
                 /* Hide slider tick marks and labels to reduce visual clutter */
                 .stSlider .rc-slider-mark, .stSlider .rc-slider-mark-text, .stSlider label {{
                     display: none !important;
@@ -402,6 +570,91 @@ def _apply_letterboxd_theme() -> None:
                     margin-bottom: 0.3rem !important;
                 }}
         </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_reference_film_hero(
+    *,
+    title: str,
+    year: object | None,
+    poster_url: str,
+    background_url: str | None = None,
+    facts: list[str] | None = None,
+    cast: list[dict[str, object]] | None = None,
+    letterboxd_url: str | None = None,
+) -> None:
+    if not poster_url:
+        return
+    safe_poster = str(poster_url).replace("'", "%27").strip()
+    bg = str(background_url or poster_url).replace("'", "%27").strip()
+    safe_title = str(title or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    safe_year = ""
+    try:
+        if year is not None and str(year).strip():
+            year_s: str = str(year)
+            safe_year = str(int(float(year_s)))
+    except Exception:
+        safe_year = str(year) if year is not None else ""
+
+    link_html = ""
+    if isinstance(letterboxd_url, str) and letterboxd_url.strip().startswith("http"):
+        url = letterboxd_url.strip().replace("\"", "%22")
+        link_html = (
+            f"<div class='lb-hero-link'><a href='{url}' target='_blank' rel='noreferrer'>"
+            "Voir sur Letterboxd</a></div>"
+        )
+
+    facts_html = ""
+    if isinstance(facts, list) and facts:
+        safe_facts: list[str] = []
+        for f in facts[:6]:
+            s = str(f).strip()
+            if not s:
+                continue
+            s = s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            safe_facts.append(s)
+        if safe_facts:
+            facts_html = "<div class='lb-hero-subtitle'>" + " • ".join(safe_facts) + "</div>"
+
+    cast_html = ""
+    if isinstance(cast, list) and cast:
+        items: list[str] = []
+        for member in cast[:5]:
+            if not isinstance(member, dict):
+                continue
+            name = str(member.get("name") or "").strip()
+            if not name:
+                continue
+            name_safe = name.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            url = member.get("profile_url")
+            if isinstance(url, str) and url.strip().startswith("http"):
+                u = url.strip().replace("'", "%27")
+                img_html = f"<img class='lb-cast-img' src='{u}' alt='{name_safe}'/>"
+            else:
+                img_html = "<div class='lb-cast-img'></div>"
+            items.append(
+                "<div class='lb-cast-item'>" + img_html + f"<div class='lb-cast-name'>{name_safe}</div></div>"
+            )
+        if items:
+            cast_html = "<div class='lb-hero-cast'>" + "".join(items) + "</div>"
+
+    st.markdown(
+        f"""
+        <div class="lb-hero">
+          <div class="lb-hero-bg" style="background-image:url('{bg}');"></div>
+          <div class="lb-hero-overlay"></div>
+          <div class="lb-hero-content">
+            <img class="lb-hero-poster" src="{safe_poster}" alt="Poster" />
+            <div>
+              <div class="lb-hero-title">{safe_title}{f" <span style='color:rgba(230,230,230,0.72); font-weight:700'>({safe_year})</span>" if safe_year else ""}</div>
+              {facts_html if facts_html else '<div class="lb-hero-subtitle">Film de référence sélectionné</div>'}
+              {link_html}
+                            {cast_html}
+            </div>
+          </div>
+        </div>
         """,
         unsafe_allow_html=True,
     )
@@ -464,7 +717,9 @@ def _optional_slider(
                 return set(sugg) <= set(prefill)
             try:
                 # numeric comparison
-                if (isinstance(sugg, (int, float, np.number)) or isinstance(prefill, (int, float, np.number))):
+                if isinstance(sugg, (list, dict)) or isinstance(prefill, (list, dict)):
+                    return False
+                if isinstance(sugg, (int, float, np.number)) and isinstance(prefill, (int, float, np.number)):
                     return float(sugg) == float(prefill)
             except Exception:
                 pass
@@ -721,6 +976,211 @@ def _prediction_quality_info(used_flags: dict[str, bool], numeric_cols: list[str
     return {"completeness": completeness, "level": level, "message": msg, "provided": provided, "total": num_total}
 
 
+def _explain_numeric_deltas(
+    *,
+    values: dict[str, object],
+    used_flags: dict[str, bool],
+    medians: dict[str, float],
+    labels: dict[str, str],
+    top_n: int = 5,
+    money_features: set[str] | None = None,
+) -> list[dict[str, object]]:
+    """Explain which *numeric* inputs deviated most from neutral (median) values.
+
+    This is not feature importance: it only highlights how far the user-provided
+    inputs are from the dataset median, as a quick sanity-check.
+    """
+
+    if money_features is None:
+        money_features = {"budget", "revenue"}
+
+    rows: list[dict[str, object]] = []
+    for feature, label in labels.items():
+        if not used_flags.get(feature):
+            continue
+
+        raw_val: Any = values.get(feature)
+        try:
+            v = float(raw_val) if raw_val is not None else float("nan")  # type: ignore[arg-type]
+        except Exception:
+            continue
+        if not np.isfinite(v):
+            continue
+
+        m = float(medians.get(feature, 0.0))
+        d = float(v - m)
+
+        def _fmt(x: float) -> str:
+            if feature in money_features:
+                return _format_money(float(x))
+            if float(x).is_integer():
+                return f"{int(x):,}".replace(",", " ")
+            return f"{x:,.2f}".replace(",", " ")
+
+        fmt_v = _fmt(v)
+        fmt_m = _fmt(m)
+        if feature in money_features:
+            sign = "+" if d >= 0 else "−"
+            fmt_d = f"{sign}{_format_money(abs(d))}"
+        else:
+            sign = "+" if d >= 0 else "−"
+            if float(abs(d)).is_integer():
+                fmt_d = f"{sign}{int(abs(d)):,}".replace(",", " ")
+            else:
+                fmt_d = f"{sign}{abs(d):,.2f}".replace(",", " ")
+
+        rows.append(
+            {
+                "feature": feature,
+                "label": label,
+                "value": v,
+                "median": m,
+                "delta": d,
+                "abs_delta": float(abs(d)),
+                "value_display": fmt_v,
+                "median_display": fmt_m,
+                "delta_display": fmt_d,
+            }
+        )
+
+    rows.sort(key=lambda r: float(r["abs_delta"]), reverse=True)  # type: ignore[arg-type]
+    return rows[: max(0, int(top_n))]
+
+
+def _numeric_correlations(
+    df: pd.DataFrame,
+    *,
+    features: list[str],
+    target: str = "rating",
+    min_n: int = 30,
+) -> pd.DataFrame:
+    """Compute Pearson/Spearman correlations vs target for each numeric feature.
+
+    Returns a DataFrame with columns: feature, pearson, spearman, n.
+    """
+    if df is None or df.empty or target not in df.columns:
+        return pd.DataFrame(columns=["feature", "pearson", "spearman", "n"])  # type: ignore[return-value]
+
+    out_rows: list[dict[str, object]] = []
+    tgt = pd.to_numeric(df[target], errors="coerce")
+
+    for f in features:
+        if f not in df.columns:
+            continue
+        x = pd.to_numeric(df[f], errors="coerce")
+        mask = np.isfinite(x.to_numpy(dtype=float, na_value=np.nan)) & np.isfinite(tgt.to_numpy(dtype=float, na_value=np.nan))
+        n = int(mask.sum())
+        if n < int(min_n):
+            continue
+        try:
+            pearson = float(pd.Series(x[mask]).corr(pd.Series(tgt[mask]), method="pearson"))
+        except Exception:
+            pearson = float("nan")
+        try:
+            spearman = float(pd.Series(x[mask]).corr(pd.Series(tgt[mask]), method="spearman"))
+        except Exception:
+            spearman = float("nan")
+        out_rows.append({"feature": f, "pearson": pearson, "spearman": spearman, "n": n})
+
+    out = pd.DataFrame(out_rows)
+    if out.empty:
+        return out
+    out["abs_spearman"] = out["spearman"].abs()
+    out = out.sort_values(["abs_spearman", "n"], ascending=[False, False]).drop(columns=["abs_spearman"])  # type: ignore[arg-type]
+    return out
+
+
+def _altair_scatter_with_regression(
+    df: pd.DataFrame,
+    *,
+    feature: str,
+    target: str = "rating",
+    user_x: float | None = None,
+    user_y: float | None = None,
+    width: int = 520,
+    height: int = 280,
+):
+    """Return an Altair chart: scatter + regression line + user marker/rule."""
+    try:
+        import altair as alt  # type: ignore
+    except Exception:
+        return None
+
+    if df is None or df.empty or feature not in df.columns or target not in df.columns:
+        return None
+
+    d = df[[feature, target]].copy()
+    d[feature] = pd.to_numeric(d[feature], errors="coerce")
+    d[target] = pd.to_numeric(d[target], errors="coerce")
+    d = d.replace([np.inf, -np.inf], np.nan).dropna()
+    if len(d) < 10:
+        return None
+
+    base = alt.Chart(d).properties(width=width, height=height)
+
+    pts = base.mark_circle(size=22, opacity=0.18).encode(
+        x=alt.X(f"{feature}:Q", title=feature),
+        y=alt.Y(f"{target}:Q", title=target),
+        tooltip=[alt.Tooltip(f"{feature}:Q"), alt.Tooltip(f"{target}:Q")],
+    )
+    reg = base.transform_regression(feature, target).mark_line(opacity=0.8).encode(
+        x=alt.X(f"{feature}:Q"),
+        y=alt.Y(f"{target}:Q"),
+    )
+
+    layers = [pts, reg]
+
+    if user_x is not None and np.isfinite(float(user_x)):
+        rule = alt.Chart(pd.DataFrame({"x": [float(user_x)]})).mark_rule(opacity=0.7).encode(x="x:Q")
+        layers.append(rule)
+
+        if user_y is not None and np.isfinite(float(user_y)):
+            user_pt = alt.Chart(pd.DataFrame({"x": [float(user_x)], "y": [float(user_y)]})).mark_point(size=120, filled=True).encode(
+                x="x:Q",
+                y="y:Q",
+                tooltip=[alt.Tooltip("x:Q", title=feature), alt.Tooltip("y:Q", title="note prédite")],
+            )
+            layers.append(user_pt)
+
+    return alt.layer(*layers)
+
+
+def _altair_histogram_with_rule(
+    df: pd.DataFrame,
+    *,
+    feature: str,
+    user_x: float | None = None,
+    width: int = 520,
+    height: int = 160,
+    max_bins: int = 40,
+):
+    """Return an Altair histogram of feature distribution, with an optional rule at user_x."""
+    try:
+        import altair as alt  # type: ignore
+    except Exception:
+        return None
+
+    if df is None or df.empty or feature not in df.columns:
+        return None
+
+    d = pd.DataFrame({feature: pd.to_numeric(df[feature], errors="coerce")})
+    d = d.replace([np.inf, -np.inf], np.nan).dropna()
+    if len(d) < 10:
+        return None
+
+    hist = alt.Chart(d).mark_bar(opacity=0.7).encode(
+        x=alt.X(f"{feature}:Q", bin=alt.Bin(maxbins=int(max_bins)), title=None),
+        y=alt.Y("count():Q", title="N"),
+        tooltip=[alt.Tooltip("count():Q", title="N")],
+    ).properties(width=width, height=height)
+
+    if user_x is not None and np.isfinite(float(user_x)):
+        rule = alt.Chart(pd.DataFrame({"x": [float(user_x)]})).mark_rule(opacity=0.8).encode(x="x:Q")
+        return alt.layer(hist, rule)
+
+    return hist
+
+
 class Helpers:
     """OOP facade to import helpers cleanly.
 
@@ -747,6 +1207,7 @@ class Helpers:
     tmdb_person_profile_url_by_name = staticmethod(_tmdb_person_profile_url_by_name)
     render_selected_people_thumbnails = staticmethod(_render_selected_people_thumbnails)
     tmdb_movie_cast = staticmethod(_tmdb_movie_cast)
+    tmdb_movie_images = staticmethod(_tmdb_movie_images)
 
     extract_letterboxd_poster_url = staticmethod(_extract_letterboxd_poster_url)
     get_letterboxd_poster_url = staticmethod(_get_letterboxd_poster_url)
@@ -759,8 +1220,14 @@ class Helpers:
     bootstrap_repo_path = staticmethod(_bootstrap_repo_path)
     apply_letterboxd_theme = staticmethod(_apply_letterboxd_theme)
 
+    render_reference_film_hero = staticmethod(_render_reference_film_hero)
+
     suggestion_caption = staticmethod(_suggestion_caption)
     optional_slider = staticmethod(_optional_slider)
     optional_multiselect_count = staticmethod(_optional_multiselect_count)
     optional_multiselect_list = staticmethod(_optional_multiselect_list)
     prediction_quality_info = staticmethod(_prediction_quality_info)
+    explain_numeric_deltas = staticmethod(_explain_numeric_deltas)
+    numeric_correlations = staticmethod(_numeric_correlations)
+    altair_scatter_with_regression = staticmethod(_altair_scatter_with_regression)
+    altair_histogram_with_rule = staticmethod(_altair_histogram_with_rule)

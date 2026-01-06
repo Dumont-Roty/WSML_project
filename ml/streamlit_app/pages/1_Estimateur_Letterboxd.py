@@ -140,6 +140,8 @@ st.sidebar.caption(
 ref_row: dict[str, Any] | None = None
 ref_lb_url: str | None = None
 ref_tmdb_id: int | None = None
+ref_poster_url: str | None = None
+ref_backdrop_url: str | None = None
 prefill_from_ref = st.sidebar.checkbox("Préremplir depuis le film de référence", value=False, key="prefill_from_ref")
 if ref_df.empty:
     st.sidebar.info("Aucun film de référence disponible (final_results_28.json / merged_results.json introuvable ou vide).")
@@ -153,7 +155,7 @@ else:
         idx = int(df_labels.index[df_labels["_label"] == choice][0])
         ref_row = {str(k): v for k, v in ref_df.loc[idx].to_dict().items()}
 
-    # Poster + metadata
+    # Collect reference URLs / IDs (rendering will be done in the main area, not the sidebar)
     if ref_row is not None:
         lb_url = None
         for k in ("url", "letterboxd_url", "letterboxd", "link"):
@@ -165,72 +167,59 @@ else:
         ref_lb_url = lb_url
 
         if lb_url and lb_url.startswith("http"):
+            # Try to extract TMDB id from the Letterboxd page (no TMDB key required for this)
+            try:
+                lb_html = H.fetch_html(lb_url)
+                ref_tmdb_id = H.extract_tmdb_movie_id(lb_html)
+            except Exception:
+                ref_tmdb_id = None
+
             poster_url = H.get_letterboxd_poster_url(lb_url)
             if poster_url:
-                try:
-                    st.sidebar.image(poster_url, width=160)
-                except Exception:
-                    pass
-            else:
-                st.sidebar.caption("Poster: indisponible (non trouvé sur Letterboxd).")
-                
-        title = ref_row.get("title") or ""
-        year = ref_row.get("year") or ""
-        st.sidebar.markdown(f"**{title}**  ")
-        st.sidebar.caption(f"Année: {year}")        
-        if lb_url:
-            st.sidebar.caption(f"Lien Letterboxd: {lb_url}")
-                
-            # Option A — TMDB: actor headshots (requires TMDB_API_KEY)
+                ref_poster_url = poster_url
+
+            # If TMDB is configured, use TMDB backdrop only for the background (keep the original Letterboxd poster)
             api_key = H.tmdb_api_key()
-            if api_key:
-                try:
-                    lb_html = H.fetch_html(lb_url)
-                    tmdb_id = H.extract_tmdb_movie_id(lb_html)
-                except Exception:
-                    tmdb_id = None
+            if api_key and ref_tmdb_id:
+                imgs = H.tmdb_movie_images(int(ref_tmdb_id))
+                if isinstance(imgs, dict):
+                    ref_backdrop_url = imgs.get("backdrop_url") or imgs.get("backdrop_url_large") or ref_backdrop_url
 
-                ref_tmdb_id = tmdb_id
+# Header (main area): Letterboxd-like film page header when a reference movie is selected
+if ref_row is not None and ref_poster_url:
+    def _join_if_list(x):
+        if isinstance(x, list):
+            return ", ".join([str(i) for i in x[:4]]) + ("…" if len(x) > 4 else "")
+        return str(x) if x is not None else ""
 
-                if tmdb_id:
-                    cast = H.tmdb_movie_cast(tmdb_id, top_n=3)
-                    if cast:
-                        st.sidebar.subheader("Casting (TMDB)")
-                        cols_cast = st.sidebar.columns(3)
-                        for i, member in enumerate(cast):
-                            with cols_cast[i % 3]:
-                                try:
-                                    st.image(member["profile_url"], width='stretch')
-                                except Exception:
-                                    pass
-                                name = str(member.get("name") or "")
-                                role = str(member.get("character") or "")
-                                st.caption(name)
-                                # if role:
-                                #     st.caption(role)
-                    else:
-                        st.sidebar.caption("Casting TMDB: indisponible.")
-                else:
-                    st.sidebar.caption("TMDB: ID du film introuvable sur la page Letterboxd.")
-            else:
-                st.sidebar.caption(
-                    "Pour voir les photos des acteurs, configure TMDB_API_KEY (Streamlit secrets ou variable d'environnement)."
-                )       
+    facts: list[str] = []
+    yr = ref_row.get("year")
+    if yr is not None:
+        facts.append(f"{int(float(yr))}" if str(yr).strip() else "")
+    dur = ref_row.get("duration")
+    if dur is not None and str(dur).strip():
+        facts.append(f"{int(float(dur))} min")
+    dirs = _join_if_list(ref_row.get("directors") or ref_row.get("director"))
+    if dirs:
+        facts.append(f"Réal.: {dirs}")
+    gens = _join_if_list(ref_row.get("genres"))
+    if gens:
+        facts.append(gens)
+    facts = [f for f in facts if f]
 
-        def _join_if_list(x):
-            if isinstance(x, list):
-                return ", ".join([str(i) for i in x[:8]]) + ("…" if len(x) > 8 else "")
-            return str(x) if x is not None else ""
+    cast_for_hero = None
+    if ref_tmdb_id and H.tmdb_api_key():
+        cast_for_hero = H.tmdb_movie_cast(int(ref_tmdb_id), top_n=5)
 
-        directors = _join_if_list(ref_row.get("directors") or ref_row.get("director"))
-        genres = _join_if_list(ref_row.get("genres"))
-        duration = ref_row.get("duration")
-        if directors:
-            st.sidebar.text(f"Réalisateur(s): {directors}")
-        if genres:
-            st.sidebar.text(f"Genres: {genres}")
-        if duration:
-            st.sidebar.text(f"Durée: {duration} minutes")
+    H.render_reference_film_hero(
+        title=str(ref_row.get("title") or ""),
+        year=ref_row.get("year"),
+        poster_url=str(ref_poster_url),
+        background_url=(str(ref_backdrop_url) if ref_backdrop_url else None),
+        facts=facts,
+        cast=cast_for_hero,
+        letterboxd_url=ref_lb_url,
+    )
 
 # Preset selector (sidebar)
 
@@ -284,6 +273,8 @@ numeric_specs = [
     ("nbr_likes", "Nombre de likes", True, 0.0, 1_000_000.0),
     ("fans_favoris", "Fans / favoris", True, 0.0, 500_000.0),
 ]
+
+numeric_labels = {feat: lbl for feat, lbl, *_ in numeric_specs}
 
 cols = nums_container.columns(2)
 col_idx = 0
@@ -421,28 +412,176 @@ if budget_model is not None and budget_features and (not used.get("budget", Fals
         st.warning(f"Impossible de calculer la suggestion de budget: {e}")
 
 st.divider()
-if st.button("Prédire"):
+
+# Persist prediction across Streamlit reruns (changing any widget reruns the script)
+if "_last_prediction" not in st.session_state:
+    st.session_state["_last_prediction"] = None
+if "_last_prediction_payload" not in st.session_state:
+    st.session_state["_last_prediction_payload"] = None
+if "_last_prediction_error" not in st.session_state:
+    st.session_state["_last_prediction_error"] = None
+
+predict_clicked = st.button("Prédire")
+if predict_clicked:
     X = pd.DataFrame([values], columns=features)
     try:
         y_pred = float(np.asarray(model.predict(X)).reshape(-1)[0])
         y_pred = float(np.clip(y_pred, 0.0, 5.0))
-        st.success("Prédiction terminée")
-        st.metric("Note prédite", f"{y_pred:.2f} / 5")
 
-        # Indice de fiabilité basé sur la complétude des champs fournis
-        try:
-            q = H.prediction_quality_info(used, numeric_cols, identity_cols)
-            pct = int(round(100.0 * float(q.get("completeness", 0.0))))
-            lvl = q.get("level", "unknown")
-            msg = q.get("message", "")
-            st.info(f"Confiance estimée : **{pct}%** — _{lvl.capitalize()}_. {msg}")
-        except Exception:
-            pass
-
-        used_cols = [c for c in features if used.get(c)]
-        if used_cols:
-            st.caption("Champs utilisés: " + ", ".join(used_cols))
-        else:
-            st.caption("Aucun champ activé: valeurs neutres (médianes) utilisées.")
+        st.session_state["_last_prediction"] = y_pred
+        st.session_state["_last_prediction_error"] = None
+        st.session_state["_last_prediction_payload"] = {
+            "values": dict(values),
+            "used": dict(used),
+        }
     except Exception as e:
-        st.error(f"Erreur pendant la prédiction: {e}")
+        st.session_state["_last_prediction"] = None
+        st.session_state["_last_prediction_payload"] = None
+        st.session_state["_last_prediction_error"] = str(e)
+
+if st.session_state.get("_last_prediction_error"):
+    st.error(f"Erreur pendant la prédiction: {st.session_state['_last_prediction_error']}")
+
+if st.session_state.get("_last_prediction") is not None and st.session_state.get("_last_prediction_payload"):
+    y_pred = float(st.session_state["_last_prediction"])
+    payload = st.session_state["_last_prediction_payload"]
+    last_values = dict(payload.get("values") or {})
+    last_used = dict(payload.get("used") or {})
+
+    st.success("Prédiction terminée")
+    st.metric("Note prédite", f"{y_pred:.2f} / 5")
+
+    # Indice de fiabilité basé sur la complétude des champs fournis
+    try:
+        q = H.prediction_quality_info(last_used, numeric_cols, identity_cols)
+        comp_raw: Any = q.get("completeness")
+        try:
+            completeness = float(comp_raw) if comp_raw is not None else 0.0
+        except Exception:
+            completeness = 0.0
+        pct = int(round(100.0 * completeness))
+        lvl = str(q.get("level") or "unknown")
+        msg = str(q.get("message") or "")
+        st.info(f"Confiance estimée : **{pct}%** — _{lvl.capitalize()}_. {msg}")
+    except Exception:
+        pass
+
+    used_cols = [c for c in features if last_used.get(c)]
+    if used_cols:
+        st.caption("Champs utilisés: " + ", ".join(used_cols))
+    else:
+        st.caption("Aucun champ activé: valeurs neutres (médianes) utilisées.")
+
+    # Explications statistiques (dataset): corrélations et graphiques
+    with st.expander("Analyses statistiques (corrélations + graphiques)", expanded=False):
+        st.caption(
+            "Ces indications sont basées sur le dataset de référence (Letterboxd). "
+            "Elles décrivent des tendances (corrélations) et ne prouvent pas une causalité."
+        )
+
+        if ref_df.empty or ("rating" not in ref_df.columns):
+            st.info("Impossible d'afficher les analyses: la colonne `rating` est manquante dans les données de référence.")
+        else:
+            numeric_for_stats = [f for f in numeric_labels.keys() if f in ref_df.columns]
+            corr_df = H.numeric_correlations(ref_df, features=numeric_for_stats, target="rating", min_n=30)
+
+            if corr_df.empty:
+                st.info("Pas assez de données numériques valides pour calculer des corrélations (N < 30).")
+            else:
+                display = corr_df.copy()
+                display["Variable"] = display["feature"].map(lambda x: numeric_labels.get(str(x), str(x)))
+                display = display[["Variable", "pearson", "spearman", "n"]]
+                display = display.rename(columns={"pearson": "Pearson", "spearman": "Spearman", "n": "N"})
+                st.subheader("Corrélations avec la note (rating)")
+                st.dataframe(display, width='stretch', hide_index=True)
+
+                # Choose a feature to visualize
+                corr_features = [str(x) for x in corr_df["feature"].tolist()]
+                used_numeric = [f for f in numeric_labels.keys() if last_used.get(f)]
+                default_feat = None
+                if used_numeric:
+                    tmp = corr_df[corr_df["feature"].isin(used_numeric)]
+                    if not tmp.empty:
+                        default_feat = str(tmp.iloc[0]["feature"])
+                if default_feat is None:
+                    default_feat = str(corr_df.iloc[0]["feature"])
+
+                feat_choice = st.selectbox(
+                    "Voir le lien entre une variable et la note",
+                    options=corr_features,
+                    index=(corr_features.index(default_feat) if default_feat in corr_features else 0),
+                    format_func=lambda x: numeric_labels.get(str(x), str(x)),
+                )
+
+                user_x = None
+                if last_used.get(feat_choice):
+                    try:
+                        raw_x = last_values.get(feat_choice)
+                        user_x = float(raw_x) if raw_x is not None else None
+                    except Exception:
+                        user_x = None
+
+                st.subheader("Nuage de points + tendance")
+                chart = H.altair_scatter_with_regression(
+                    ref_df,
+                    feature=str(feat_choice),
+                    target="rating",
+                    user_x=user_x,
+                    user_y=y_pred,
+                )
+                if chart is None:
+                    st.info("Graphique indisponible (Altair non disponible ou données insuffisantes).")
+                else:
+                    st.altair_chart(chart)
+                    if user_x is not None:
+                        st.caption("La règle verticale marque ta valeur. Le point plein correspond à la note prédite.")
+                    else:
+                        st.caption("Active la variable dans les champs pour afficher ta valeur sur le graphique.")
+
+                st.subheader("Distribution de la variable")
+                hist = H.altair_histogram_with_rule(ref_df, feature=str(feat_choice), user_x=user_x)
+                if hist is None:
+                    st.info("Histogramme indisponible (Altair non disponible ou données insuffisantes).")
+                else:
+                    st.altair_chart(hist)
+
+            # Categorical quick stats (only if identity columns are used)
+            if identity_cols and ("genres" in ref_df.columns) and ("themes" in ref_df.columns) and ("rating" in ref_df.columns):
+                st.subheader("Comparaisons par genre / thème (moyennes)")
+                global_mean = float(pd.to_numeric(ref_df["rating"], errors="coerce").mean())
+
+                def _mean_by_token(col: str, selected: list[str]) -> pd.DataFrame:
+                    tmp = ref_df[[col, "rating"]].dropna()
+                    tmp = tmp[tmp[col].apply(lambda x: isinstance(x, list))]
+                    if tmp.empty:
+                        return pd.DataFrame()
+                    exploded = tmp.explode(col)
+                    exploded[col] = exploded[col].astype(str)
+                    exploded["rating"] = pd.to_numeric(exploded["rating"], errors="coerce")
+                    exploded = exploded.dropna(subset=["rating"])
+                    if selected:
+                        exploded = exploded[exploded[col].isin([str(x) for x in selected])]
+                    grp = (
+                        exploded.groupby(col, as_index=False)
+                        .agg(rating=("rating", "mean"))
+                        .sort_values("rating", ascending=False)
+                    )
+                    return grp
+
+                selected_genres = last_values.get("genres") if last_used.get("genres") else []
+                selected_themes = last_values.get("themes") if last_used.get("themes") else []
+                sel_g = [x for x in (selected_genres if isinstance(selected_genres, list) else []) if x != "__MISSING__"]
+                sel_t = [x for x in (selected_themes if isinstance(selected_themes, list) else []) if x != "__MISSING__"]
+
+                if sel_g:
+                    gdf = _mean_by_token("genres", sel_g)
+                    if not gdf.empty:
+                        st.caption(f"Note moyenne globale: {global_mean:.2f} / 5")
+                        st.write("Genres sélectionnés (moyenne dans le dataset):")
+                        st.dataframe(gdf.rename(columns={"genres": "Genre", "rating": "Note moyenne"}), width='stretch', hide_index=True)
+                if sel_t:
+                    tdf = _mean_by_token("themes", sel_t)
+                    if not tdf.empty:
+                        st.caption(f"Note moyenne globale: {global_mean:.2f} / 5")
+                        st.write("Thèmes sélectionnés (moyenne dans le dataset):")
+                        st.dataframe(tdf.rename(columns={"themes": "Thème", "rating": "Note moyenne"}), width='stretch', hide_index=True)
