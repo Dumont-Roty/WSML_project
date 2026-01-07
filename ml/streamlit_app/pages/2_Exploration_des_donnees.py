@@ -96,13 +96,50 @@ if "rating" in ref_df.columns and ref_df["rating"].notna().any():
     rating_range = st.sidebar.slider("Note (rating)", min_value=float(max(0.0, rmin)), max_value=float(min(5.0, rmax)), value=(0.0, 5.0))
 
 # Categorical filters (list-like)
-director_options = _flatten_unique_lists(ref_df, "directors", top_k=300)
-theme_options = _flatten_unique_lists(ref_df, "themes", top_k=400)
-genre_options = _flatten_unique_lists(ref_df, "genres", top_k=250)
+# Build initial options from the dataset already constrained by year/rating
+pre_filtered = ref_df.copy()
+if "year" in pre_filtered.columns:
+    pre_filtered = pre_filtered[(pre_filtered["year"] >= year_range[0]) & (pre_filtered["year"] <= year_range[1])]
+if rating_range is not None and "rating" in pre_filtered.columns:
+    pre_filtered = pre_filtered[(pre_filtered["rating"].fillna(-1) >= rating_range[0]) & (pre_filtered["rating"].fillna(-1) <= rating_range[1])]
 
+# If an actor was already chosen in the session state, narrow the primary options
+actor_state = st.session_state.get("Acteurs")
+if actor_state and actor_state != "Aucun" and "casting" in pre_filtered.columns:
+    _mask_actor = pre_filtered[pre_filtered["casting"].apply(lambda c: isinstance(c, list) and str(actor_state) in [str(x) for x in c])]
+    director_options = _flatten_unique_lists(_mask_actor, "directors", top_k=300)
+    theme_options = _flatten_unique_lists(_mask_actor, "themes", top_k=400)
+    genre_options = _flatten_unique_lists(_mask_actor, "genres", top_k=250)
+else:
+    director_options = _flatten_unique_lists(pre_filtered, "directors", top_k=300)
+    theme_options = _flatten_unique_lists(pre_filtered, "themes", top_k=400)
+    genre_options = _flatten_unique_lists(pre_filtered, "genres", top_k=250)
+
+# Primary selectors
 selected_directors = st.sidebar.multiselect("Réalisateurs", options=director_options, default=[])
 selected_themes = st.sidebar.multiselect("Thèmes", options=theme_options, default=[])
 selected_genres = st.sidebar.multiselect("Genres", options=genre_options, default=[])
+
+# Narrow actor options to values present after applying primary selectors
+mask_for_actors = pre_filtered.copy()
+if selected_directors and "directors" in mask_for_actors.columns:
+    tokens = set(selected_directors)
+    mask_for_actors = mask_for_actors[mask_for_actors["directors"].apply(lambda x: _has_any_token(x, tokens))]
+if selected_themes and "themes" in mask_for_actors.columns:
+    tokens = set(selected_themes)
+    mask_for_actors = mask_for_actors[mask_for_actors["themes"].apply(lambda x: _has_any_token(x, tokens))]
+if selected_genres and "genres" in mask_for_actors.columns:
+    tokens = set(selected_genres)
+    mask_for_actors = mask_for_actors[mask_for_actors["genres"].apply(lambda x: _has_any_token(x, tokens))]
+
+casting_options = _flatten_unique_lists(mask_for_actors, "casting", top_k=600)
+
+# Actor selector placed under "Réalisateurs" as requested; remove the "(filtre)" suffix
+selected_actor = None
+if casting_options:
+    selected_actor = st.sidebar.selectbox("Acteurs", options=["Aucun"] + casting_options, index=0)
+
+# (Réalisateurs associés will be computed after building the final `filtered` set)
 
 # Apply filters
 filtered = ref_df.copy()
@@ -116,6 +153,12 @@ if selected_directors and "directors" in filtered.columns:
     tokens = set(selected_directors)
     filtered = filtered[filtered["directors"].apply(lambda x: _has_any_token(x, tokens))]
 
+if selected_actor and selected_actor != "Aucun" and "casting" in filtered.columns:
+    # filter to films containing the selected actor
+    filtered = filtered[filtered["casting"].apply(lambda c: isinstance(c, list) and (str(selected_actor) in [str(x) for x in c]))]
+
+# (No associated-directors selector — removed per user request)
+
 if selected_themes and "themes" in filtered.columns:
     tokens = set(selected_themes)
     filtered = filtered[filtered["themes"].apply(lambda x: _has_any_token(x, tokens))]
@@ -123,6 +166,7 @@ if selected_themes and "themes" in filtered.columns:
 if selected_genres and "genres" in filtered.columns:
     tokens = set(selected_genres)
     filtered = filtered[filtered["genres"].apply(lambda x: _has_any_token(x, tokens))]
+
 
 st.caption(f"Films sélectionnés: {len(filtered)} / {len(ref_df)}")
 
@@ -164,11 +208,58 @@ if "rating" in filtered.columns and numeric_candidates:
         pearson = float(xy[x_var].corr(xy["rating"], method="pearson"))
         spearman = float(xy[x_var].corr(xy["rating"], method="spearman"))
         st.caption(f"Corrélation Pearson: {pearson:.3f} | Spearman: {spearman:.3f}")
-        st.scatter_chart(xy.rename(columns={x_var: "x", "rating": "y"}), x="x", y="y")
+        chart = H.altair_scatter_with_regression(filtered, feature=str(x_var), target="rating", title_col="title")
+        if chart is None:
+            st.scatter_chart(xy.rename(columns={x_var: "x", "rating": "y"}), x="x", y="y")
+        else:
+            st.altair_chart(chart)
     else:
         st.info("Pas assez de données numériques valides pour calculer une corrélation.")
 else:
     st.info("Corrélations indisponibles (colonnes manquantes).")
+
+# Actor impact visualization (bootstrap + raw points) — actor chosen via sidebar
+if "casting" in filtered.columns and selected_actor and selected_actor != "Aucun":
+    chosen_actor = selected_actor
+    try:
+        chart, stats = H.altair_actor_effect_chart(
+            filtered,
+            actor_name=str(chosen_actor),
+            target="rating",
+            title_col="title",
+            width=700,
+            height=320,
+            n_boot=1000,
+        )
+        if chart is None:
+            st.info("Visualisation indisponible (Altair manquant ou pas assez de données).")
+        else:
+            st.altair_chart(chart)
+
+        if stats:
+            n_yes = int(stats.get("n_yes", 0))
+            n_no = int(stats.get("n_no", 0))
+            mean_yes = stats.get("mean_yes")
+            mean_no = stats.get("mean_no")
+            ci = stats.get("ci_yes")
+            st.write(f"Films avec l'acteur: **{n_yes}**, sans: **{n_no}**")
+            if n_yes > 0:
+                if isinstance(ci, (list, tuple)) and len(ci) >= 3 and np.isfinite(ci[1]) and np.isfinite(ci[2]):
+                    st.write(f"Moyenne (avec): **{mean_yes:.2f}** — IC bootstrap 95%: **{ci[1]:.2f} – {ci[2]:.2f}**")
+                else:
+                    st.write(f"Moyenne (avec): **{mean_yes:.2f}**")
+            if n_no > 0:
+                st.write(f"Moyenne (sans): **{mean_no:.2f}**")
+
+            try:
+                df_yes_titles = filtered[filtered.get("casting", pd.Series(dtype=object)).apply(lambda c: isinstance(c, list) and str(chosen_actor) in [str(x) for x in c])]["title"]
+                if not df_yes_titles.empty:
+                    st.caption("Exemples de films avec l'acteur (échantillon):")
+                    st.write(list(df_yes_titles.head(12).astype(str).tolist()))
+            except Exception:
+                pass
+    except Exception as e:
+        st.warning(f"Impossible de calculer l'impact de l'acteur: {e}")
 
 # Average ratings by genre
 if "genres" in filtered.columns and "rating" in filtered.columns:
@@ -177,7 +268,12 @@ if "genres" in filtered.columns and "rating" in filtered.columns:
     tmp = tmp[tmp["genres"].apply(lambda x: isinstance(x, list))]
     if not tmp.empty:
         exploded = tmp.explode("genres")
-        grp = exploded.groupby("genres", as_index=False)["rating"].mean().sort_values("rating", ascending=False).head(30)
+        grp = exploded.groupby("genres", as_index=False)["rating"].mean()
+        try:
+            s = grp["rating"].sort_values(ascending=False).head(30)
+            grp = grp.loc[s.index]
+        except Exception:
+            grp = grp.head(30)
         st.bar_chart(grp.set_index("genres"))
         
 # Table + export

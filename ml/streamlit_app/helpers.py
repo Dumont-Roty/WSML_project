@@ -9,6 +9,7 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any
+import math
 
 import joblib
 import numpy as np
@@ -749,19 +750,48 @@ def _optional_slider(
         except Exception:
             default = default
 
-    if np.isfinite(default):
-        default = float(min(max(default, float(lo)), float(hi)))
+    # compute safe float bounds and default
+    try:
+        lo_f = float(lo)
+    except Exception:
+        lo_f = float(fallback_min)
+    try:
+        hi_f = float(hi)
+    except Exception:
+        hi_f = float(fallback_max)
+    if not np.isfinite(lo_f):
+        lo_f = float(fallback_min)
+    if not np.isfinite(hi_f):
+        hi_f = float(fallback_max)
+    if hi_f < lo_f:
+        hi_f = lo_f + 1.0
+
+    try:
+        default_f = float(default)
+    except Exception:
+        default_f = float(lo_f)
+    if not np.isfinite(default_f):
+        default_f = float(lo_f)
+
+    # integer-safe bounds
+    min_i = int(math.floor(lo_f))
+    max_i = int(math.ceil(hi_f))
+    default_i = int(round(default_f))
+    if default_i < min_i:
+        default_i = min_i
+    if default_i > max_i:
+        default_i = max_i
 
     if is_int:
         if feature in ("budget", "revenue"):
-            val = st.number_input(label, min_value=int(lo), max_value=int(hi), value=int(round(default)), key=val_key, step=1)
+            val = st.number_input(label, min_value=min_i, max_value=max_i, value=default_i, key=val_key, step=1)
             try:
                 st.caption(f"Valeur sélectionnée : {_format_money(float(val))} (affiché en millions)")
             except Exception:
                 pass
             return True, float(val)
 
-        val = st.slider(label, int(lo), int(hi), int(round(default)), key=val_key)
+        val = st.slider(label, min_i, max_i, default_i, key=val_key)
         try:
             st.caption(f"Valeur sélectionnée : {int(round(val))}")
         except Exception:
@@ -769,14 +799,15 @@ def _optional_slider(
         return True, float(val)
 
     if feature in ("budget", "revenue"):
-        val = st.number_input(label, min_value=int(float(lo)), max_value=int(float(hi)), value=int(round(float(default))), key=val_key, step=1)
+        # keep integer input for money even when not requesting integer type
+        val = st.number_input(label, min_value=min_i, max_value=max_i, value=default_i, key=val_key, step=1)
         try:
             st.caption(f"Valeur sélectionnée : {_format_money(float(val))} (affiché en millions)")
         except Exception:
             pass
         return True, float(val)
 
-    val = st.slider(label, float(lo), float(hi), float(default), key=val_key, format="%.2f")
+    val = st.slider(label, lo_f, hi_f, default_f, key=val_key, format="%.2f")
     try:
         st.caption(f"Valeur sélectionnée : {float(val):.2f}")
     except Exception:
@@ -1053,6 +1084,7 @@ def _numeric_correlations(
     features: list[str],
     target: str = "rating",
     min_n: int = 30,
+    clip_quantiles: tuple[float, float] | None = None,
 ) -> pd.DataFrame:
     """Compute Pearson/Spearman correlations vs target for each numeric feature.
 
@@ -1069,6 +1101,14 @@ def _numeric_correlations(
             continue
         x = pd.to_numeric(df[f], errors="coerce")
         mask = np.isfinite(x.to_numpy(dtype=float, na_value=np.nan)) & np.isfinite(tgt.to_numpy(dtype=float, na_value=np.nan))
+        if clip_quantiles is not None:
+            try:
+                ql, qh = clip_quantiles
+                lo = float(pd.Series(x[mask]).quantile(float(ql)))
+                hi = float(pd.Series(x[mask]).quantile(float(qh)))
+                mask = mask & (x >= lo) & (x <= hi)
+            except Exception:
+                pass
         n = int(mask.sum())
         if n < int(min_n):
             continue
@@ -1090,6 +1130,158 @@ def _numeric_correlations(
     return out
 
 
+def _bootstrap_mean_ci(values: np.ndarray | pd.Series, *, n_boot: int = 1000, alpha: float = 0.05):
+    """Compute bootstrap CI for the mean. Returns (mean, lo, hi).
+
+    Values must be a 1-D numeric array or Series (NaNs dropped).
+    """
+    try:
+        arr = np.asarray(values)
+    except Exception:
+        return float("nan"), float("nan"), float("nan")
+    arr = arr[np.isfinite(arr)]
+    if arr.size == 0:
+        return float("nan"), float("nan"), float("nan")
+    mean = float(np.mean(arr))
+    # For very small samples, reduce bootstrap repetitions to avoid heavy CPU
+    B = int(max(200, min(int(n_boot), 5000)))
+    boots = []
+    for _ in range(B):
+        sample = np.random.choice(arr, size=arr.size, replace=True)
+        boots.append(float(np.mean(sample)))
+    lo = float(np.percentile(boots, 100.0 * (alpha / 2.0)))
+    hi = float(np.percentile(boots, 100.0 * (1.0 - alpha / 2.0)))
+    return mean, lo, hi
+
+
+def _altair_actor_effect_chart(
+    df: pd.DataFrame,
+    *,
+    actor_name: str,
+    target: str = "rating",
+    title_col: str | None = "title",
+    width: int = 640,
+    height: int = 320,
+    n_boot: int = 1000,
+):
+    """Create an Altair strip/points chart comparing films with vs without an actor.
+
+    Shows raw points (with jitter), small poster images when available, the mean and bootstrap CI for the
+    "Avec" group, and tooltips containing the film title and poster URL.
+    Returns (chart, stats_dict) where stats_dict contains n_yes, n_no, mean_yes, mean_no, ci_yes.
+    """
+    try:
+        import altair as alt  # type: ignore
+    except Exception:
+        return None, {}
+
+    if df is None or df.empty or target not in df.columns:
+        return None, {}
+
+    def _has_actor(cell: object, name: str) -> bool:
+        if isinstance(cell, list):
+            return any(str(x).strip() == name for x in cell)
+        if isinstance(cell, str):
+            return str(cell).strip() == name
+        return False
+
+    mask_has = df.get("casting", pd.Series(dtype=object)).apply(lambda c: _has_actor(c, actor_name))
+    df_yes = df.loc[mask_has].copy()
+    df_no = df.loc[~mask_has].copy()
+
+    vals_yes = pd.to_numeric(df_yes[target], errors="coerce").dropna().to_numpy(dtype=float)
+    vals_no = pd.to_numeric(df_no[target], errors="coerce").dropna().to_numpy(dtype=float)
+
+    n_yes = int(len(vals_yes))
+    n_no = int(len(vals_no))
+    mean_yes = float(np.mean(vals_yes)) if n_yes > 0 else float("nan")
+    mean_no = float(np.mean(vals_no)) if n_no > 0 else float("nan")
+    ci_yes = _bootstrap_mean_ci(vals_yes, n_boot=n_boot) if n_yes > 0 else (float("nan"), float("nan"), float("nan"))
+
+    # prepare plotting DataFrame with jittered x coordinates and poster if available
+    rows: list[dict[str, object]] = []
+    rng = np.random.RandomState(42)
+
+    for dsub, grp_x, grp_label in ((df_no, 0.0, "Sans"), (df_yes, 1.0, "Avec")):
+        for _, row in dsub.iterrows():
+            try:
+                r = float(row.get(target))
+            except Exception:
+                continue
+            title = str(row.get(title_col)) if title_col and title_col in row.index else ""
+            poster = None
+            for c in ("poster_url", "poster", "poster_path", "poster_url_large", "poster_url_small"):
+                if c in row.index and row.get(c):
+                    poster = row.get(c)
+                    break
+            jitter = float(rng.normal(loc=0.0, scale=0.06))
+            rows.append({"x": grp_x + jitter, "group": grp_label, "rating": r, "title": title, "poster": poster})
+
+    plot_df = pd.DataFrame(rows)
+    if plot_df.empty:
+        return None, {"n_yes": n_yes, "n_no": n_no}
+
+    # CI/mean rows for plotting
+    ci_rows = [
+        {"x": 0.0, "group": "Sans", "mean": mean_no, "lo": float("nan"), "hi": float("nan")},
+        {"x": 1.0, "group": "Avec", "mean": mean_yes, "lo": float(ci_yes[1]), "hi": float(ci_yes[2])},
+    ]
+    ci_df = pd.DataFrame(ci_rows)
+
+    base = alt.Chart(plot_df).properties(width=width, height=height)
+
+    # points with title/poster in tooltip
+    pts = base.mark_circle(size=32, opacity=0.6).encode(
+        x=alt.X("x:Q", title=""),
+        y=alt.Y("rating:Q", title="Note (rating)"),
+        color=alt.Color("group:N", legend=None),
+        tooltip=[
+            alt.Tooltip("title:N", title="Titre"),
+            alt.Tooltip("group:N", title="Groupe"),
+            alt.Tooltip("rating:Q", title="Note"),
+            alt.Tooltip("poster:N", title="Poster URL"),
+        ],
+    )
+
+    # draw tiny poster images behind points when available
+    if "poster" in plot_df.columns and plot_df["poster"].notna().any():
+        try:
+            img = base.mark_image(width=36, height=48, opacity=0.95).encode(
+                x=alt.X("x:Q"),
+                y=alt.Y("rating:Q"),
+                url=alt.Url("poster:N"),
+            )
+            pts = alt.layer(img, pts)
+        except Exception:
+            pass
+
+    mean_pts = alt.Chart(ci_df).mark_point(size=120, filled=True, shape="square").encode(
+        x="x:Q",
+        y=alt.Y("mean:Q", title=""),
+        color=alt.Color("group:N", legend=None),
+        tooltip=[alt.Tooltip("group:N", title="Groupe"), alt.Tooltip("mean:Q", title="Moyenne")],
+    )
+
+    # error bars for CI (only for Avec group where we computed CI)
+    error = alt.Chart(ci_df).mark_rule(strokeWidth=3, opacity=0.8).encode(
+        x="x:Q",
+        y=alt.Y("lo:Q", title=""),
+        y2=alt.Y2("hi:Q"),
+        color=alt.Color("group:N", legend=None),
+    )
+
+    # enforce rating axis limits
+    if target == "rating":
+        y_scale = alt.Scale(domain=[0, 5])
+        pts = pts.encode(y=alt.Y("rating:Q", scale=y_scale, title="Note (rating)"))
+        mean_pts = mean_pts.encode(y=alt.Y("mean:Q", scale=y_scale))
+        error = error.encode(y=alt.Y("lo:Q", scale=y_scale), y2=alt.Y2("hi:Q"))
+
+    layered = alt.layer(pts, mean_pts, error).configure_axis(grid=False)
+    stats = {"n_yes": n_yes, "n_no": n_no, "mean_yes": mean_yes, "mean_no": mean_no, "ci_yes": ci_yes}
+    return layered, stats
+
+
 def _altair_scatter_with_regression(
     df: pd.DataFrame,
     *,
@@ -1099,6 +1291,9 @@ def _altair_scatter_with_regression(
     user_y: float | None = None,
     width: int = 520,
     height: int = 280,
+    clip_quantiles: tuple[float, float] | None = None,
+    transform_x: str | None = None,
+    title_col: str | None = None,
 ):
     """Return an Altair chart: scatter + regression line + user marker/rule."""
     try:
@@ -1109,36 +1304,108 @@ def _altair_scatter_with_regression(
     if df is None or df.empty or feature not in df.columns or target not in df.columns:
         return None
 
-    d = df[[feature, target]].copy()
+    cols = [feature, target]
+    if title_col and title_col in df.columns:
+        cols = [title_col] + cols
+    d = df[cols].copy()
     d[feature] = pd.to_numeric(d[feature], errors="coerce")
     d[target] = pd.to_numeric(d[target], errors="coerce")
     d = d.replace([np.inf, -np.inf], np.nan).dropna()
+
+    if clip_quantiles is not None and not d.empty:
+        try:
+            ql, qh = clip_quantiles
+            lo = float(d[feature].quantile(float(ql)))
+            hi = float(d[feature].quantile(float(qh)))
+            d = d[(d[feature] >= lo) & (d[feature] <= hi)]
+        except Exception:
+            pass
+
+    x_field = feature
+    x_title = feature
+    if transform_x == "log1p":
+        x_field = f"{feature}__log1p"
+        try:
+            d[x_field] = np.log1p(d[feature].astype(float))
+        except Exception:
+            d[x_field] = np.log1p(pd.to_numeric(d[feature], errors="coerce"))
+        x_title = f"log(1+{feature})"
+
     if len(d) < 10:
         return None
 
     base = alt.Chart(d).properties(width=width, height=height)
 
+    tooltip_fields = [alt.Tooltip(f"{feature}:Q", title=feature), alt.Tooltip(f"{target}:Q", title=target)]
+    if title_col and title_col in d.columns:
+        tooltip_fields.insert(0, alt.Tooltip(f"{title_col}:N", title="title"))
+    # try to include a poster image if present
+    poster_col = None
+    for c in ("poster_url", "poster", "poster_path", "poster_url_large", "poster_url_small"):
+        if c in d.columns:
+            poster_col = c
+            break
+    if poster_col:
+        # include poster URL in tooltip and add a small image layer
+        tooltip_fields.insert(0, alt.Tooltip(f"{poster_col}:N", title="poster"))
+
     pts = base.mark_circle(size=22, opacity=0.18).encode(
-        x=alt.X(f"{feature}:Q", title=feature),
+        x=alt.X(f"{x_field}:Q", title=x_title),
         y=alt.Y(f"{target}:Q", title=target),
-        tooltip=[alt.Tooltip(f"{feature}:Q"), alt.Tooltip(f"{target}:Q")],
+        tooltip=tooltip_fields,
     )
-    reg = base.transform_regression(feature, target).mark_line(opacity=0.8).encode(
-        x=alt.X(f"{feature}:Q"),
+    # if poster exists, render tiny images behind points
+    if poster_col:
+        try:
+            img = base.mark_image(width=36, height=48, opacity=0.95).encode(
+                x=alt.X(f"{x_field}:Q"),
+                y=alt.Y(f"{target}:Q"),
+                url=alt.Url(f"{poster_col}:N"),
+            )
+            pts = alt.layer(img, pts)
+        except Exception:
+            pass
+    reg = base.transform_regression(x_field, target).mark_line(opacity=0.8).encode(
+        x=alt.X(f"{x_field}:Q"),
         y=alt.Y(f"{target}:Q"),
     )
 
     layers = [pts, reg]
 
+    # enforce rating axis limits when target is rating
+    if target == "rating":
+        y_scale = alt.Scale(domain=[0, 5])
+        pts = pts.encode(y=alt.Y(f"{target}:Q", scale=y_scale))
+        reg = reg.encode(y=alt.Y(f"{target}:Q", scale=y_scale))
+
+    if feature == "year":
+        try:
+            min_y = float(d[feature].min())
+            max_y = float(d[feature].max())
+            x_scale = alt.Scale(domain=[min_y - 5.0, max_y + 5.0])
+            pts = pts.encode(x=alt.X(f"{x_field}:Q", title=x_title, scale=x_scale))
+            reg = reg.encode(x=alt.X(f"{x_field}:Q", scale=x_scale))
+        except Exception:
+            pass
+
     if user_x is not None and np.isfinite(float(user_x)):
-        rule = alt.Chart(pd.DataFrame({"x": [float(user_x)]})).mark_rule(opacity=0.7).encode(x="x:Q")
+        ux = float(user_x)
+        if transform_x == "log1p":
+            try:
+                ux = float(np.log1p(ux))
+            except Exception:
+                pass
+        rule = alt.Chart(pd.DataFrame({"x": [ux]})).mark_rule(opacity=0.7).encode(x="x:Q")
         layers.append(rule)
 
         if user_y is not None and np.isfinite(float(user_y)):
-            user_pt = alt.Chart(pd.DataFrame({"x": [float(user_x)], "y": [float(user_y)]})).mark_point(size=120, filled=True).encode(
+            user_tooltip = [alt.Tooltip("x:Q", title=feature), alt.Tooltip("y:Q", title="note prédite")]
+            if title_col and title_col in d.columns:
+                user_tooltip.insert(0, alt.Tooltip(f"{title_col}:N", title="title"))
+            user_pt = alt.Chart(pd.DataFrame({"x": [ux], "y": [float(user_y)]})).mark_point(size=120, filled=True).encode(
                 x="x:Q",
                 y="y:Q",
-                tooltip=[alt.Tooltip("x:Q", title=feature), alt.Tooltip("y:Q", title="note prédite")],
+                tooltip=user_tooltip,
             )
             layers.append(user_pt)
 
@@ -1153,6 +1420,8 @@ def _altair_histogram_with_rule(
     width: int = 520,
     height: int = 160,
     max_bins: int = 40,
+    clip_quantiles: tuple[float, float] | None = None,
+    transform_x: str | None = None,
 ):
     """Return an Altair histogram of feature distribution, with an optional rule at user_x."""
     try:
@@ -1165,17 +1434,43 @@ def _altair_histogram_with_rule(
 
     d = pd.DataFrame({feature: pd.to_numeric(df[feature], errors="coerce")})
     d = d.replace([np.inf, -np.inf], np.nan).dropna()
+
+    if clip_quantiles is not None and not d.empty:
+        try:
+            ql, qh = clip_quantiles
+            lo = float(d[feature].quantile(float(ql)))
+            hi = float(d[feature].quantile(float(qh)))
+            d = d[(d[feature] >= lo) & (d[feature] <= hi)]
+        except Exception:
+            pass
+
+    x_field = feature
+    x_title = feature
+    if transform_x == "log1p":
+        x_field = f"{feature}__log1p"
+        try:
+            d[x_field] = np.log1p(d[feature].astype(float))
+        except Exception:
+            d[x_field] = np.log1p(pd.to_numeric(d[feature], errors="coerce"))
+        x_title = f"log(1+{feature})"
+
     if len(d) < 10:
         return None
 
     hist = alt.Chart(d).mark_bar(opacity=0.7).encode(
-        x=alt.X(f"{feature}:Q", bin=alt.Bin(maxbins=int(max_bins)), title=None),
+        x=alt.X(f"{x_field}:Q", bin=alt.Bin(maxbins=int(max_bins)), title=x_title),
         y=alt.Y("count():Q", title="N"),
         tooltip=[alt.Tooltip("count():Q", title="N")],
     ).properties(width=width, height=height)
 
     if user_x is not None and np.isfinite(float(user_x)):
-        rule = alt.Chart(pd.DataFrame({"x": [float(user_x)]})).mark_rule(opacity=0.8).encode(x="x:Q")
+        ux = float(user_x)
+        if transform_x == "log1p":
+            try:
+                ux = float(np.log1p(ux))
+            except Exception:
+                pass
+        rule = alt.Chart(pd.DataFrame({"x": [ux]})).mark_rule(opacity=0.8).encode(x="x:Q")
         return alt.layer(hist, rule)
 
     return hist
@@ -1231,3 +1526,5 @@ class Helpers:
     numeric_correlations = staticmethod(_numeric_correlations)
     altair_scatter_with_regression = staticmethod(_altair_scatter_with_regression)
     altair_histogram_with_rule = staticmethod(_altair_histogram_with_rule)
+    bootstrap_mean_ci = staticmethod(_bootstrap_mean_ci)
+    altair_actor_effect_chart = staticmethod(_altair_actor_effect_chart)

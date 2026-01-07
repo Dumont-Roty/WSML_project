@@ -482,11 +482,51 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
         if ref_df.empty or ("rating" not in ref_df.columns):
             st.info("Impossible d'afficher les analyses: la colonne `rating` est manquante dans les données de référence.")
         else:
-            numeric_for_stats = [f for f in numeric_labels.keys() if f in ref_df.columns]
-            corr_df = H.numeric_correlations(ref_df, features=numeric_for_stats, target="rating", min_n=30)
+            # Option: apply a filter on the reference dataset based on the values used for the last prediction
+            apply_input_filter = st.checkbox(
+                "Appliquer filtre par caractéristiques saisies (genres/themes/directors)",
+                value=False,
+                help="Si activé, les analyses (corrélations/graphes) seront calculées sur les films similaires à tes choix.",
+            )
+
+            ref_for_stats = ref_df
+            if apply_input_filter:
+                ref_for_stats = ref_df.copy()
+                def _contains_any(cell, tokens: list[str]) -> bool:
+                    if not tokens:
+                        return True
+                    if isinstance(cell, list):
+                        return any(str(x) in tokens for x in cell)
+                    if isinstance(cell, str):
+                        return cell in tokens
+                    return False
+
+                if last_used.get("genres") and last_values.get("genres"):
+                    tokens = [str(x) for x in (last_values.get("genres") or []) if x != "__MISSING__"]
+                    if tokens:
+                        ref_for_stats = ref_for_stats[ref_for_stats["genres"].apply(lambda c: _contains_any(c, tokens))]
+                if last_used.get("themes") and last_values.get("themes"):
+                    tokens = [str(x) for x in (last_values.get("themes") or []) if x != "__MISSING__"]
+                    if tokens:
+                        ref_for_stats = ref_for_stats[ref_for_stats["themes"].apply(lambda c: _contains_any(c, tokens))]
+                if last_used.get("directors") and last_values.get("directors") and "directors" in ref_for_stats.columns:
+                    tokens = [str(x) for x in (last_values.get("directors") or []) if x != "__MISSING__"]
+                    if tokens:
+                        ref_for_stats = ref_for_stats[ref_for_stats["directors"].apply(lambda c: _contains_any(c, tokens))]
+
+            numeric_for_stats = [f for f in numeric_labels.keys() if f in ref_for_stats.columns]
+
+            robust_clip = st.checkbox(
+                "Limiter les valeurs extrêmes (1%–99%)",
+                value=True,
+                help="Évite que quelques valeurs aberrantes écrasent l'échelle des graphiques et biaisent les corrélations.",
+            )
+            clip_q = (0.01, 0.99) if robust_clip else None
+
+            corr_df = H.numeric_correlations(ref_for_stats, features=numeric_for_stats, target="rating", min_n=30, clip_quantiles=clip_q)
 
             if corr_df.empty:
-                st.info("Pas assez de données numériques valides pour calculer des corrélations (N < 30).")
+                st.warning("Pas assez de données numériques valides pour calculer des corrélations (N < 30).")
             else:
                 display = corr_df.copy()
                 display["Variable"] = display["feature"].map(lambda x: numeric_labels.get(str(x), str(x)))
@@ -513,6 +553,16 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
                     format_func=lambda x: numeric_labels.get(str(x), str(x)),
                 )
 
+                transform_x = None
+                if str(feat_choice) in {"budget", "revenue"}:
+                    log_x = st.checkbox(
+                        "Échelle log (log1p) pour cette variable",
+                        value=True,
+                        help="Recommandé pour budget/revenu (très asymétriques) afin d'éviter une échelle illisible.",
+                    )
+                    if log_x:
+                        transform_x = "log1p"
+
                 user_x = None
                 if last_used.get(feat_choice):
                     try:
@@ -523,11 +573,14 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
 
                 st.subheader("Nuage de points + tendance")
                 chart = H.altair_scatter_with_regression(
-                    ref_df,
+                    ref_for_stats,
                     feature=str(feat_choice),
                     target="rating",
                     user_x=user_x,
                     user_y=y_pred,
+                    clip_quantiles=clip_q,
+                    transform_x=transform_x,
+                    title_col="title",
                 )
                 if chart is None:
                     st.info("Graphique indisponible (Altair non disponible ou données insuffisantes).")
@@ -539,7 +592,13 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
                         st.caption("Active la variable dans les champs pour afficher ta valeur sur le graphique.")
 
                 st.subheader("Distribution de la variable")
-                hist = H.altair_histogram_with_rule(ref_df, feature=str(feat_choice), user_x=user_x)
+                hist = H.altair_histogram_with_rule(
+                    ref_for_stats,
+                    feature=str(feat_choice),
+                    user_x=user_x,
+                    clip_quantiles=clip_q,
+                    transform_x=transform_x,
+                )
                 if hist is None:
                     st.info("Histogramme indisponible (Altair non disponible ou données insuffisantes).")
                 else:
@@ -551,7 +610,7 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
                 global_mean = float(pd.to_numeric(ref_df["rating"], errors="coerce").mean())
 
                 def _mean_by_token(col: str, selected: list[str]) -> pd.DataFrame:
-                    tmp = ref_df[[col, "rating"]].dropna()
+                    tmp = ref_for_stats[[col, "rating"]].dropna()
                     tmp = tmp[tmp[col].apply(lambda x: isinstance(x, list))]
                     if tmp.empty:
                         return pd.DataFrame()
@@ -561,12 +620,34 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
                     exploded = exploded.dropna(subset=["rating"])
                     if selected:
                         exploded = exploded[exploded[col].isin([str(x) for x in selected])]
+                    # compute per-token stats
                     grp = (
                         exploded.groupby(col, as_index=False)
-                        .agg(rating=("rating", "mean"))
-                        .sort_values("rating", ascending=False)
+                        .agg(n=("rating", "count"), mean=("rating", "mean"), sd=("rating", "std"))
                     )
-                    return grp
+                    overall_sd = float(pd.to_numeric(ref_for_stats["rating"], errors="coerce").std())
+                    global_m = float(pd.to_numeric(ref_for_stats["rating"], errors="coerce").mean())
+                    # Cohen's d-like heuristic against global mean (use overall sd)
+                    def _relation(row):
+                        n = int(row.get("n") or 0)
+                        m = float(row.get("mean") or 0.0)
+                        sd = float(row.get("sd") or 0.0)
+                        diff = m - global_m
+                        d = 0.0
+                        if overall_sd and overall_sd > 0:
+                            d = diff / overall_sd
+                        related = "Non"
+                        if n >= 20 and abs(d) >= 0.2:
+                            related = "Oui"
+                        elif n < 20:
+                            related = "Insuffisant (n<20)"
+                        return pd.Series({"N": n, "Mean": m, "SD": sd, "Diff": diff, "Cohen_d": d, "Related": related})
+
+                    stats = grp.apply(_relation, axis=1)
+                    stats.index = grp[col].tolist()
+                    stats = stats.reset_index().rename(columns={"index": col})
+                    stats = stats.sort_values("Mean", ascending=False)
+                    return stats
 
                 selected_genres = last_values.get("genres") if last_used.get("genres") else []
                 selected_themes = last_values.get("themes") if last_used.get("themes") else []
@@ -578,10 +659,14 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
                     if not gdf.empty:
                         st.caption(f"Note moyenne globale: {global_mean:.2f} / 5")
                         st.write("Genres sélectionnés (moyenne dans le dataset):")
-                        st.dataframe(gdf.rename(columns={"genres": "Genre", "rating": "Note moyenne"}), width='stretch', hide_index=True)
+                        display_g = gdf.rename(columns={"genres": "Genre", "Mean": "Note moyenne", "Cohen_d": "Cohen d", "Related": "Relation"})
+                        st.dataframe(display_g, width='stretch', hide_index=True)
                 if sel_t:
                     tdf = _mean_by_token("themes", sel_t)
                     if not tdf.empty:
                         st.caption(f"Note moyenne globale: {global_mean:.2f} / 5")
                         st.write("Thèmes sélectionnés (moyenne dans le dataset):")
-                        st.dataframe(tdf.rename(columns={"themes": "Thème", "rating": "Note moyenne"}), width='stretch', hide_index=True)
+                        display_t = tdf.rename(columns={"themes": "Thème", "Mean": "Note moyenne", "Cohen_d": "Cohen d", "Related": "Relation"})
+                        st.dataframe(display_t, width='stretch', hide_index=True)
+
+            # (actor visualization moved to the Exploration page)
