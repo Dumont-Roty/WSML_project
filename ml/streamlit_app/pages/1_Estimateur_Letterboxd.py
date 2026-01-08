@@ -92,6 +92,9 @@ if not MODEL_PATH.exists():
 
 model = H.load_model(MODEL_PATH)
 
+# RMSE (test) for a rough prediction interval (metrics.json is produced at training time)
+rating_rmse = H.load_test_rmse(METRICS_PATH)
+
 budget_model = None
 budget_features: list[str] = []
 budget_interval = None
@@ -451,7 +454,11 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
     st.success("Prédiction terminée")
     st.metric("Note prédite", f"{y_pred:.2f} / 5")
 
-    # Indice de fiabilité basé sur la complétude des champs fournis
+    # Fiabilité: (1) complétude des champs + (2) intervalle (approx) basé sur RMSE
+    q: dict[str, Any] = {}
+    completeness = 0.0
+    comp_level = "unknown"
+    comp_msg = ""
     try:
         q = H.prediction_quality_info(last_used, numeric_cols, identity_cols)
         comp_raw: Any = q.get("completeness")
@@ -459,12 +466,109 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
             completeness = float(comp_raw) if comp_raw is not None else 0.0
         except Exception:
             completeness = 0.0
-        pct = int(round(100.0 * completeness))
-        lvl = str(q.get("level") or "unknown")
-        msg = str(q.get("message") or "")
-        st.info(f"Confiance estimée : **{pct}%** — _{lvl.capitalize()}_. {msg}")
+        comp_level = str(q.get("level") or "unknown")
+        comp_msg = str(q.get("message") or "")
     except Exception:
         pass
+
+    interval = None
+    if rating_rmse is not None:
+        interval = H.approx_prediction_interval_from_rmse(y_pred, float(rating_rmse), coverage=0.8, clip=(0.0, 5.0))
+
+    ood = None
+    try:
+        ood = H.ood_numeric_info(last_values, last_used, stats_df, numeric_cols, q_low=0.01, q_high=0.99)
+    except Exception:
+        ood = None
+
+    # Combine indicators conservatively (take the worst)
+    def _level_score(lvl: str) -> int:
+        s = (lvl or "").lower().strip()
+        if s == "high":
+            return 2
+        if s == "medium":
+            return 1
+        if s == "low":
+            return 0
+        return 1
+
+    int_level = "unknown"
+    int_msg = ""
+    if isinstance(interval, dict) and interval.get("width") is not None:
+        width_val = interval.get("width")
+        try:
+            w = float(width_val) if width_val is not None else float("nan")
+        except Exception:
+            w = float("nan")
+        if np.isfinite(w):
+            # On a 0–5 scale: ~0.6 width is fairly tight; >1.0 is wide.
+            if w <= 0.6:
+                int_level = "high"
+                int_msg = "Intervalle serré."
+            elif w <= 1.0:
+                int_level = "medium"
+                int_msg = "Intervalle modéré."
+            else:
+                int_level = "low"
+                int_msg = "Intervalle large."
+
+    ood_level = "unknown"
+    ood_msg = ""
+    if isinstance(ood, dict):
+        ood_level = str(ood.get("level") or "unknown")
+        ood_msg = str(ood.get("message") or "")
+
+    overall_score = min(_level_score(comp_level), _level_score(int_level), _level_score(ood_level))
+    pct = int(round(100.0 * float(completeness)))
+
+    interval_text = ""
+    if isinstance(interval, dict) and interval.get("low") is not None and interval.get("high") is not None:
+        try:
+            low_val = interval.get("low")
+            high_val = interval.get("high")
+            low = float(low_val) if low_val is not None else float("nan")
+            high = float(high_val) if high_val is not None else float("nan")
+            interval_text = f"Intervalle (~80%, approx.): **{low:.2f} – {high:.2f}**"
+        except Exception:
+            interval_text = ""
+    else:
+        interval_text = "Intervalle: indisponible (RMSE manquante)."
+
+    ood_text = ""
+    if isinstance(ood, dict):
+        n_checked_raw: Any = ood.get("n_checked")
+        n_out_raw: Any = ood.get("n_outside")
+        try:
+            n_checked = int(float(n_checked_raw)) if n_checked_raw is not None else 0
+        except Exception:
+            n_checked = 0
+        try:
+            n_out = int(float(n_out_raw)) if n_out_raw is not None else 0
+        except Exception:
+            n_out = 0
+
+        if n_checked > 0:
+            if n_out == 0:
+                ood_text = "Valeurs: dans les plages usuelles."
+            else:
+                ood_text = f"Valeurs: **{n_out}** atypique(s) vs dataset (quantiles 1%–99%)."
+
+    base = f"Fiabilité (indicateurs): **{pct}%** de champs fournis. {interval_text}"
+    if ood_text:
+        base = base + " " + ood_text
+    detail = ""
+    if comp_msg or int_msg or ood_msg:
+        detail = f"\n\n_{comp_msg} {int_msg} {ood_msg}_"
+
+    if overall_score >= 2:
+        st.success(base + detail)
+    elif overall_score == 1:
+        st.info(base + detail)
+    else:
+        st.warning(base + detail)
+
+    if interval_text and (rating_rmse is not None):
+        st.caption("L'intervalle est une approximation à partir du RMSE de test (hypothèse d'erreurs ~normales), pas une garantie film par film.")
 
     used_cols = [c for c in features if last_used.get(c)]
     if used_cols:

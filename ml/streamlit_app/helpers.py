@@ -78,6 +78,198 @@ def _load_budget_interval(metrics_path: Path) -> dict[str, Any] | None:
     return None
 
 
+@st.cache_data
+def _load_test_rmse(metrics_path: Path) -> float | None:
+    """Load test RMSE from a training metrics.json file.
+
+    Expected formats:
+    - {"test_metrics": {"rmse": ...}}
+    - {"rmse": ...}
+    """
+
+    if not metrics_path.exists():
+        return None
+    try:
+        payload = json.loads(metrics_path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+    test_metrics = payload.get("test_metrics")
+    if isinstance(test_metrics, dict):
+        rmse_val = test_metrics.get("rmse")
+        if rmse_val is not None:
+            try:
+                v = float(rmse_val)
+                return v if np.isfinite(v) else None
+            except Exception:
+                return None
+
+    rmse_val = payload.get("rmse")
+    if rmse_val is not None:
+        try:
+            v = float(rmse_val)
+            return v if np.isfinite(v) else None
+        except Exception:
+            return None
+
+    return None
+
+
+def _z_value_for_central_coverage(coverage: float) -> float:
+    """Return a z multiplier for a central normal interval.
+
+    coverage is the desired central probability mass (e.g. 0.8 for an 80% interval).
+    """
+
+    try:
+        c = float(coverage)
+    except Exception:
+        c = 0.8
+
+    # Common defaults; keep explicit mapping to avoid scipy dependency.
+    if abs(c - 0.80) < 1e-6:
+        return 1.2815515655446004
+    if abs(c - 0.90) < 1e-6:
+        return 1.6448536269514722
+    if abs(c - 0.95) < 1e-6:
+        return 1.959963984540054
+    # Fallback: use 80% if an unknown value is provided.
+    return 1.2815515655446004
+
+
+def _approx_prediction_interval_from_rmse(
+    y_pred: float,
+    rmse: float,
+    *,
+    coverage: float = 0.8,
+    clip: tuple[float, float] = (0.0, 5.0),
+) -> dict[str, float] | None:
+    """Approximate a prediction interval using RMSE and a normal-error assumption."""
+
+    try:
+        y = float(y_pred)
+        r = float(rmse)
+    except Exception:
+        return None
+
+    if not (np.isfinite(y) and np.isfinite(r)):
+        return None
+    if r < 0:
+        return None
+
+    z = _z_value_for_central_coverage(coverage)
+    half = float(z * r)
+    low = float(y - half)
+    high = float(y + half)
+
+    try:
+        cmin, cmax = float(clip[0]), float(clip[1])
+        if np.isfinite(cmin) and np.isfinite(cmax):
+            low = float(np.clip(low, cmin, cmax))
+            high = float(np.clip(high, cmin, cmax))
+    except Exception:
+        pass
+
+    if high < low:
+        low, high = high, low
+
+    return {
+        "low": low,
+        "high": high,
+        "coverage": float(coverage),
+        "half_width": half,
+        "width": float(high - low),
+    }
+
+
+def _ood_numeric_info(
+    values: dict[str, object],
+    used_flags: dict[str, bool],
+    stats_df: pd.DataFrame,
+    numeric_cols: list[str],
+    *,
+    q_low: float = 0.01,
+    q_high: float = 0.99,
+) -> dict[str, object]:
+    """Detect out-of-distribution numeric inputs using empirical quantiles.
+
+    This is intentionally simple: for each used numeric feature, we compare the
+    user value against the [q_low, q_high] quantile range computed on stats_df
+    (train.parquet if available, otherwise reference JSON).
+    """
+
+    if stats_df is None or getattr(stats_df, "empty", True):
+        return {"n_checked": 0, "n_outside": 0, "outside": [], "level": "unknown"}
+
+    try:
+        ql = float(q_low)
+        qh = float(q_high)
+    except Exception:
+        ql, qh = 0.01, 0.99
+    if not (0.0 < ql < qh < 1.0):
+        ql, qh = 0.01, 0.99
+
+    outside: list[dict[str, object]] = []
+    n_checked = 0
+
+    for c in numeric_cols:
+        if not used_flags.get(c):
+            continue
+        if c not in stats_df.columns:
+            continue
+
+        raw_v: Any = values.get(c)
+        try:
+            v = float(raw_v) if raw_v is not None else float("nan")
+        except Exception:
+            continue
+        if not np.isfinite(v):
+            continue
+
+        s = pd.to_numeric(stats_df[c], errors="coerce")
+        s = s[np.isfinite(s)]
+        if s.empty:
+            continue
+
+        try:
+            lo = float(s.quantile(ql))
+            hi = float(s.quantile(qh))
+        except Exception:
+            continue
+        if not (np.isfinite(lo) and np.isfinite(hi)):
+            continue
+        if lo >= hi:
+            continue
+
+        n_checked += 1
+        if v < lo or v > hi:
+            outside.append({"feature": str(c), "value": v, "q_low": lo, "q_high": hi})
+
+    n_outside = int(len(outside))
+    if n_checked == 0:
+        level = "unknown"
+        msg = ""
+    elif n_outside == 0:
+        level = "high"
+        msg = "Valeurs numériques dans les plages usuelles du dataset."
+    elif n_outside == 1:
+        level = "medium"
+        msg = "Une valeur semble atypique vs le dataset."
+    else:
+        level = "low"
+        msg = "Plusieurs valeurs semblent atypiques vs le dataset."
+
+    return {
+        "n_checked": n_checked,
+        "n_outside": n_outside,
+        "outside": outside,
+        "level": level,
+        "message": msg,
+        "q_low": ql,
+        "q_high": qh,
+    }
+
+
 def _format_money(value: float) -> str:
     if not np.isfinite(value):
         return "—"
@@ -1204,9 +1396,14 @@ def _altair_actor_effect_chart(
 
     for dsub, grp_x, grp_label in ((df_no, 0.0, "Sans"), (df_yes, 1.0, "Avec")):
         for _, row in dsub.iterrows():
+            raw_r = row.get(target)
+            if raw_r is None:
+                continue
             try:
-                r = float(row.get(target))
+                r = float(raw_r)
             except Exception:
+                continue
+            if not np.isfinite(r):
                 continue
             title = str(row.get(title_col)) if title_col and title_col in row.index else ""
             poster = None
@@ -1490,6 +1687,9 @@ class Helpers:
     load_model = staticmethod(_load_model)
     load_schema = staticmethod(_load_schema)
     load_budget_interval = staticmethod(_load_budget_interval)
+    load_test_rmse = staticmethod(_load_test_rmse)
+    approx_prediction_interval_from_rmse = staticmethod(_approx_prediction_interval_from_rmse)
+    ood_numeric_info = staticmethod(_ood_numeric_info)
     format_money = staticmethod(_format_money)
     load_reference_df = staticmethod(_load_reference_df)
     fetch_html = staticmethod(_fetch_html)
