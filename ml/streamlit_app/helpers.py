@@ -1207,6 +1207,7 @@ def _explain_numeric_deltas(
     labels: dict[str, str],
     top_n: int = 5,
     money_features: set[str] | None = None,
+    int_features: set[str] | None = None,
 ) -> list[dict[str, object]]:
     """Explain which *numeric* inputs deviated most from neutral (median) values.
 
@@ -1216,6 +1217,8 @@ def _explain_numeric_deltas(
 
     if money_features is None:
         money_features = {"budget", "revenue"}
+    if int_features is None:
+        int_features = set()
 
     rows: list[dict[str, object]] = []
     for feature, label in labels.items():
@@ -1230,15 +1233,23 @@ def _explain_numeric_deltas(
         if not np.isfinite(v):
             continue
 
+        # For integer-like features, force a stable integer baseline to avoid
+        # confusing .5 medians (even N) and fractional deltas.
+        if feature in int_features and feature not in money_features:
+            v = float(int(round(v)))
+
         m = float(medians.get(feature, 0.0))
+        if feature in int_features and feature not in money_features:
+            m = float(int(round(m)))
+
         d = float(v - m)
 
         def _fmt(x: float) -> str:
             if feature in money_features:
                 return _format_money(float(x))
-            if float(x).is_integer():
+            if (feature in int_features) or float(x).is_integer():
                 return f"{int(x):,}".replace(",", " ")
-            return f"{x:,.2f}".replace(",", " ")
+            return f"{x:,.2f}".replace(",", " ").replace(".", ",")
 
         fmt_v = _fmt(v)
         fmt_m = _fmt(m)
@@ -1247,10 +1258,10 @@ def _explain_numeric_deltas(
             fmt_d = f"{sign}{_format_money(abs(d))}"
         else:
             sign = "+" if d >= 0 else "−"
-            if float(abs(d)).is_integer():
+            if (feature in int_features) or float(abs(d)).is_integer():
                 fmt_d = f"{sign}{int(abs(d)):,}".replace(",", " ")
             else:
-                fmt_d = f"{sign}{abs(d):,.2f}".replace(",", " ")
+                fmt_d = f"{sign}{abs(d):,.2f}".replace(",", " ").replace(".", ",")
 
         rows.append(
             {
@@ -1268,6 +1279,220 @@ def _explain_numeric_deltas(
 
     rows.sort(key=lambda r: float(r["abs_delta"]), reverse=True)  # type: ignore[arg-type]
     return rows[: max(0, int(top_n))]
+
+
+def _numeric_deltas_table_with_mean(
+    deltas: list[dict[str, object]],
+    *,
+    stats_df: pd.DataFrame,
+    money_features: set[str] | None = None,
+    int_features: set[str] | None = None,
+) -> pd.DataFrame:
+    """Build a display-ready table for numeric deltas, including mean comparison.
+
+    Input `deltas` is expected to be the output of `_explain_numeric_deltas`.
+    Output columns are user-facing French labels.
+    """
+
+    if not deltas:
+        return pd.DataFrame(columns=["Variable", "Valeur", "Médiane", "Moyenne", "Écart", "Écart vs moyenne"]) 
+
+    if money_features is None:
+        money_features = {"budget", "revenue"}
+    if int_features is None:
+        int_features = set()
+
+    ddf = pd.DataFrame(deltas)
+    if ddf.empty:
+        return pd.DataFrame(columns=["Variable", "Valeur", "Médiane", "Moyenne", "Écart", "Écart vs moyenne"]) 
+
+    means: dict[str, float] = {}
+    try:
+        if stats_df is not None and (not stats_df.empty):
+            for f in ddf.get("feature", pd.Series(dtype=object)).astype(str).unique().tolist():
+                if isinstance(f, str) and f in stats_df.columns:
+                    means[f] = float(pd.to_numeric(stats_df[f], errors="coerce").mean())
+    except Exception:
+        means = {}
+
+    def _fmt_value(feature: str, x: float) -> str:
+        if feature in money_features:
+            return _format_money(float(x))
+        if (feature in int_features) or float(x).is_integer():
+            return f"{int(x):,}".replace(",", " ")
+        return f"{x:,.2f}".replace(",", " ").replace(".", ",")
+
+    def _fmt_delta(feature: str, d: float) -> str:
+        sign = "+" if d >= 0 else "−"
+        if feature in money_features:
+            return f"{sign}{_format_money(abs(float(d)))}"
+        if (feature in int_features) or float(abs(d)).is_integer():
+            return f"{sign}{int(abs(d)):,}".replace(",", " ")
+        return f"{sign}{abs(d):,.2f}".replace(",", " ").replace(".", ",")
+
+    try:
+        ddf["mean"] = ddf["feature"].map(lambda f: means.get(str(f), float("nan")))
+
+        # Align mean comparison with integer-like features
+        def _aligned_mean(row: pd.Series) -> float:
+            try:
+                feat = str(row.get("feature"))
+                m_raw = row.get("mean")
+                if m_raw is None:
+                    return float("nan")
+                m = float(m_raw)
+            except Exception:
+                return float("nan")
+            if not np.isfinite(m):
+                return float("nan")
+            if feat in int_features and feat not in money_features:
+                return float(int(round(m)))
+            return float(m)
+
+        ddf["mean_aligned"] = ddf.apply(_aligned_mean, axis=1)
+        ddf["mean_display"] = ddf.apply(
+            lambda r: _fmt_value(str(r["feature"]), float(r["mean_aligned"]))
+            if np.isfinite(float(r["mean_aligned"]))
+            else "—",
+            axis=1,
+        )
+        ddf["delta_mean"] = ddf.apply(
+            lambda r: float(r["value"]) - float(r["mean_aligned"])
+            if np.isfinite(float(r["mean_aligned"]))
+            else float("nan"),
+            axis=1,
+        )
+        ddf["delta_mean_display"] = ddf.apply(
+            lambda r: _fmt_delta(str(r["feature"]), float(r["delta_mean"])) if np.isfinite(float(r["delta_mean"])) else "—",
+            axis=1,
+        )
+    except Exception:
+        ddf["mean_display"] = "—"
+        ddf["delta_mean_display"] = "—"
+
+    show = ddf[["label", "value_display", "median_display", "mean_display", "delta_display", "delta_mean_display"]].rename(
+        columns={
+            "label": "Variable",
+            "value_display": "Valeur",
+            "median_display": "Médiane",
+            "mean_display": "Moyenne",
+            "delta_display": "Écart",
+            "delta_mean_display": "Écart vs moyenne",
+        }
+    )
+    return show
+
+
+def _local_feature_effects(
+    model: Any,
+    *,
+    features: list[str],
+    values: dict[str, object],
+    used_flags: dict[str, bool],
+    medians: dict[str, float],
+    identity_cols: list[str],
+    clip: tuple[float, float] = (0.0, 5.0),
+    max_rows: int = 20,
+) -> pd.DataFrame:
+    """Compute a simple local explanation by feature neutralization.
+
+    For each *used* feature, we replace it with a neutral value (median for numeric,
+    ['__MISSING__'] for identity/list-like columns) and re-run the model.
+
+    Returned columns: feature, base_pred, neutral_pred, delta (base - neutral).
+    """
+
+    def _predict(row_values: dict[str, object]) -> float | None:
+        try:
+            X = pd.DataFrame([row_values], columns=features)
+            y = float(np.asarray(model.predict(X)).reshape(-1)[0])
+            y = float(np.clip(y, float(clip[0]), float(clip[1])))
+            return y
+        except Exception:
+            return None
+
+    base_pred = _predict(values)
+    if base_pred is None:
+        return pd.DataFrame(columns=["feature", "base_pred", "neutral_pred", "delta"]) 
+
+    rows: list[dict[str, object]] = []
+    id_set = set([str(x) for x in (identity_cols or [])])
+
+    for f in features:
+        if not used_flags.get(f):
+            continue
+
+        neutral: object
+        if f in id_set or isinstance(values.get(f), list):
+            neutral = ["__MISSING__"]
+        else:
+            neutral = float(medians.get(f, 0.0))
+
+        alt_values = dict(values)
+        alt_values[f] = neutral
+        neutral_pred = _predict(alt_values)
+        if neutral_pred is None:
+            continue
+
+        delta = float(base_pred - neutral_pred)
+        if not np.isfinite(delta):
+            continue
+        rows.append({"feature": str(f), "base_pred": float(base_pred), "neutral_pred": float(neutral_pred), "delta": delta})
+
+    if not rows:
+        return pd.DataFrame(columns=["feature", "base_pred", "neutral_pred", "delta"]) 
+
+    df = pd.DataFrame(rows)
+    df["abs_delta"] = df["delta"].abs()
+    df = df.sort_values("abs_delta", ascending=False)
+    df = df.drop(columns=["abs_delta"], errors="ignore")
+    if int(max_rows) > 0:
+        df = df.head(int(max_rows))
+    return df
+
+
+def _altair_local_effects_bar(
+    effects_df: pd.DataFrame,
+    *,
+    feature_labels: dict[str, str] | None = None,
+    width: int = 520,
+    height: int = 360,
+) -> Any:
+    """Altair horizontal bar chart for local feature effects."""
+
+    try:
+        import altair as alt  # type: ignore
+    except Exception:
+        return None
+
+    if effects_df is None or effects_df.empty:
+        return None
+
+    d = effects_df.copy()
+    d["feature"] = d["feature"].astype(str)
+    if isinstance(feature_labels, dict) and feature_labels:
+        d["label"] = d["feature"].map(lambda x: feature_labels.get(str(x), str(x)))
+    else:
+        d["label"] = d["feature"]
+    d["abs_delta"] = d["delta"].abs()
+
+    chart = (
+        alt.Chart(d)
+        .mark_bar()
+        .encode(
+            y=alt.Y("label:N", sort=alt.SortField(field="abs_delta", order="descending"), title=""),
+            x=alt.X("delta:Q", title="Effet local sur la note (Δ)", axis=alt.Axis(format=".2f")),
+            tooltip=[
+                alt.Tooltip("label:N", title="Variable"),
+                alt.Tooltip("delta:Q", title="Δ", format=".3f"),
+                alt.Tooltip("base_pred:Q", title="Prédiction", format=".3f"),
+                alt.Tooltip("neutral_pred:Q", title="Sans cette info", format=".3f"),
+            ],
+        )
+        .properties(width=width, height=height)
+    )
+    rule = alt.Chart(pd.DataFrame({"x": [0.0]})).mark_rule(opacity=0.6).encode(x="x:Q")
+    return alt.layer(chart, rule)
 
 
 def _numeric_correlations(
@@ -1723,6 +1948,9 @@ class Helpers:
     optional_multiselect_list = staticmethod(_optional_multiselect_list)
     prediction_quality_info = staticmethod(_prediction_quality_info)
     explain_numeric_deltas = staticmethod(_explain_numeric_deltas)
+    numeric_deltas_table_with_mean = staticmethod(_numeric_deltas_table_with_mean)
+    local_feature_effects = staticmethod(_local_feature_effects)
+    altair_local_effects_bar = staticmethod(_altair_local_effects_bar)
     numeric_correlations = staticmethod(_numeric_correlations)
     altair_scatter_with_regression = staticmethod(_altair_scatter_with_regression)
     altair_histogram_with_rule = staticmethod(_altair_histogram_with_rule)

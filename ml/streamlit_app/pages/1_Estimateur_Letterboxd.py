@@ -278,6 +278,7 @@ numeric_specs = [
 ]
 
 numeric_labels = {feat: lbl for feat, lbl, *_ in numeric_specs}
+numeric_int_features = {feat for feat, _, is_int, *_ in numeric_specs if bool(is_int)}
 
 cols = nums_container.columns(2)
 col_idx = 0
@@ -569,6 +570,71 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
 
     if interval_text and (rating_rmse is not None):
         st.caption("L'intervalle est une approximation à partir du RMSE de test (hypothèse d'erreurs ~normales), pas une garantie film par film.")
+
+    # Explicabilité (locale): neutralisation d'un champ à la fois
+    with st.expander("Explicabilité (effets locaux)", expanded=False):
+        st.caption(
+            "Méthode simple: on remplace un champ par une valeur neutre (médiane / `__MISSING__`) "
+            "et on observe la variation de la note. Ce n'est pas une preuve de causalité."
+        )
+
+        # Labels for nicer display
+        people_labels = {feat: lbl for feat, lbl, _ in role_map}
+        feature_labels = dict(numeric_labels)
+        feature_labels.update(people_labels)
+
+        # 1) Numeric sanity-check: inputs vs medians
+        try:
+            deltas = H.explain_numeric_deltas(
+                values=last_values,
+                used_flags=last_used,
+                medians=medians,
+                labels=numeric_labels,
+                top_n=6,
+                int_features=numeric_int_features,
+            )
+        except Exception:
+            deltas = []
+
+        if deltas:
+            st.subheader("Écarts des chiffres vs valeurs typiques")
+            show = H.numeric_deltas_table_with_mean(deltas, stats_df=stats_df, int_features=numeric_int_features)
+            st.dataframe(show, width='stretch', hide_index=True)
+
+        # 2) Local effects: one-feature neutralization
+        st.subheader("Effets locaux estimés sur la note")
+        st.caption(
+            "Interprétation : Δ > 0 ⇒ le champ augmente la note prédite (vs neutre). "
+            "Δ < 0 ⇒ le champ baisse la note. Plus |Δ| est grand, plus ce champ pèse localement."
+        )
+        effects_df = H.local_feature_effects(
+            model,
+            features=features,
+            values=last_values,
+            used_flags=last_used,
+            medians=medians,
+            identity_cols=identity_cols,
+            clip=(0.0, 5.0),
+            max_rows=16,
+        )
+
+        if effects_df is None or effects_df.empty:
+            st.info("Aucun effet local à afficher (aucun champ activé ou calcul impossible).")
+        else:
+            pretty = effects_df.copy()
+            pretty["Variable"] = pretty["feature"].map(lambda x: feature_labels.get(str(x), str(x)))
+            pretty = pretty[["Variable", "delta", "neutral_pred", "base_pred"]].rename(
+                columns={
+                    "delta": "Δ (note)",
+                    "neutral_pred": "Sans cette info",
+                    "base_pred": "Prédiction",
+                }
+            )
+            st.dataframe(pretty, width='stretch', hide_index=True)
+
+            chart = H.altair_local_effects_bar(effects_df, feature_labels=feature_labels, width=560, height=360)
+            if chart is not None:
+                st.altair_chart(chart, use_container_width=True)
 
     used_cols = [c for c in features if last_used.get(c)]
     if used_cols:
