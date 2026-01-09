@@ -998,7 +998,7 @@ def _optional_slider(
             for k in (raw_key, log_key):
                 try:
                     if k in st.session_state:
-                        current_val = float(st.session_state.get(k))
+                        current_val = float(st.session_state[k])
                         break
                 except Exception:
                     current_val = None
@@ -1052,7 +1052,7 @@ def _optional_slider(
         for k in (raw_key, log_key):
             try:
                 if k in st.session_state:
-                    current_val = float(st.session_state.get(k))
+                    current_val = float(st.session_state[k])
                     break
             except Exception:
                 current_val = None
@@ -1660,22 +1660,23 @@ def _bootstrap_mean_ci(values: np.ndarray | pd.Series, *, n_boot: int = 1000, al
     return mean, lo, hi
 
 
-def _altair_actor_effect_chart(
+def _altair_token_effect_chart(
     df: pd.DataFrame,
     *,
-    actor_name: str,
+    token_col: str,
+    token_name: str,
     target: str = "rating",
     title_col: str | None = "title",
     width: int = 640,
     height: int = 320,
     n_boot: int = 1000,
 ):
-    """Create an Altair strip/points chart comparing films with vs without an actor.
+    """Create an Altair strip/points chart comparing films with vs without a token.
 
-    Shows raw points (with jitter), small poster images when available, the mean and bootstrap CI for the
-    "Avec" group, and tooltips containing the film title and poster URL.
-    Returns (chart, stats_dict) where stats_dict contains n_yes, n_no, mean_yes, mean_no, ci_yes.
+    `token_col` is expected to contain a list of names (e.g. casting/directors) or a single string.
+    Returns (chart, stats_dict).
     """
+
     try:
         import altair as alt  # type: ignore
     except Exception:
@@ -1684,14 +1685,20 @@ def _altair_actor_effect_chart(
     if df is None or df.empty or target not in df.columns:
         return None, {}
 
-    def _has_actor(cell: object, name: str) -> bool:
+    name = str(token_name or "").strip()
+    if not name:
+        return None, {}
+
+    def _has_token(cell: object, wanted: str) -> bool:
         if isinstance(cell, list):
-            return any(str(x).strip() == name for x in cell)
+            return any(str(x).strip() == wanted for x in cell)
         if isinstance(cell, str):
-            return str(cell).strip() == name
+            return str(cell).strip() == wanted
         return False
 
-    mask_has = df.get("casting", pd.Series(dtype=object)).apply(lambda c: _has_actor(c, actor_name))
+    series = df.get(token_col, pd.Series(dtype=object))
+    mask_has = series.apply(lambda c: _has_token(c, name))
+
     df_yes = df.loc[mask_has].copy()
     df_no = df.loc[~mask_has].copy()
 
@@ -1702,7 +1709,12 @@ def _altair_actor_effect_chart(
     n_no = int(len(vals_no))
     mean_yes = float(np.mean(vals_yes)) if n_yes > 0 else float("nan")
     mean_no = float(np.mean(vals_no)) if n_no > 0 else float("nan")
+    diff = float(mean_yes - mean_no) if (np.isfinite(mean_yes) and np.isfinite(mean_no)) else float("nan")
+
     ci_yes = _bootstrap_mean_ci(vals_yes, n_boot=n_boot) if n_yes > 0 else (float("nan"), float("nan"), float("nan"))
+
+    overall_sd = float(pd.to_numeric(df[target], errors="coerce").std())
+    cohen_d = float(diff / overall_sd) if (np.isfinite(diff) and np.isfinite(overall_sd) and overall_sd > 0) else float("nan")
 
     # prepare plotting DataFrame with jittered x coordinates and poster if available
     rows: list[dict[str, object]] = []
@@ -1730,7 +1742,7 @@ def _altair_actor_effect_chart(
 
     plot_df = pd.DataFrame(rows)
     if plot_df.empty:
-        return None, {"n_yes": n_yes, "n_no": n_no}
+        return None, {"n_yes": n_yes, "n_no": n_no, "mean_yes": mean_yes, "mean_no": mean_no}
 
     # CI/mean rows for plotting
     ci_rows = [
@@ -1741,7 +1753,6 @@ def _altair_actor_effect_chart(
 
     base = alt.Chart(plot_df).properties(width=width, height=height)
 
-    # points with title/poster in tooltip
     pts = base.mark_circle(size=32, opacity=0.6).encode(
         x=alt.X("x:Q", title=""),
         y=alt.Y("rating:Q", title="Note (rating)"),
@@ -1754,7 +1765,6 @@ def _altair_actor_effect_chart(
         ],
     )
 
-    # draw tiny poster images behind points when available
     if "poster" in plot_df.columns and plot_df["poster"].notna().any():
         try:
             img = base.mark_image(width=36, height=48, opacity=0.95).encode(
@@ -1773,7 +1783,6 @@ def _altair_actor_effect_chart(
         tooltip=[alt.Tooltip("group:N", title="Groupe"), alt.Tooltip("mean:Q", title="Moyenne")],
     )
 
-    # error bars for CI (only for Avec group where we computed CI)
     error = alt.Chart(ci_df).mark_rule(strokeWidth=3, opacity=0.8).encode(
         x="x:Q",
         y=alt.Y("lo:Q", title=""),
@@ -1781,7 +1790,6 @@ def _altair_actor_effect_chart(
         color=alt.Color("group:N", legend=None),
     )
 
-    # enforce rating axis limits
     if target == "rating":
         y_scale = alt.Scale(domain=[0, 5])
         pts = pts.encode(y=alt.Y("rating:Q", scale=y_scale, title="Note (rating)"))
@@ -1789,8 +1797,46 @@ def _altair_actor_effect_chart(
         error = error.encode(y=alt.Y("lo:Q", scale=y_scale), y2=alt.Y2("hi:Q"))
 
     layered = alt.layer(pts, mean_pts, error).configure_axis(grid=False)
-    stats = {"n_yes": n_yes, "n_no": n_no, "mean_yes": mean_yes, "mean_no": mean_no, "ci_yes": ci_yes}
+    stats = {
+        "token_col": str(token_col),
+        "token_name": name,
+        "n_yes": n_yes,
+        "n_no": n_no,
+        "mean_yes": mean_yes,
+        "mean_no": mean_no,
+        "diff": diff,
+        "cohen_d": cohen_d,
+        "ci_yes": ci_yes,
+    }
     return layered, stats
+
+
+def _altair_actor_effect_chart(
+    df: pd.DataFrame,
+    *,
+    actor_name: str,
+    target: str = "rating",
+    title_col: str | None = "title",
+    width: int = 640,
+    height: int = 320,
+    n_boot: int = 1000,
+):
+    """Create an Altair strip/points chart comparing films with vs without an actor.
+
+    Shows raw points (with jitter), small poster images when available, the mean and bootstrap CI for the
+    "Avec" group, and tooltips containing the film title and poster URL.
+    Returns (chart, stats_dict) where stats_dict contains n_yes, n_no, mean_yes, mean_no, ci_yes.
+    """
+    return _altair_token_effect_chart(
+        df,
+        token_col="casting",
+        token_name=str(actor_name),
+        target=target,
+        title_col=title_col,
+        width=width,
+        height=height,
+        n_boot=n_boot,
+    )
 
 
 def _altair_scatter_with_regression(
@@ -2044,4 +2090,5 @@ class Helpers:
     altair_scatter_with_regression = staticmethod(_altair_scatter_with_regression)
     altair_histogram_with_rule = staticmethod(_altair_histogram_with_rule)
     bootstrap_mean_ci = staticmethod(_bootstrap_mean_ci)
+    altair_token_effect_chart = staticmethod(_altair_token_effect_chart)
     altair_actor_effect_chart = staticmethod(_altair_actor_effect_chart)

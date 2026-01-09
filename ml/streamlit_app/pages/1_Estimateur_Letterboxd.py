@@ -455,6 +455,11 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
     st.success("Prédiction terminée")
     st.metric("Note prédite", f"{y_pred:.2f} / 5")
 
+    st.caption(
+        "Ce score est une **prédiction du modèle** (pas une vérité). Les indicateurs ci-dessous aident à savoir "
+        "si ta saisie ressemble aux films du dataset et si l'estimation est plutôt stable."
+    )
+
     # Fiabilité: (1) complétude des champs + (2) intervalle (approx) basé sur RMSE
     q: dict[str, Any] = {}
     completeness = 0.0
@@ -569,13 +574,18 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
         st.warning(base + detail)
 
     if interval_text and (rating_rmse is not None):
-        st.caption("L'intervalle est une approximation à partir du RMSE de test (hypothèse d'erreurs ~normales), pas une garantie film par film.")
+        st.caption(
+            "L'intervalle est **une approximation statistique** (calculée à partir des erreurs observées pendant l'entraînement). "
+            "Il ne garantit pas qu'un film précis tombera dans cette plage."
+        )
 
     # Explicabilité (locale): neutralisation d'un champ à la fois
     with st.expander("Explicabilité (effets locaux)", expanded=False):
         st.caption(
-            "Méthode simple: on remplace un champ par une valeur neutre (médiane / `__MISSING__`) "
-            "et on observe la variation de la note. Ce n'est pas une preuve de causalité."
+            "Idée simple : on **modifie un seul champ à la fois** (en le remplaçant par une valeur ‘neutre’ : médiane, ou `__MISSING__`) "
+            "et on regarde comment la prédiction change.\n\n"
+            "À lire comme : ‘**dans le modèle**, ce champ pousse la note vers le haut/bas **pour ce film-là**’. "
+            "Ce n'est **pas** une preuve de causalité dans la vraie vie."
         )
 
         # Labels for nicer display
@@ -598,14 +608,19 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
 
         if deltas:
             st.subheader("Écarts des chiffres vs valeurs typiques")
+            st.caption(
+                "L'écart (Δ) compare ta valeur à une valeur ‘typique’ du dataset. "
+                "Δ > 0 signifie ‘au-dessus du typique’, Δ < 0 ‘en dessous’."
+            )
             show = H.numeric_deltas_table_with_mean(deltas, stats_df=stats_df, int_features=numeric_int_features)
             st.dataframe(show, width='stretch', hide_index=True)
 
         # 2) Local effects: one-feature neutralization
         st.subheader("Effets locaux estimés sur la note")
         st.caption(
-            "Interprétation : Δ > 0 ⇒ le champ augmente la note prédite (vs neutre). "
-            "Δ < 0 ⇒ le champ baisse la note. Plus |Δ| est grand, plus ce champ pèse localement."
+            "Interprétation : Δ > 0 ⇒ en gardant tout le reste identique, ce champ **augmente** la note prédite (par rapport à sa valeur neutre). "
+            "Δ < 0 ⇒ il la **diminue**.\n\n"
+            "Important : ce sont des **effets locaux** (pour ta saisie) et ils peuvent changer si tu modifies d'autres champs."
         )
         effects_df = H.local_feature_effects(
             model,
@@ -645,8 +660,9 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
     # Explications statistiques (dataset): corrélations et graphiques
     with st.expander("Analyses statistiques (corrélations + graphiques)", expanded=False):
         st.caption(
-            "Ces indications sont basées sur le dataset de référence (Letterboxd). "
-            "Elles décrivent des tendances (corrélations) et ne prouvent pas une causalité."
+            "Ces analyses viennent du dataset de référence (Letterboxd).\n\n"
+            "Elles montrent des **tendances** : quand une variable monte/descend, la note a tendance à monter/descendre. "
+            "Ça ne prouve **pas** qu'une variable ‘cause’ la note (corrélation ≠ causalité)."
         )
 
         if ref_df.empty or ("rating" not in ref_df.columns):
@@ -656,7 +672,7 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
             apply_input_filter = st.checkbox(
                 "Appliquer filtre par caractéristiques saisies (genres/themes/directors)",
                 value=False,
-                help="Si activé, les analyses (corrélations/graphes) seront calculées sur les films similaires à tes choix.",
+                help="Si activé, on calcule ces graphiques sur un sous-ensemble de films ressemblant à ta sélection (genre/thème/réalisateur).",
             )
 
             ref_for_stats = ref_df
@@ -689,7 +705,7 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
             robust_clip = st.checkbox(
                 "Limiter les valeurs extrêmes (1%–99%)",
                 value=True,
-                help="Évite que quelques valeurs aberrantes écrasent l'échelle des graphiques et biaisent les corrélations.",
+                help="Évite que quelques films très atypiques écrasent l'échelle des graphiques. Recommandé.",
             )
             clip_q = (0.01, 0.99) if robust_clip else None
 
@@ -698,6 +714,13 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
             if corr_df.empty:
                 st.warning("Pas assez de données numériques valides pour calculer des corrélations (N < 30).")
             else:
+                st.caption(
+                    "Lecture rapide :\n"
+                    "- valeur proche de 0 ⇒ lien faible\n"
+                    "- valeur positive ⇒ quand la variable augmente, la note a tendance à augmenter\n"
+                    "- valeur négative ⇒ quand la variable augmente, la note a tendance à baisser\n\n"
+                    "Pearson capte surtout les liens ‘linéaires’. Spearman capte des liens monotones (plus robuste aux formes non linéaires)."
+                )
                 display = corr_df.copy()
                 display["Variable"] = display["feature"].map(lambda x: numeric_labels.get(str(x), str(x)))
                 display = display[["Variable", "pearson", "spearman", "n"]]
@@ -757,7 +780,7 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
                 else:
                     st.altair_chart(chart)
                     if user_x is not None:
-                        st.caption("La règle verticale marque ta valeur. Le point plein correspond à la note prédite.")
+                        st.caption("La règle verticale marque ta valeur. Le point plein correspond à ta note prédite.")
                     else:
                         st.caption("Active la variable dans les champs pour afficher ta valeur sur le graphique.")
 
@@ -773,6 +796,134 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
                     st.info("Histogramme indisponible (Altair non disponible ou données insuffisantes).")
                 else:
                     st.altair_chart(hist)
+
+            # Actor/director diagnostic (bootstrap + raw points)
+            if identity_cols and ("rating" in ref_for_stats.columns):
+                def _selected_names(key: str) -> list[str]:
+                    raw = last_values.get(key)
+                    if not isinstance(raw, list):
+                        return []
+                    out: list[str] = []
+                    seen: set[str] = set()
+                    for x in raw:
+                        s = str(x).strip()
+                        if not s or s == "__MISSING__":
+                            continue
+                        if s in seen:
+                            continue
+                        seen.add(s)
+                        out.append(s)
+                    return out
+
+                director_candidates = _selected_names("directors")
+                actor_candidates = _selected_names("casting")
+
+                chosen_director: str | None = None
+                chosen_actor: str | None = None
+
+                if director_candidates and ("directors" in ref_for_stats.columns):
+                    if len(director_candidates) == 1:
+                        chosen_director = director_candidates[0]
+                    else:
+                        chosen_director = st.selectbox(
+                            "Choisir un réalisateur à analyser",
+                            options=director_candidates,
+                            index=0,
+                            key=f"diag_director_{WIDGET_STATE_SUFFIX}",
+                        )
+
+                if actor_candidates and ("casting" in ref_for_stats.columns):
+                    if len(actor_candidates) == 1:
+                        chosen_actor = actor_candidates[0]
+                    else:
+                        chosen_actor = st.selectbox(
+                            "Choisir un acteur à analyser",
+                            options=actor_candidates,
+                            index=0,
+                            key=f"diag_actor_{WIDGET_STATE_SUFFIX}",
+                        )
+
+                if chosen_director or chosen_actor:
+                    st.subheader("Diagnostic acteur / réalisateur (dataset)")
+                    st.caption(
+                        "On compare la note moyenne des films **avec** vs **sans** la personne dans le dataset.\n\n"
+                        "À lire comme un **signal descriptif** (pas causal) : un réalisateur/acteur peut être associé à certains genres, budgets, périodes, etc.\n\n"
+                        "Plus il y a de films ‘avec’ (N), plus l'indication est crédible. Si N est faible, Δ et l'intervalle peuvent être instables."
+                    )
+
+                if chosen_director and ("directors" in ref_for_stats.columns):
+                    st.write(f"Réalisateur: **{chosen_director}**")
+                    chart_d, stats_d = H.altair_token_effect_chart(
+                        ref_for_stats,
+                        token_col="directors",
+                        token_name=str(chosen_director),
+                        target="rating",
+                        title_col="title",
+                        width=700,
+                        height=320,
+                        n_boot=1000,
+                    )
+                    if chart_d is not None:
+                        st.altair_chart(chart_d)
+                    if isinstance(stats_d, dict) and stats_d:
+                        n_yes = int(stats_d.get("n_yes", 0) or 0)
+                        n_no = int(stats_d.get("n_no", 0) or 0)
+                        mean_yes = stats_d.get("mean_yes")
+                        mean_no = stats_d.get("mean_no")
+                        diff = stats_d.get("diff")
+                        d = stats_d.get("cohen_d")
+                        ci = stats_d.get("ci_yes")
+                        st.write(f"Films avec: **{n_yes}**, sans: **{n_no}**")
+                        if n_yes > 0 and mean_yes is not None:
+                            if isinstance(ci, (list, tuple)) and len(ci) >= 3 and np.isfinite(ci[1]) and np.isfinite(ci[2]):
+                                st.write(f"Moyenne (avec): **{float(mean_yes):.2f}** — IC bootstrap 95%: **{float(ci[1]):.2f} – {float(ci[2]):.2f}**")
+                            else:
+                                st.write(f"Moyenne (avec): **{float(mean_yes):.2f}**")
+                        if n_no > 0 and mean_no is not None:
+                            st.write(f"Moyenne (sans): **{float(mean_no):.2f}**")
+                        if diff is not None and np.isfinite(float(diff)):
+                            extra = f"Δ (avec − sans): **{float(diff):+.2f}**"
+                            if d is not None and np.isfinite(float(d)):
+                                extra += f" | d (Cohen): **{float(d):+.2f}**"
+                            st.caption(extra)
+                            st.caption("Repère (très approximatif) pour d (Cohen) : ~0,2 = petit, ~0,5 = moyen, ~0,8 = grand.")
+
+                if chosen_actor and ("casting" in ref_for_stats.columns):
+                    st.write(f"Acteur: **{chosen_actor}**")
+                    chart_a, stats_a = H.altair_token_effect_chart(
+                        ref_for_stats,
+                        token_col="casting",
+                        token_name=str(chosen_actor),
+                        target="rating",
+                        title_col="title",
+                        width=700,
+                        height=320,
+                        n_boot=1000,
+                    )
+                    if chart_a is not None:
+                        st.altair_chart(chart_a)
+                    if isinstance(stats_a, dict) and stats_a:
+                        n_yes = int(stats_a.get("n_yes", 0) or 0)
+                        n_no = int(stats_a.get("n_no", 0) or 0)
+                        mean_yes = stats_a.get("mean_yes")
+                        mean_no = stats_a.get("mean_no")
+                        diff = stats_a.get("diff")
+                        d = stats_a.get("cohen_d")
+                        ci = stats_a.get("ci_yes")
+                        st.write(f"Films avec: **{n_yes}**, sans: **{n_no}**")
+                        if n_yes > 0 and mean_yes is not None:
+                            if isinstance(ci, (list, tuple)) and len(ci) >= 3 and np.isfinite(ci[1]) and np.isfinite(ci[2]):
+                                st.write(f"Moyenne (avec): **{float(mean_yes):.2f}** — IC bootstrap 95%: **{float(ci[1]):.2f} – {float(ci[2]):.2f}**")
+                            else:
+                                st.write(f"Moyenne (avec): **{float(mean_yes):.2f}**")
+                        if n_no > 0 and mean_no is not None:
+                            st.write(f"Moyenne (sans): **{float(mean_no):.2f}**")
+                        if diff is not None and np.isfinite(float(diff)):
+                            extra = f"Δ (avec − sans): **{float(diff):+.2f}**"
+                            if d is not None and np.isfinite(float(d)):
+                                extra += f" | d (Cohen): **{float(d):+.2f}**"
+                            st.caption(extra)
+                            st.caption("Repère (très approximatif) pour d (Cohen) : ~0,2 = petit, ~0,5 = moyen, ~0,8 = grand.")
 
             # Categorical quick stats (only if identity columns are used)
             if identity_cols and ("genres" in ref_df.columns) and ("themes" in ref_df.columns) and ("rating" in ref_df.columns):
@@ -839,4 +990,4 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
                         display_t = tdf.rename(columns={"themes": "Thème", "Mean": "Note moyenne", "Cohen_d": "Cohen d", "Related": "Relation"})
                         st.dataframe(display_t, width='stretch', hide_index=True)
 
-            # (actor visualization moved to the Exploration page)
+            # (Diagnostic acteur/réalisateur disponible ici; plus de détails dans Exploration)
