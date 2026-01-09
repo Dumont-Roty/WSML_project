@@ -968,40 +968,129 @@ def _optional_slider(
     # integer-safe bounds
     min_i = int(math.floor(lo_f))
     max_i = int(math.ceil(hi_f))
+    if max_i <= min_i:
+        max_i = min_i + 1
     default_i = int(round(default_f))
     if default_i < min_i:
         default_i = min_i
     if default_i > max_i:
         default_i = max_i
 
+    def _fmt_fr_number(x: float, *, decimals: int = 2) -> str:
+        s = f"{float(x):,.{int(decimals)}f}"
+        return s.replace(",", " ").replace(".", ",")
+
+    def _fmt_fr_int(x: float) -> str:
+        try:
+            return f"{int(round(float(x))):,}".replace(",", " ")
+        except Exception:
+            return "0"
+
     if is_int:
         if feature in ("budget", "revenue"):
-            val = st.number_input(label, min_value=min_i, max_value=max_i, value=default_i, key=val_key, step=1)
+            scale_key = f"log_{feature}_{state_suffix}"
+            raw_key = f"{val_key}__raw"
+            log_key = f"{val_key}__log"
+
+            use_log = st.checkbox("Échelle log (log1p)", value=False, key=scale_key)
+
+            current_val = None
+            for k in (raw_key, log_key):
+                try:
+                    if k in st.session_state:
+                        current_val = float(st.session_state.get(k))
+                        break
+                except Exception:
+                    current_val = None
+            if current_val is None or not np.isfinite(float(current_val)):
+                current_val = float(default_i)
+
+            if use_log:
+                lo_money = max(0.0, float(min_i))
+                hi_money = max(lo_money + 1.0, float(max_i))
+                lo_log = float(np.log1p(lo_money))
+                hi_log = float(np.log1p(hi_money))
+                d_log = float(np.log1p(max(0.0, current_val)))
+                d_log = float(np.clip(d_log, lo_log, hi_log))
+
+                v_log = st.slider(label, lo_log, hi_log, d_log, key=log_key, format="%.2f")
+                v = float(np.expm1(float(v_log)))
+                v_i = int(round(float(np.clip(v, float(min_i), float(max_i)))))
+            else:
+                v_i = int(
+                    st.number_input(
+                        label,
+                        min_value=int(min_i),
+                        max_value=int(max_i),
+                        value=int(round(current_val)),
+                        key=raw_key,
+                        step=1,
+                    )
+                )
+
             try:
-                st.caption(f"Valeur sélectionnée : {_format_money(float(val))} (affiché en millions)")
+                st.caption(f"Valeur sélectionnée : {_format_money(float(v_i))}")
             except Exception:
                 pass
-            return True, float(val)
+            return True, float(v_i)
 
-        val = st.slider(label, min_i, max_i, default_i, key=val_key)
+        val = st.slider(label, min_i, max_i, default_i, key=val_key, step=1)
         try:
-            st.caption(f"Valeur sélectionnée : {int(round(val))}")
+            st.caption(f"Valeur sélectionnée : {_fmt_fr_int(float(val))}")
         except Exception:
             pass
         return True, float(val)
 
     if feature in ("budget", "revenue"):
-        # keep integer input for money even when not requesting integer type
-        val = st.number_input(label, min_value=min_i, max_value=max_i, value=default_i, key=val_key, step=1)
+        scale_key = f"log_{feature}_{state_suffix}"
+        raw_key = f"{val_key}__raw"
+        log_key = f"{val_key}__log"
+
+        use_log = st.checkbox("Échelle log (log1p)", value=False, key=scale_key)
+
+        current_val = None
+        for k in (raw_key, log_key):
+            try:
+                if k in st.session_state:
+                    current_val = float(st.session_state.get(k))
+                    break
+            except Exception:
+                current_val = None
+        if current_val is None or not np.isfinite(float(current_val)):
+            current_val = float(default_i)
+
+        if use_log:
+            lo_money = max(0.0, float(min_i))
+            hi_money = max(lo_money + 1.0, float(max_i))
+            lo_log = float(np.log1p(lo_money))
+            hi_log = float(np.log1p(hi_money))
+            d_log = float(np.log1p(max(0.0, current_val)))
+            d_log = float(np.clip(d_log, lo_log, hi_log))
+
+            v_log = st.slider(label, lo_log, hi_log, d_log, key=log_key, format="%.2f")
+            v = float(np.expm1(float(v_log)))
+            v_i = int(round(float(np.clip(v, float(min_i), float(max_i)))))
+        else:
+            v_i = int(
+                st.number_input(
+                    label,
+                    min_value=int(min_i),
+                    max_value=int(max_i),
+                    value=int(round(current_val)),
+                    key=raw_key,
+                    step=1,
+                )
+            )
+
         try:
-            st.caption(f"Valeur sélectionnée : {_format_money(float(val))} (affiché en millions)")
+            st.caption(f"Valeur sélectionnée : {_format_money(float(v_i))}")
         except Exception:
             pass
-        return True, float(val)
+        return True, float(v_i)
 
     val = st.slider(label, lo_f, hi_f, default_f, key=val_key, format="%.2f")
     try:
-        st.caption(f"Valeur sélectionnée : {float(val):.2f}")
+        st.caption(f"Valeur sélectionnée : {_fmt_fr_number(float(val), decimals=2)}")
     except Exception:
         pass
     return True, float(val)
