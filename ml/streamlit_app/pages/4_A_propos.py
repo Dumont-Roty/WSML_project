@@ -173,7 +173,29 @@ else:
   test_metrics = metrics.get("test_metrics") if isinstance(metrics.get("test_metrics"), dict) else {}
   if test_metrics:
     st.markdown("**Qualité (test)**")
-    st.write(test_metrics)
+
+    r2 = test_metrics.get("r2")
+    mae = test_metrics.get("mae")
+    rmse = test_metrics.get("rmse")
+    acc025 = test_metrics.get("acc_within_0_25")
+    acc050 = test_metrics.get("acc_within_0_50")
+
+    c1, c2, c3, c4, c5 = st.columns(5)
+    with c1:
+      st.metric("R²", f"{float(r2):.3f}" if r2 is not None else "—")
+    with c2:
+      st.metric("MAE", f"{float(mae):.3f}" if mae is not None else "—")
+    with c3:
+      st.metric("RMSE", f"{float(rmse):.3f}" if rmse is not None else "—")
+    with c4:
+      st.metric("Acc@0.25", f"{100.0*float(acc025):.1f}%" if acc025 is not None else "—")
+    with c5:
+      st.metric("Acc@0.50", f"{100.0*float(acc050):.1f}%" if acc050 is not None else "—")
+
+    st.caption(
+      "Acc@0.25/0.50 = proportion de prédictions à moins de 0.25/0.5 point de la vraie note. "
+      "MAE/RMSE sont en points de note (sur 0–5)."
+    )
 
   cv_results = metrics.get("cv_results") if isinstance(metrics.get("cv_results"), list) else []
   if cv_results:
@@ -216,7 +238,28 @@ else:
   test_metrics = budget_metrics.get("test_metrics") if isinstance(budget_metrics.get("test_metrics"), dict) else {}
   if test_metrics:
     st.markdown("**Qualité (test)**")
-    st.write(test_metrics)
+    r2 = test_metrics.get("r2")
+    mae = test_metrics.get("mae")
+    rmse = test_metrics.get("rmse")
+    acc025 = test_metrics.get("acc_within_0_25")
+    acc050 = test_metrics.get("acc_within_0_50")
+
+    c1, c2, c3, c4, c5 = st.columns(5)
+    with c1:
+      st.metric("R²", f"{float(r2):.3f}" if r2 is not None else "—")
+    with c2:
+      st.metric("MAE", f"{float(mae):.3f}" if mae is not None else "—")
+    with c3:
+      st.metric("RMSE", f"{float(rmse):.3f}" if rmse is not None else "—")
+    with c4:
+      st.metric("Acc@0.25", f"{100.0*float(acc025):.1f}%" if acc025 is not None else "—")
+    with c5:
+      st.metric("Acc@0.50", f"{100.0*float(acc050):.1f}%" if acc050 is not None else "—")
+
+    if acc025 is not None or acc050 is not None:
+      st.caption(
+        "Acc@0.25/0.50 = proportion de prédictions à moins de 0.25/0.5 unité de la vraie valeur."
+      )
 
   cv_results = budget_metrics.get("cv_results") if isinstance(budget_metrics.get("cv_results"), list) else []
   if cv_results:

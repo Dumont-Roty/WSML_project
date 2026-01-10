@@ -429,9 +429,21 @@ def _metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
 
     if y_true.size == 0:
         nan = float("nan")
-        return {"r2": nan, "mae": nan, "rmse": nan}
+        return {
+            "r2": nan,
+            "mae": nan,
+            "rmse": nan,
+            "acc_within_0_25": nan,
+            "acc_within_0_50": nan,
+        }
 
     mse = mean_squared_error(y_true, y_pred)
+    abs_err = np.abs(y_true - y_pred)
+
+    # Simple, user-friendly “accuracy” for a regression target in [0, 5].
+    # Example: acc_within_0_50 = proportion of predictions within ±0.5 rating point.
+    acc_within_0_25 = float(np.mean(abs_err <= 0.25)) if abs_err.size else float("nan")
+    acc_within_0_50 = float(np.mean(abs_err <= 0.50)) if abs_err.size else float("nan")
 
     try:
         r2 = float(r2_score(y_true, y_pred))
@@ -442,6 +454,8 @@ def _metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
         "r2": r2,
         "mae": float(mean_absolute_error(y_true, y_pred)),
         "rmse": float(np.sqrt(mse)),
+        "acc_within_0_25": acc_within_0_25,
+        "acc_within_0_50": acc_within_0_50,
     }
 
 

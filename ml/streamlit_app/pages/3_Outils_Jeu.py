@@ -3,21 +3,16 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+# Bootstrap paths so `ml.*` is importable under Streamlit.
+HERE = Path(__file__).resolve()
+ML_DIR = next(p for p in HERE.parents if p.name == "ml")
+REPO_ROOT = ML_DIR.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 import streamlit as st
+
 from ml.streamlit_app.helpers import Helpers as H
-
-
-def _bootstrap_repo_path() -> Path:
-    here = Path(__file__).resolve()
-    repo_root = next(p for p in here.parents if p.name == "ml").parent
-    if str(repo_root) not in sys.path:
-        sys.path.insert(0, str(repo_root))
-    return repo_root
-
-
-
-
-_bootstrap_repo_path()
 
 st.set_page_config(page_title="Outils / Jeu — Letterboxd", layout="wide")
 H.apply_letterboxd_theme()
