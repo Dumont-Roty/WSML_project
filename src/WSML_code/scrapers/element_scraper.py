@@ -263,15 +263,34 @@ class Scraping:
 
     @staticmethod
     def scrap_studios(page: Page) -> list[str]:
-        page.click("a[href^='/film/'][href$='/details/']")
-        page.wait_for_selector("a[href^='/studio/'],a[href^='/studios/']", timeout=5000)
-        studios = page.locator("a[href^='/studio/'],a[href^='/studios/']").all()
-        res_studios = []
-        for studio in studios:
-            studio_name = studio.text_content()
-            if studio_name is not None and studio_name.strip() not in res_studios:
-                res_studios.append(studio_name.strip())
-        return res_studios if res_studios else ["Studios non trouvés"]
+        """Scrape studio names on the Details tab; returns a default marker when none."""
+        try:
+            page.click("a[href^='/film/'][href$='/details/']")
+        except Exception:
+            pass
+
+        selectors = [
+            "a[href^='/studio/']",
+            "a[href^='/studios/']",
+            "a[href^='/studio/'],a[href^='/studios/']",
+        ]
+
+        for sel in selectors:
+            try:
+                page.wait_for_selector(sel, timeout=5000)
+                studios = page.locator(sel).all()
+            except Exception:
+                continue
+
+            res_studios = []
+            for studio in studios:
+                studio_name = studio.text_content()
+                if studio_name is not None and studio_name.strip() not in res_studios:
+                    res_studios.append(studio_name.strip())
+            if res_studios:
+                return res_studios
+
+        return ["Studios non trouvés"]
 
     @staticmethod
     def scrap_languages(page: Page) -> list[str]:
@@ -287,32 +306,55 @@ class Scraping:
 
     @staticmethod
     def scrap_genres(page: Page) -> list[str]:
-        page.click("a[href^='/film/'][href$='/genres/'], a[href^='/film/'][href$='/genre/']")
-        page.wait_for_selector("a[href^='/films/genre/'], a[href^='/film/'][href$='/genre/']", timeout=5000)
-        genres_elements = page.locator("a[href^='/films/genre/'], a[href^='/film/'][href$='/genre/']").all()
-        res_genres = []
-        for element in genres_elements:
-            genre_name = element.text_content()
-            if genre_name is not None:
-                res_genres.append(genre_name.strip())
-        return res_genres if res_genres else ["Genres non trouvés"]
-
-    @staticmethod
-    def scrap_themes(page: Page) -> list[str]:
+        """Scrape genre chips; falls back to ['Genres non trouvés'] when unavailable."""
         try:
             page.click("a[href^='/film/'][href$='/genres/'], a[href^='/film/'][href$='/genre/']")
         except Exception:
-            return []
+            pass
+
+        selectors = [
+            "a[href^='/films/genre/']",
+            "a[href^='/film/'][href$='/genre/']",
+            "a[href^='/films/genre/'], a[href^='/film/'][href$='/genre/']",
+        ]
+
+        for sel in selectors:
+            try:
+                page.wait_for_selector(sel, timeout=5000)
+                genres_elements = page.locator(sel).all()
+            except Exception:
+                continue
+
+            res_genres = []
+            for element in genres_elements:
+                genre_name = element.text_content()
+                if genre_name is not None:
+                    res_genres.append(genre_name.strip())
+            if res_genres:
+                return res_genres
+
+        return ["Genres non trouvés"]
+
+    @staticmethod
+    def scrap_themes(page: Page) -> list[str]:
+        """Scrape theme chips; returns a default marker when none are found."""
+        try:
+            page.click("a[href^='/film/'][href$='/genres/'], a[href^='/film/'][href$='/genre/']")
+        except Exception:
+            pass
+
         try:
             page.wait_for_selector("a[href^='/films/theme/'], a[href^='/films/mini-theme/']", timeout=4000)
             themes_elements = page.locator("a[href^='/films/theme/'], a[href^='/films/mini-theme/']").all()
         except Exception:
-            return []
+            return ["Thèmes non trouvés"]
+
         res_themes = []
         for element in themes_elements:
             theme_name = element.text_content()
             if theme_name is not None:
                 res_themes.append(theme_name.strip())
-        return res_themes
+
+        return res_themes if res_themes else ["Thèmes non trouvés"]
 
 __all__ = ["Scraping"]

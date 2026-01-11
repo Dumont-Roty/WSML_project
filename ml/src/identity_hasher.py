@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
@@ -9,6 +10,12 @@ from sklearn.feature_extraction import FeatureHasher
 
 
 class IdentityHasher(BaseEstimator, TransformerMixin):
+    """Hashing encoder for list-like identity columns (directors, genres, ...).
+
+    - Normalises tokens to lowercase and underscores spaces.
+    - Replaces missing/empty entries with a __MISSING__ token.
+    - Produces a dense matrix (float32) from sklearn FeatureHasher.
+    """
     def __init__(self, columns: Tuple[str, ...], n_features: int = 1024):
         self.columns = columns
         self.n_features = int(n_features)
@@ -21,8 +28,8 @@ class IdentityHasher(BaseEstimator, TransformerMixin):
     @staticmethod
     def _norm_token(s: str) -> str:
         s = s.strip().lower()
-        s = s.replace(" ", "_")
-        return s
+        # Collapse any whitespace run to a single underscore for stable hashing.
+        return re.sub(r"\s+", "_", s)
 
     def fit(self, X: Any, y: Any = None):
         return self

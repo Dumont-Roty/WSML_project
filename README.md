@@ -1,92 +1,103 @@
 # WSML_project
 
-Ce dépôt contient un projet autour de données Letterboxd (scraping + modèle ML + app Streamlit).
+Projet Letterboxd : scraping (Playwright), préparation de données, entraînement de modèles et app Streamlit.
+
+Il existe 2 README : celui-ci (référence principale) et [ml/README.md](ml/README.md) pour un mémo ML minimal.
+
+## Installer / activer l’environnement
+
+- Python 3.14 recommandé
+- Créer le venv et installer les dépendances :
+```powershell
+python -m venv .venv
+./.venv/Scripts/activate
+./.venv/Scripts/python -m pip install -r ml/requirements.txt
+./.venv/Scripts/python -m playwright install chromium  # requis pour les scrapers
+```
+
+## Scraper les données Letterboxd
+
+Activer l’environnement puis exporter le chemin source pour les modules (PowerShell) :
+```powershell
+./.venv/Scripts/activate
+$env:PYTHONPATH = 'src;src/WSML_code'
+```
+
+- Grilles populaires (parallèle) :
+```powershell
+./.venv/Scripts/python - <<'PY'
+from WSML_code.scrapers.list_scraper import list_scrape_parallel
+list_scrape_parallel(max_pages=40, workers=4, headless=True, output_path='results/results_parallel.json')
+PY
+```
+	- Paramètres utiles : `start_page`, `end_page` pour un sous-intervalle ; `preserve_page_order=True` pour garder l’ordre ; `headless=False` pour voir le navigateur.
+- Grilles populaires (séquentiel) : remplacer par `list_scrape(...)` si besoin.
+- Films à genre unique :
+```powershell
+./.venv/Scripts/python ./scripts/scrape_single_genre_grids.py --max-pages 40 --start 1 --end 40 --output single_genre_movies.json
+```
+- Mise à jour ciblée TMDB (budget/revenue) depuis un CSV :
+```powershell
+./.venv/Scripts/python ./scripts/targeted_update_tmdb.py --input missing_tmdb.csv --output missing_tmdb_updated.csv --delay 0.2
+```
+
+Les sorties JSON/CSV peuvent ensuite être fusionnées.
 
 ## Fusionner les JSON (agrandir la base)
 
-### 1) Où mettre les fichiers
+Sources acceptées :
+- racine : `results_*.json`
+- dossier `results/` : `results/*.json`
 
-Tu peux ajouter de nouveaux exports JSON à l’un de ces emplacements :
+```powershell
+./.venv/Scripts/python ./scripts/merge_results.py
+# ou avec rapport de doublons
+./.venv/Scripts/python ./scripts/merge_results.py --report-duplicates duplicates_report.tsv
+```
+Sortie par défaut : `ml/data/partial_result_<date>.json` (ignoré par git, cf. `ml/.gitignore`).
 
-- à la racine du repo : `results_*.json` (ex: `results_81_90.json`)
-- dans le dossier `results/` : `results/*.json`
+## Préparer le dataset pour le modèle
 
-Le script sait lire :
+1) Nettoyage/enrichissement :
+```powershell
+./.venv/Scripts/python ./ml/src/cleaning_movies.py --input ml/data/partial_result_<date>.json --output ml/data/cleaned_data.parquet
+```
+2) Split train/test :
+```powershell
+./.venv/Scripts/python ./ml/src/prepare_dataset.py --data ml/data/cleaned_data.parquet --out-train ml/data/train.parquet --out-test ml/data/test.parquet
+```
 
-- des fichiers JSON contenant une **liste** d’objets
-- ou un **objet** JSON unique (il sera automatiquement converti en liste)
+## Entraîner / réentraîner le modèle
 
-### 2) Construire le fichier `partial_result_<date>.json`
+Exemple pour la cible `rating` avec identités + clipping :
+```powershell
+./.venv/Scripts/python ./ml/src/optimize_model.py --train ml/data/partial_result_<date>.json --test-size 0.2 --target rating --clip-predictions --use-identities
+```
+Sorties : `ml/models/best_model.joblib` et `ml/models/metrics.json`.
 
-Le script centralisé est : `scripts/merge_results.py`.
+## Lancer l’app Streamlit
 
-Commande (PowerShell) :
+```powershell
+./.venv/Scripts/activate
+./.venv/Scripts/python -m streamlit run ml/streamlit_app/app.py --server.port 8501
+```
+Ouvrir http://localhost:8501. Après réentraînement, redémarrer l’app pour recharger le modèle.
 
-- `./.venv/Scripts/python ./scripts/merge_results.py`
+## Tests et couverture
 
-Par défaut :
+- Tests : `./.venv/Scripts/python -m pytest`
+- Couverture : `./.venv/Scripts/python -m pytest --cov=src --cov=ml/src --cov-report=term-missing`
+État actuel : 92 tests, ~82% de couverture (scrapers et ML principaux couverts).
 
-- la sortie est écrite dans `ml/data/partial_result_<date>.json` (ex: `partial_result_2026-01-10.json`)
-- la déduplication est **activée** (pour éviter de gonfler le dataset avec des doublons)
+## Récap commandes clés
 
-### 3) Vérifier les doublons potentiels
-
-Le script déduplique sur le champ `url` (quand il existe). Pour auditer les doublons, tu peux générer un rapport :
-
-- `./.venv/Scripts/python ./scripts/merge_results.py --report-duplicates duplicates_report.tsv`
-
-Le rapport inclut : `url`, `year`, `directors`, `title`, et `source_file`.
-
-### 4) Étape recommandée “doublons” (à faire plus tard)
-
-L’objectif est de vérifier s’il existe des doublons (même film) avant de figer une version finale de dataset :
-
-- comparer par `url` (facile)
-- éventuellement compléter avec une heuristique `title + year` si certaines URLs manquent
-
-Notes :
-
-- `ml/data/` est ignoré par git (voir `ml/.gitignore`) : c’est normal que `partial_result_<date>.json` ne soit pas versionné.
-
-## Relancer la prédiction avec les nouvelles données
-
-Si tu ajoutes de nouvelles données scrapées (puis fusionnées), tu as deux niveaux de “mise à jour” possibles :
-
-- **Mettre à jour le dataset de référence** (statistiques, options acteurs/réals, exploration) : tu changes le fichier JSON utilisé comme référence.
-- **Mettre à jour le modèle** (les prédictions elles-mêmes) : tu ré-entraînes et tu remplaces les artefacts dans `ml/models/`.
-
-### A) Mettre à jour le modèle (recommandé)
-
-1) Fusionner les JSON (génère un `partial_result_<date>.json`) :
-
-- `./.venv/Scripts/python ./scripts/merge_results.py`
-
-Le fichier généré ressemble à `ml/data/partial_result_2026-01-10.json`. Dans les commandes ci-dessous, remplace `<date>` par la date réelle.
-
-2) (Optionnel mais utile) Recalculer un `train.parquet`/`test.parquet` à partir du nouveau JSON (sert aux stats, quantiles, etc.) :
-
-- `./.venv/Scripts/python ./ml/src/cleaning_movies.py --input ml/data/partial_result_<date>.json --output ml/data/cleaned_data.parquet`
-- `./.venv/Scripts/python ./ml/src/prepare_dataset.py --data ml/data/cleaned_data.parquet --out-train ml/data/train.parquet --out-test ml/data/test.parquet`
-
-3) Ré-entraîner le modèle `rating` à partir du JSON enrichi (inclut les identités: réalisateurs/casting/etc.) :
-
-- `./.venv/Scripts/python ./ml/src/optimize_model.py --train ml/data/partial_result_<date>.json --test-size 0.2 --target rating --clip-predictions --use-identities`
-
-Sorties attendues (utilisées par Streamlit) :
-
-- `ml/models/best_model.joblib`
-- `ml/models/metrics.json`
-
-4) Relancer l’app Streamlit (important : Streamlit met en cache le modèle ; il faut redémarrer l’app pour recharger un nouveau `.joblib`) :
-
-- `./.venv/Scripts/python -m streamlit run ./ml/streamlit_app/app.py`
-
-### B) Mettre à jour le dataset de référence (sans ré-entraîner)
-
-Si tu veux seulement que l’app (exploration + stats) s’appuie sur le dataset fusionné, sans changer le modèle :
-
-- Utilise le nouveau `ml/data/partial_result_<date>.json` comme fichier de référence dans les pages Streamlit.
-
-Actuellement, les pages utilisent surtout `ml/data/final_results_28.json` et en fallback `merged_results.json`. La manière la plus simple est de **pointer** ces chemins vers ton nouveau fichier (sans le committer). Si tu veux, je peux faire une petite amélioration pour que l’app détecte automatiquement le dernier `partial_result_*.json` dans `ml/data/`.
-
-'
+- Scraper (populaire parallèle) : voir bloc `list_scrape_parallel` ci-dessus
+- Scraper single-genre : `./.venv/Scripts/python ./scripts/scrape_single_genre_grids.py --max-pages ...`
+- Mise à jour TMDB ciblée : `./.venv/Scripts/python ./scripts/targeted_update_tmdb.py --input ...`
+- Merge JSON : `./.venv/Scripts/python ./scripts/merge_results.py`
+- Nettoyage → parquet : `./.venv/Scripts/python ./ml/src/cleaning_movies.py --input ... --output ...`
+- Split train/test : `./.venv/Scripts/python ./ml/src/prepare_dataset.py --data ...`
+- Train modèle : `./.venv/Scripts/python ./ml/src/optimize_model.py --train ... --target rating --clip-predictions --use-identities`
+- Lancer l’app : `./.venv/Scripts/python -m streamlit run ml/streamlit_app/app.py --server.port 8501`
+- Tests : `./.venv/Scripts/python -m pytest`
+- Couverture : `./.venv/Scripts/python -m pytest --cov=src --cov=ml/src --cov-report=term-missing`

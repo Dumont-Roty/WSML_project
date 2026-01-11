@@ -7,10 +7,21 @@ from playwright.sync_api import sync_playwright
 
 from WSML_code.services.dismiss_impl import dismiss_overlay
 from WSML_code.scrapers.page_scraper import PageScrap
-from WSML_code.models import Movie
+from models import Movie
 
 
 def scrape_one(context, tmdb_page, url: str) -> Movie:
+    """Scrape a single Letterboxd film page and return a Movie model.
+
+    Parameters
+    ----------
+    context : playwright BrowserContext
+        Reused Playwright context (allows shared cookies/settings).
+    tmdb_page : playwright Page | None
+        Optional reusable TMDB page to avoid reopening per film.
+    url : str
+        Letterboxd film URL to scrape.
+    """
     start = perf_counter()
     section_timings = {}
     page = context.new_page()

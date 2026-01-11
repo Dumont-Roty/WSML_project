@@ -99,6 +99,12 @@ class PageScrap:
 
     @staticmethod
     def scrap_tmdb_url(page, tmdb_page=None):
+        """Fetch budget/revenue from the TMDB link if present.
+
+        If a reusable `tmdb_page` is provided, it is used directly; otherwise a
+        temporary page is created (and closed). Returns a dict with keys
+        `budget` and `revenue`, defaulting to None when missing.
+        """
         try:
             page.wait_for_selector("a[href*='themoviedb.org/movie']", timeout=1500)
             href = page.locator("a[href*='themoviedb.org/movie']").first.get_attribute('href')
@@ -108,64 +114,42 @@ class PageScrap:
         if not href:
             return {"budget": None, "revenue": None}
 
-        new_tmdb_page = None
-        if tmdb_page is None:
-            new_tmdb_page = page.context.new_page()
-            tmdb_page = new_tmdb_page
-            # Keep unit-test expectation for the newly created TMDB page.
-            tmdb_page.set_default_timeout(5000)
-            tmdb_page.route(re.compile(r"(\.png|\.jpg|\.jpeg|\.svg|\.webp|\.gif|\.ico|\.woff|\.css|\.mp4|\.webm)"), lambda r: r.abort())
-            tmdb_page.route(re.compile(r"(doubleclick\.net|googlesyndication\.com)"), lambda r: r.abort())
+        def _scrape_with(page_obj, deadline=None):
+            try:
+                page_obj.goto(href, wait_until='domcontentloaded')
+            except Exception:
+                try:
+                    page_obj.goto(href)
+                except Exception:
+                    return {"budget": None, "revenue": None}
 
+            try:
+                t._dismiss_tmdb_cookies(page_obj)
+            except Exception:
+                pass
+
+            try:
+                page_obj.wait_for_timeout(600)
+            except Exception:
+                pass
+
+            return {
+                "budget": t.scrap_budget(page_obj),
+                "revenue": t.scrap_revenue(page_obj),
+            }
+
+        if tmdb_page is not None:
+            return _scrape_with(tmdb_page)
+
+        new_tmdb_page = page.context.new_page()
         try:
-            budget = None
-            revenue = None
-            deadline = perf_counter() + _tmdb_max_seconds()
-            debug = bool(os.getenv("WSML_DEBUG_TMDB"))
-
-            # Two attempts with capped per-film deadline; bail out when time budget is exceeded.
-            for timeout in (4000, 7000):
-                remaining_ms = int((deadline - perf_counter()) * 1000)
-                if remaining_ms <= 500:
-                    if debug:
-                        print(f"[tmdb] deadline reached before fetch for {href}")
-                    break
-                effective_timeout = max(1000, min(timeout, remaining_ms))
-
-                try:
-                    tmdb_page.goto(href, wait_until='domcontentloaded', timeout=effective_timeout)
-                except Exception:
-                    try:
-                        tmdb_page.goto(href, wait_until='load', timeout=effective_timeout)
-                    except Exception:
-                        if debug:
-                            print(f"[tmdb] goto failed for {href} with timeout {effective_timeout}ms")
-                        continue
-
-                try:
-                    t._dismiss_tmdb_cookies(tmdb_page)
-                except Exception:
-                    pass
-
-                # Give TMDB a brief moment to render facts before querying selectors
-                try:
-                    tmdb_page.wait_for_timeout(600)
-                except Exception:
-                    pass
-
-                if budget is None:
-                    budget = t.scrap_budget(tmdb_page, deadline=deadline)
-                if revenue is None:
-                    revenue = t.scrap_revenue(tmdb_page, deadline=deadline)
-
-                if budget is not None and revenue is not None:
-                    break
-
-            return {"budget": budget, "revenue": revenue}
-        except Exception:
-            return {"budget": None, "revenue": None}
+            new_tmdb_page.set_default_timeout(5000)
+            new_tmdb_page.route(re.compile(r"(\.png|\.jpg|\.jpeg|\.svg|\.webp|\.gif|\.ico|\.woff|\.css|\.mp4|\.webm)"), lambda r: r.abort())
+            new_tmdb_page.route(re.compile(r"(doubleclick\.net|googlesyndication\.com)"), lambda r: r.abort())
+            result = _scrape_with(new_tmdb_page, deadline=perf_counter() + _tmdb_max_seconds())
         finally:
-            if new_tmdb_page:
-                tmdb_page.close()
+            new_tmdb_page.close()
+
+        return result
 
 __all__ = ["PageScrap"]

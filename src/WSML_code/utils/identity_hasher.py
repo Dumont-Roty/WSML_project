@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
@@ -21,8 +22,8 @@ class IdentityHasher(BaseEstimator, TransformerMixin):
     @staticmethod
     def _norm_token(s: str) -> str:
         s = s.strip().lower()
-        s = s.replace(" ", "_")
-        return s
+        # Collapse whitespace runs to a single underscore for stable hashing.
+        return re.sub(r"\s+", "_", s)
 
     def fit(self, X: Any, y: Any = None):
         return self
