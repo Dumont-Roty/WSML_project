@@ -107,6 +107,69 @@ if BUDGET_MODEL_PATH.exists() and BUDGET_METRICS_PATH.exists():
         budget_model = None
         st.warning(f"Modèle budget détecté mais non chargeable: {e}")
 
+
+def _predict_budget_with_artifact(artifact: object, values: dict[str, object]) -> tuple[float, float]:
+    """Fallback when the loaded budget model is a ToolModelArtifact without predict().
+
+    Returns (pred_log_space, pred_budget).
+    """
+
+    model = getattr(artifact, "model", None)
+    hasher = getattr(artifact, "identity_hasher", None)
+    numeric_cols = list(getattr(artifact, "numeric_cols", []) or [])
+    identity_cols = list(getattr(artifact, "identity_cols", []) or [])
+    medians = getattr(artifact, "numeric_medians", {}) or {}
+    transform_info = getattr(artifact, "target_transform", None)
+    clip_range = getattr(artifact, "clip_range", None)
+
+    if model is None or hasher is None:
+        raise ValueError("artifact missing model or hasher")
+
+    def _safe_float(val: object, default: float) -> float:
+        try:
+            return float(val)
+        except Exception:
+            return float(default)
+
+    numeric_row: list[float] = []
+    for col in numeric_cols:
+        if col.endswith("_log1p"):
+            base = col[: -len("_log1p")]
+            raw = _safe_float(values.get(base), medians.get(col, 0.0))
+            raw = max(0.0, raw)
+            numeric_row.append(float(np.log1p(raw)))
+        else:
+            numeric_row.append(_safe_float(values.get(col), medians.get(col, 0.0)))
+
+    numeric_matrix = np.array([numeric_row], dtype=float)
+    id_payload: dict[str, list[str]] = {}
+    for col in identity_cols:
+        val = values.get(col)
+        if isinstance(val, list):
+            cleaned = [str(x).strip() for x in val if x is not None and str(x).strip()]
+            id_payload[col] = cleaned or ["__MISSING__"]
+        elif val is None:
+            id_payload[col] = ["__MISSING__"]
+        else:
+            s = str(val).strip()
+            id_payload[col] = [s] if s else ["__MISSING__"]
+
+    id_df = pd.DataFrame([id_payload]) if identity_cols else pd.DataFrame()
+    hashed = hasher.transform(id_df) if identity_cols else np.zeros((1, 0), dtype=float)
+    Xb = np.hstack([numeric_matrix, hashed])
+
+    pred_raw = float(np.asarray(model.predict(Xb)).reshape(-1)[0])
+    pred_budget = pred_raw
+    if isinstance(transform_info, dict) and transform_info.get("name") == "log1p":
+        pred_budget = float(np.expm1(pred_raw))
+    if isinstance(clip_range, (tuple, list)) and len(clip_range) == 2:
+        try:
+            lo, hi = float(clip_range[0]), float(clip_range[1])
+            pred_budget = float(np.clip(pred_budget, lo, hi))
+        except Exception:
+            pass
+    return pred_raw, pred_budget
+
 ref_df = H.load_reference_df(REF_DATA_PATH)
 if ref_df.empty:
     # Fallback only (some environments may not ship final_results_28.json at runtime).
@@ -394,9 +457,12 @@ if budget_model is not None and budget_features and (not used.get("budget", Fals
 
     st.subheader("Suggestion de budget (si manquant)")
     try:
-        Xb = pd.DataFrame([{k: values.get(k) for k in budget_features}], columns=budget_features)
-        pred_log = float(np.asarray(budget_model.predict(Xb)).reshape(-1)[0])
-        pred_budget = float(np.expm1(pred_log))
+        if hasattr(budget_model, "predict"):
+            Xb = pd.DataFrame([{k: values.get(k) for k in budget_features}], columns=budget_features)
+            pred_log = float(np.asarray(budget_model.predict(Xb)).reshape(-1)[0])
+            pred_budget = float(np.expm1(pred_log))
+        else:
+            pred_log, pred_budget = _predict_budget_with_artifact(budget_model, values)
 
         low = high = None
         if isinstance(budget_interval, dict):

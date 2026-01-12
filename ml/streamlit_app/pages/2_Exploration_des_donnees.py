@@ -52,7 +52,7 @@ def _load_reference_df(path: Path) -> pd.DataFrame:
     return pd.read_json(path)
 
 
-_bootstrap_repo_path()
+H.bootstrap_repo_path()
 
 # Paths
 here = Path(__file__).resolve()
