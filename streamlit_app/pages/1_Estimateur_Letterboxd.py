@@ -18,15 +18,14 @@ import streamlit as st
 
 # Bootstrap paths so `ml.*` is importable (IdentityHasher is pickled as ml.src.identity_hasher.IdentityHasher)
 HERE = Path(__file__).resolve()
-ML_DIR = HERE.parents[2]  # .../ml
-REPO_ROOT = ML_DIR.parent
+REPO_ROOT = HERE.parents[2]  # .../root of project
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 import src.utils.identity_hasher  # noqa: F401
 
 
-APP_ROOT = ML_DIR
+APP_ROOT = REPO_ROOT / "ml"
 MODEL_PATH = APP_ROOT / "models" / "best_model.joblib"
 METRICS_PATH = APP_ROOT / "models" / "metrics.json"
 BUDGET_MODEL_PATH = APP_ROOT / "models" / "budget_model.joblib"
@@ -36,7 +35,7 @@ REF_DATA_PATH = APP_ROOT / "data" / "final_results_28.json"
 TRAIN_PATH = APP_ROOT / "data" / "train.parquet"
 
 # Import shared helpers from the central module to keep this page presentation-only.
-from ml.streamlit_app.helpers import Helpers as H
+from streamlit_app.helpers import Helpers as H
  
 
 

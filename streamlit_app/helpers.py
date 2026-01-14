@@ -18,8 +18,8 @@ import streamlit as st
 
 # Bootstrap paths so `src.*` is importable (IdentityHasher is pickled as src.utils.identity_hasher.IdentityHasher)
 HERE = Path(__file__).resolve()
-ML_DIR = HERE.parents[1]  # .../ml
-REPO_ROOT = ML_DIR.parent
+REPO_ROOT = HERE.parent.parent  # project root
+ML_DIR = REPO_ROOT / "ml"
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 

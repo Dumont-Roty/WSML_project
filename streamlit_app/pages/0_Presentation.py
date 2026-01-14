@@ -5,14 +5,14 @@ from pathlib import Path
 
 # Bootstrap paths so `ml.*` is importable under Streamlit.
 HERE = Path(__file__).resolve()
-ML_DIR = next(p for p in HERE.parents if p.name == "ml")
-REPO_ROOT = ML_DIR.parent
+REPO_ROOT = HERE.parents[2]  # project root
+ML_DIR = REPO_ROOT / "ml"
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 import streamlit as st
 
-from ml.streamlit_app.helpers import Helpers as H
+from streamlit_app.helpers import Helpers as H
 
 st.set_page_config(page_title="Présentation — Estimateur Letterboxd", layout="wide")
 H.apply_letterboxd_theme()
