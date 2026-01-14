@@ -2,8 +2,6 @@
 
 Projet Letterboxd : scraping (Playwright), préparation de données, entraînement de modèles et app Streamlit.
 
-Il existe 2 README : celui-ci (référence principale) et [ml/README.md](ml/README.md) pour un mémo ML minimal.
-
 ## Installer / activer l’environnement
 
 - Python 3.14 recommandé
@@ -79,7 +77,7 @@ Sorties : `ml/models/best_model.joblib` et `ml/models/metrics.json`.
 
 ```powershell
 ./.venv/Scripts/activate
-./.venv/Scripts/python -m streamlit run ml/streamlit_app/app.py --server.port 8501
+./.venv/Scripts/python -m streamlit run streamlit_app/app.py --server.port 8501
 ```
 Ouvrir http://localhost:8501. Après réentraînement, redémarrer l’app pour recharger le modèle.
 
