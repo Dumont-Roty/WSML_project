@@ -1,12 +1,6 @@
 from __future__ import annotations
 
-import json
-import os
-import re
 import sys
-import urllib.error
-import urllib.parse
-import urllib.request
 from pathlib import Path
 from typing import Any
 
@@ -104,7 +98,6 @@ if BUDGET_MODEL_PATH.exists() and BUDGET_METRICS_PATH.exists():
         budget_model = H.load_model(BUDGET_MODEL_PATH)
     except Exception as e:
         budget_model = None
-        st.warning(f"Modèle budget détecté mais non chargeable: {e}")
 
 
 def _predict_budget_with_artifact(artifact: object, values: dict[str, object]) -> tuple[float, float]:
@@ -249,6 +242,8 @@ else:
                 imgs = H.tmdb_movie_images(int(ref_tmdb_id))
                 if isinstance(imgs, dict):
                     ref_backdrop_url = imgs.get("backdrop_url") or imgs.get("backdrop_url_large") or ref_backdrop_url
+                    if not ref_poster_url:
+                        ref_poster_url = imgs.get("poster_url") or imgs.get("poster_url_large") or ref_poster_url
 
 # Header (main area): Letterboxd-like film page header when a reference movie is selected
 if ref_row is not None and ref_poster_url:
@@ -280,7 +275,7 @@ if ref_row is not None and ref_poster_url:
         title=str(ref_row.get("title") or ""),
         year=ref_row.get("year"),
         poster_url=str(ref_poster_url),
-        background_url=(str(ref_backdrop_url) if ref_backdrop_url else None),
+        background_url=None,  # Force poster-only display (no backdrop)
         facts=facts,
         cast=cast_for_hero,
         letterboxd_url=ref_lb_url,

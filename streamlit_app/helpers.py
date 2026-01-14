@@ -781,7 +781,10 @@ def _render_reference_film_hero(
     if not poster_url:
         return
     safe_poster = str(poster_url).replace("'", "%27").strip()
-    bg = str(background_url or poster_url).replace("'", "%27").strip()
+    if background_url:
+        bg = str(background_url).replace("'", "%27").strip()
+    else:
+        bg = ""
     safe_title = str(title or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
     safe_year = ""
     try:
@@ -833,24 +836,24 @@ def _render_reference_film_hero(
         if items:
             cast_html = "<div class='lb-hero-cast'>" + "".join(items) + "</div>"
 
-    st.markdown(
-        f"""
-        <div class="lb-hero">
-          <div class="lb-hero-bg" style="background-image:url('{bg}');"></div>
-          <div class="lb-hero-overlay"></div>
-          <div class="lb-hero-content">
-            <img class="lb-hero-poster" src="{safe_poster}" alt="Poster" />
-            <div>
-              <div class="lb-hero-title">{safe_title}{f" <span style='color:rgba(230,230,230,0.72); font-weight:700'>({safe_year})</span>" if safe_year else ""}</div>
-              {facts_html if facts_html else '<div class="lb-hero-subtitle">Film de référence sélectionné</div>'}
-              {link_html}
-                            {cast_html}
-            </div>
-          </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    html_parts = [
+        '<div class="lb-hero">',
+        f'<div class="lb-hero-bg" style="background-image:url(\'{bg}\');"></div>',
+        '<div class="lb-hero-overlay"></div>',
+        '<div class="lb-hero-content">',
+        f'<img class="lb-hero-poster" src="{safe_poster}" alt="Poster" />',
+        '<div>',
+        f'<div class="lb-hero-title">{safe_title}',
+        f' <span style="color:rgba(230,230,230,0.72); font-weight:700">({safe_year})</span>' if safe_year else '',
+        '</div>',
+        facts_html if facts_html else '<div class="lb-hero-subtitle">Film de référence sélectionné</div>',
+        link_html,
+        cast_html,
+        '</div>',
+        '</div>',
+        '</div>',
+    ]
+    st.markdown("".join(html_parts), unsafe_allow_html=True)
 
 
 # Small UI helpers moved from pages to keep presentation code minimal.
