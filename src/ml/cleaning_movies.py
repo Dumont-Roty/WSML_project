@@ -16,7 +16,7 @@ Inspiré de la logique du repo du prof (séance 10/11):
 Ce script NE fait pas d'entraînement / prédiction.
 
 Usage:
-    python ml/src/cleaning_movies.py --input ml/data/merged_results.json --output ml/data/cleaned_data.parquet
+    python src/ml/cleaning_movies.py --input ml/data/merged_results.json --output ml/data/cleaned_data.parquet
 
 Par défaut, on garde `rating` comme colonne cible potentielle (mais on ne l'utilise pas ici).
 """

@@ -1,7 +1,7 @@
 from urllib.parse import urljoin
 
-from WSML_code.scrapers.page_scraper import PageScrap
-import WSML_code.scrapers.page_scraper as page_module
+from scraping.scrapers.page_scraper import PageScrap
+import scraping.scrapers.page_scraper as page_module
 
 
 class DummyLocator:

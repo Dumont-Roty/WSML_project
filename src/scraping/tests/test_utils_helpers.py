@@ -1,4 +1,4 @@
-from WSML_code.utils import helpers
+from scraping.utils import helpers
 
 
 def test_normalize_title_removes_accents_and_lowercases():

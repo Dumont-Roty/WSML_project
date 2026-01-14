@@ -3,10 +3,10 @@ r"""Scrape Letterboxd list pages, but keep only movies with a *single* genre.
 Goal (requested): behave like `list_scraper`, except:
 - only keep movies whose film page exposes a `/genre/` (singular) link (and not `/genres/`)
 - no warning when a movie has multiple genres; we just skip it
-- output the same fields as `WSML_code.models.Movie` (via Pydantic serialization)
+- output the same fields as `scraping.models.Movie` (via Pydantic serialization)
 
 Typical run (PowerShell):
-  $env:PYTHONPATH='src;src/WSML_code'; .\.venv\Scripts\python .\scripts\scrape_single_genre_grids.py --max-pages 40 --start 1 --end 40 --output single_genre_movies.json
+  $env:PYTHONPATH='src'; .\.venv\Scripts\python .\scripts\scrape_single_genre_grids.py --max-pages 40 --start 1 --end 40 --output single_genre_movies.json
 """
 
 from __future__ import annotations
@@ -18,10 +18,10 @@ from typing import List
 
 from playwright.sync_api import sync_playwright
 
-from WSML_code.models import Movie
-from WSML_code.scrapers.list_scraper import _make_context, collect_film_links, list_page_urls
-from WSML_code.scrapers.page_scraper import PageScrap
-from WSML_code.services.dismiss_impl import dismiss_overlay
+from scraping.models import Movie
+from scraping.scrapers.list_scraper import _make_context, collect_film_links, list_page_urls
+from scraping.scrapers.page_scraper import PageScrap
+from scraping.services.dismiss_impl import dismiss_overlay
 
 
 FILM_SINGLE_GENRE_LINK_SELECTOR = "a[href^='/film/'][href$='/genre/']"

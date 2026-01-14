@@ -4,7 +4,7 @@ import time
 
 import pytest
 
-from WSML_code.services import tmdb_impl as tmdb
+from scraping.services import tmdb_impl as tmdb
 
 
 def test_effective_timeouts_clips_deadline(monkeypatch):

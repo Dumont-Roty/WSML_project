@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from WSML_code.utils.identity_hasher import IdentityHasher
+from src.utils.identity_hasher import IdentityHasher
 
 
 def test_wsml_identity_hasher_basic_and_missing():

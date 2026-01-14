@@ -5,7 +5,7 @@ URL, visite la page Letterboxd et récupère budget/revenue via `PageScrap.scrap
 puis écrit un JSON mis à jour.
 
 Usage (PowerShell) depuis la racine du repo :
-    $env:PYTHONPATH = 'src;src/WSML_code'
+    $env:PYTHONPATH = 'src'
     .\.venv\Scripts\python .\scripts\fix_missing_in_json.py --input results_parallel.json --missing csv/missing_tmdb.csv --output results_parallel_fixed.json
 """
 from __future__ import annotations
@@ -22,13 +22,11 @@ from typing import List, Dict, Any
 # make sure repo imports work when running from repo root
 ROOT = Path.cwd()
 SRC = ROOT / "src"
-SRC_WSML = SRC / "WSML_code"
-sys.path.insert(0, str(SRC_WSML))
 sys.path.insert(0, str(SRC))
 
 try:
-    from WSML_code.scrapers.page_scraper import PageScrap
-    from WSML_code.services.dismiss_impl import dismiss_overlay
+    from scraping.scrapers.page_scraper import PageScrap
+    from scraping.services.dismiss_impl import dismiss_overlay
 except Exception as e:
     print("Import error: make sure you run this from the repository root with the project's venv active.")
     raise

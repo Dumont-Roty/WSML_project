@@ -4,7 +4,7 @@ Charge un JSON de résultats, identifie les enregistrements sans note (ou note 0
 et peut revisiter chaque page pour récupérer la note via `Scraping.scrap_rate`.
 
 Usage (PowerShell) :
-    $env:PYTHONPATH='src;src/WSML_code'
+    $env:PYTHONPATH='src'
     .\.venv\Scripts\python .\scripts\fix_missing_rate.py --input results_parallel.json --output results_parallel_rates_fixed.json --dry-run
 
 Oter `--dry-run` pour lancer réellement les visites Playwright.
@@ -19,12 +19,10 @@ from typing import Optional
 # Ensure local package imports when executed from repo root
 ROOT = Path.cwd()
 SRC = ROOT / 'src'
-SRC_WSML = SRC / 'WSML_code'
-sys.path.insert(0, str(SRC_WSML))
 sys.path.insert(0, str(SRC))
 
-from WSML_code.scrapers.element_scraper import Scraping
-from WSML_code.services.dismiss_impl import dismiss_overlay
+from scraping.scrapers.element_scraper import Scraping
+from scraping.services.dismiss_impl import dismiss_overlay
 from playwright.sync_api import sync_playwright, Page
 
 

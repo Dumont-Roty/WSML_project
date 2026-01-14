@@ -1,4 +1,4 @@
-from WSML_code.services.tmdb_impl import TMDBScraping
+from scraping.services.tmdb_impl import TMDBScraping
 
 
 class TMDBPageStub:

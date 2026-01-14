@@ -20,13 +20,13 @@ python -m venv .venv
 Activer l’environnement puis exporter le chemin source pour les modules (PowerShell) :
 ```powershell
 ./.venv/Scripts/activate
-$env:PYTHONPATH = 'src;src/WSML_code'
+$env:PYTHONPATH = 'src'
 ```
 
 - Grilles populaires (parallèle) :
 ```powershell
 ./.venv/Scripts/python - <<'PY'
-from WSML_code.scrapers.list_scraper import list_scrape_parallel
+from src.scraping.scrapers.list_scraper import list_scrape_parallel
 list_scrape_parallel(max_pages=40, workers=4, headless=True, output_path='results/results_parallel.json')
 PY
 ```
@@ -60,18 +60,18 @@ Sortie par défaut : `ml/data/partial_result_<date>.json` (ignoré par git, cf. 
 
 1) Nettoyage/enrichissement :
 ```powershell
-./.venv/Scripts/python ./ml/src/cleaning_movies.py --input ml/data/partial_result_<date>.json --output ml/data/cleaned_data.parquet
+./.venv/Scripts/python ./src/ml/cleaning_movies.py --input ml/data/partial_result_<date>.json --output ml/data/cleaned_data.parquet
 ```
 2) Split train/test :
 ```powershell
-./.venv/Scripts/python ./ml/src/prepare_dataset.py --data ml/data/cleaned_data.parquet --out-train ml/data/train.parquet --out-test ml/data/test.parquet
+./.venv/Scripts/python ./src/ml/prepare_dataset.py --data ml/data/cleaned_data.parquet --out-train ml/data/train.parquet --out-test ml/data/test.parquet
 ```
 
 ## Entraîner / réentraîner le modèle
 
 Exemple pour la cible `rating` avec identités + clipping :
 ```powershell
-./.venv/Scripts/python ./ml/src/optimize_model.py --train ml/data/partial_result_<date>.json --test-size 0.2 --target rating --clip-predictions --use-identities
+./.venv/Scripts/python ./src/ml/optimize_model.py --train ml/data/partial_result_<date>.json --test-size 0.2 --target rating --clip-predictions --use-identities
 ```
 Sorties : `ml/models/best_model.joblib` et `ml/models/metrics.json`.
 
@@ -86,7 +86,7 @@ Ouvrir http://localhost:8501. Après réentraînement, redémarrer l’app pour 
 ## Tests et couverture
 
 - Tests : `./.venv/Scripts/python -m pytest`
-- Couverture : `./.venv/Scripts/python -m pytest --cov=src --cov=ml/src --cov-report=term-missing`
+- Couverture : `./.venv/Scripts/python -m pytest --cov=src --cov-report=term-missing`
 État actuel : 92 tests, ~82% de couverture (scrapers et ML principaux couverts).
 
 ## Récap commandes clés
@@ -95,9 +95,9 @@ Ouvrir http://localhost:8501. Après réentraînement, redémarrer l’app pour 
 - Scraper single-genre : `./.venv/Scripts/python ./scripts/scrape_single_genre_grids.py --max-pages ...`
 - Mise à jour TMDB ciblée : `./.venv/Scripts/python ./scripts/targeted_update_tmdb.py --input ...`
 - Merge JSON : `./.venv/Scripts/python ./scripts/merge_results.py`
-- Nettoyage → parquet : `./.venv/Scripts/python ./ml/src/cleaning_movies.py --input ... --output ...`
-- Split train/test : `./.venv/Scripts/python ./ml/src/prepare_dataset.py --data ...`
-- Train modèle : `./.venv/Scripts/python ./ml/src/optimize_model.py --train ... --target rating --clip-predictions --use-identities`
+- Nettoyage → parquet : `./.venv/Scripts/python ./src/ml/cleaning_movies.py --input ... --output ...`
+- Split train/test : `./.venv/Scripts/python ./src/ml/prepare_dataset.py --data ...`
+- Train modèle : `./.venv/Scripts/python ./src/ml/optimize_model.py --train ... --target rating --clip-predictions --use-identities`
 - Lancer l’app : `./.venv/Scripts/python -m streamlit run ml/streamlit_app/app.py --server.port 8501`
 - Tests : `./.venv/Scripts/python -m pytest`
 - Couverture : `./.venv/Scripts/python -m pytest --cov=src --cov=ml/src --cov-report=term-missing`

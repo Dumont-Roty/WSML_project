@@ -5,9 +5,9 @@ from typing import Iterable, List
 
 from playwright.sync_api import sync_playwright
 
-from WSML_code.services.dismiss_impl import dismiss_overlay
-from WSML_code.scrapers.page_scraper import PageScrap
-from models import Movie
+from scraping.services.dismiss_impl import dismiss_overlay
+from scraping.scrapers.page_scraper import PageScrap
+from scraping.models import Movie
 
 
 def scrape_one(context, tmdb_page, url: str) -> Movie:

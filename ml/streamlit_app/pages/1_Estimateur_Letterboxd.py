@@ -23,7 +23,7 @@ REPO_ROOT = ML_DIR.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-import ml.src.identity_hasher  # noqa: F401
+import src.utils.identity_hasher  # noqa: F401
 
 
 APP_ROOT = ML_DIR

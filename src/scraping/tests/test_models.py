@@ -1,4 +1,4 @@
-from WSML_code.models import Movie
+from scraping.models import Movie
 
 
 def test_movie_defaults_lists_and_optional_none():

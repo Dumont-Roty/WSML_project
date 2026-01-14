@@ -16,14 +16,14 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-# Bootstrap paths so `ml.*` is importable (IdentityHasher is pickled as ml.src.identity_hasher.IdentityHasher)
+# Bootstrap paths so `src.*` is importable (IdentityHasher is pickled as src.utils.identity_hasher.IdentityHasher)
 HERE = Path(__file__).resolve()
 ML_DIR = HERE.parents[1]  # .../ml
 REPO_ROOT = ML_DIR.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-import ml.src.identity_hasher  # noqa: F401
+import src.utils.identity_hasher  # noqa: F401
 
 APP_ROOT = ML_DIR
 MODEL_PATH = APP_ROOT / "models" / "best_model.joblib"

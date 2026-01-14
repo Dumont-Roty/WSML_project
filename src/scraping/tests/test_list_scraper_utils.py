@@ -1,4 +1,4 @@
-from WSML_code.scrapers import list_scraper as ls
+from scraping.scrapers import list_scraper as ls
 
 
 def test_list_page_urls_first_and_next():

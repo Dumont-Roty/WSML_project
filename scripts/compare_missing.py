@@ -5,7 +5,7 @@ Affiche combien d'URLs sont encore manquantes, lesquelles sont désormais prése
 et celles absentes du nouveau JSON. Utile pour suivre la progression du scraping TMDB.
 
 Usage (PowerShell) :
-    $env:PYTHONPATH = 'src;src/WSML_code'
+    $env:PYTHONPATH = 'src'
     .\.venv\Scripts\python .\scripts\compare_missing.py --old missing_tmdb.csv --new results_2pages.json
 
 """
