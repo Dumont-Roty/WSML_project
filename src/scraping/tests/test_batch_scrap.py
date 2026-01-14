@@ -3,7 +3,7 @@ from typing import Dict
 import builtins
 import scraping.scrapers.batch_scraper as batch_scrap_module
 from scraping.scrapers.batch_scraper import scrape_one
-from models import Movie
+from scraping.models import Movie
 
 
 class DummyPage:

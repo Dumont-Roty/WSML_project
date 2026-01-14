@@ -13,8 +13,8 @@ from urllib.parse import urljoin
 from playwright._impl._errors import TimeoutError
 from playwright.sync_api import sync_playwright
 
-from WSML_code.scrapers.batch_scraper import scrape_one
-from WSML_code.services.dismiss_impl import dismiss_overlay
+from scraping.scrapers.batch_scraper import scrape_one
+from scraping.services.dismiss_impl import dismiss_overlay
 
 LIST_BASE_DOMAIN = "https://letterboxd.com"
 LIST_BASE_PATH = "/films/popular/"

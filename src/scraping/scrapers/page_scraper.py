@@ -6,8 +6,8 @@ from time import perf_counter
 from typing import List, Tuple
 
 
-from WSML_code.scrapers.element_scraper import Scraping as s
-from WSML_code.services.tmdb_impl import TMDBScraping as t
+from scraping.scrapers.element_scraper import Scraping as s
+from scraping.services.tmdb_impl import TMDBScraping as t
 
 
 def safe(call, default=None):

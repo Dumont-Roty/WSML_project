@@ -23,13 +23,13 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import Ridge
 from sklearn.svm import SVR
 
-# Permet d'importer `ml.*` même si le script est lancé via `python ml/src/optimize_model.py`
-# (dans ce cas sys.path[0] pointe sur ml/src, pas sur la racine du repo).
+# Permet d'importer `src.*` même si le script est lancé via `python src/ml/optimize_model.py`
+# (dans ce cas sys.path[0] pointe sur src/ml, pas sur la racine du repo).
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from ml.src.identity_hasher import IdentityHasher
+from src.utils.identity_hasher import IdentityHasher
 
 
 DEFAULT_TRAIN = Path("ml/data/train.parquet")
