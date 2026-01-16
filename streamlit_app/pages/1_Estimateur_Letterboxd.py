@@ -3,8 +3,6 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 from typing import Any
-
-import joblib
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -229,21 +227,29 @@ else:
             try:
                 lb_html = H.fetch_html(lb_url)
                 ref_tmdb_id = H.extract_tmdb_movie_id(lb_html)
-            except Exception:
+                print(f"[DEBUG] TMDB ID extrait de {lb_url}: {ref_tmdb_id}")
+            except Exception as e:
                 ref_tmdb_id = None
+                print(f"[DEBUG] Erreur extraction TMDB ID: {e}")
 
-            poster_url = H.get_letterboxd_poster_url(lb_url)
-            if poster_url:
-                ref_poster_url = poster_url
-
-            # If TMDB is configured, use TMDB backdrop only for the background (keep the original Letterboxd poster)
+            # Privilégier TMDB pour les posters (meilleure qualité)
             api_key = H.tmdb_api_key()
+            print(f"[DEBUG] TMDB API key present: {bool(api_key)}")
             if api_key and ref_tmdb_id:
                 imgs = H.tmdb_movie_images(int(ref_tmdb_id))
+                print(f"[DEBUG] Images TMDB récupérées: {imgs}")
                 if isinstance(imgs, dict):
-                    ref_backdrop_url = imgs.get("backdrop_url") or imgs.get("backdrop_url_large") or ref_backdrop_url
-                    if not ref_poster_url:
-                        ref_poster_url = imgs.get("poster_url") or imgs.get("poster_url_large") or ref_poster_url
+                    # Utiliser TMDB en priorité pour poster et backdrop
+                    ref_poster_url = imgs.get("poster_url_large") or imgs.get("poster_url") or ref_poster_url
+                    ref_backdrop_url = imgs.get("backdrop_url_large") or imgs.get("backdrop_url") or ref_backdrop_url
+                    print(f"[DEBUG] Poster TMDB: {ref_poster_url}")
+            
+            # Fallback sur Letterboxd uniquement si TMDB n'a pas de poster
+            if not ref_poster_url:
+                poster_url = H.get_letterboxd_poster_url(lb_url)
+                if poster_url:
+                    ref_poster_url = poster_url
+                    print(f"[DEBUG] Poster Letterboxd (fallback): {poster_url}")
 
 # Header (main area): Letterboxd-like film page header when a reference movie is selected
 if ref_row is not None and ref_poster_url:
@@ -275,7 +281,7 @@ if ref_row is not None and ref_poster_url:
         title=str(ref_row.get("title") or ""),
         year=ref_row.get("year"),
         poster_url=str(ref_poster_url),
-        background_url=None,  # Force poster-only display (no backdrop)
+        background_url=(str(ref_backdrop_url) if ref_backdrop_url else None),
         facts=facts,
         cast=cast_for_hero,
         letterboxd_url=ref_lb_url,
@@ -313,6 +319,9 @@ name_options = {
     "themes": H.flatten_unique_lists(names_df, "themes", top_k=0),
 }
 
+# Build cache of actor photos from the database (uses cast_profiles field if present)
+actor_photos_cache = H.build_actor_photos_cache(ref_df)
+print(f"[DEBUG] Cache photos acteurs : {len(actor_photos_cache)} entrées")
 
  
 
@@ -413,6 +422,7 @@ for feature, label, ref_col in role_map:
                 state_suffix=WIDGET_STATE_SUFFIX,
                 name_options=name_options,
                 ref_tmdb_id=ref_tmdb_id,
+                actor_photos_cache=actor_photos_cache,
             )
         else:
             u, v = H.optional_multiselect_count(
@@ -426,10 +436,12 @@ for feature, label, ref_col in role_map:
                 state_suffix=WIDGET_STATE_SUFFIX,
                 name_options=name_options,
                 ref_tmdb_id=ref_tmdb_id,
+                actor_photos_cache=actor_photos_cache,
             )
     used[feature] = u
     values[feature] = v
     colp_idx += 1
+
 
 for feature in features:
     if feature not in values:

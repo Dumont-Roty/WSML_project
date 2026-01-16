@@ -439,7 +439,6 @@ def _render_selected_people_thumbnails(
 ) -> None:
     if not names:
         return
-    st.caption(f"{title} (aperçu)")
     cols = st.columns(min(8, len(names)))
     for i, name in enumerate(names[: int(max_items)]):
         with cols[i % len(cols)]:
@@ -453,6 +452,7 @@ def _render_selected_people_thumbnails(
                     st.image(url, width=int(thumb_size_px))
                 except Exception:
                     pass
+    st.caption(f"{title} (aperçu)")
 
 
 @st.cache_data(ttl=24 * 60 * 60)
@@ -538,6 +538,36 @@ def _q_range(series: pd.Series, fallback_min: float, fallback_max: float) -> tup
         return float(fallback_min), float(fallback_max)
     pad = 0.1 * (hi - lo)
     return float(max(fallback_min, lo - pad)), float(hi + pad)
+
+
+def _build_actor_photos_cache(df: pd.DataFrame) -> dict[str, str]:
+    """
+    Construit un dictionnaire {nom_acteur: profile_url} depuis la base de données.
+    
+    Utilise le champ `cast_profiles` si présent dans les films, sinon fait une
+    recherche TMDB par nom (fallback).
+    
+    Returns:
+        dict mappant nom d'acteur → URL de photo TMDB
+    """
+    cache: dict[str, str] = {}
+    
+    if df.empty or "casting" not in df.columns:
+        return cache
+    
+    # Extraire tous les cast_profiles depuis les films
+    if "cast_profiles" in df.columns:
+        for idx, row in df.iterrows():
+            profiles = row.get("cast_profiles")
+            if isinstance(profiles, dict):
+                for name, profile_path in profiles.items():
+                    if name and profile_path and isinstance(name, str) and isinstance(profile_path, str):
+                        name_clean = str(name).strip()
+                        if name_clean and name_clean not in cache:
+                            # Construire l'URL complète
+                            cache[name_clean] = _tmdb_profile_url(profile_path.strip(), size="w185")
+    
+    return cache
 
 
 def _flatten_unique_lists(df: pd.DataFrame, col: str, top_k: int) -> list[str]:
@@ -1110,6 +1140,7 @@ def _optional_multiselect_count(
     state_suffix: str,
     name_options: dict,
     ref_tmdb_id: int | None,
+    actor_photos_cache: dict[str, str] | None = None,
 ) -> tuple[bool, float]:
     use_key = f"use_{feature}_{state_suffix}"
     val_key = f"val_{feature}_{state_suffix}"
@@ -1160,6 +1191,10 @@ def _optional_multiselect_count(
 
     if selected and _tmdb_api_key() and ref_col in {"directors", "casting", "producers", "writers", "composer"}:
         known: dict[str, str] = {}
+        # Start with cache from database
+        if actor_photos_cache:
+            known.update(actor_photos_cache)
+        # Merge with TMDB cast data if reference movie is provided
         if ref_col == "casting" and ref_tmdb_id:
             cast = _tmdb_movie_cast(int(ref_tmdb_id), top_n=60) or []
             for member in cast:
@@ -1187,6 +1222,7 @@ def _optional_multiselect_list(
     state_suffix: str,
     name_options: dict,
     ref_tmdb_id: int | None,
+    actor_photos_cache: dict[str, str] | None = None,
 ) -> tuple[bool, list[str]]:
     use_key = f"use_{feature}_{state_suffix}"
     val_key = f"val_{feature}_{state_suffix}"
@@ -1237,6 +1273,10 @@ def _optional_multiselect_list(
 
     if selected and _tmdb_api_key() and ref_col in {"directors", "casting", "producers", "writers", "composer"}:
         known: dict[str, str] = {}
+        # Start with cache from database
+        if actor_photos_cache:
+            known.update(actor_photos_cache)
+        # Merge with TMDB cast data if reference movie is provided
         if ref_col == "casting" and ref_tmdb_id:
             cast = _tmdb_movie_cast(int(ref_tmdb_id), top_n=60) or []
             for member in cast:
@@ -2073,6 +2113,7 @@ class Helpers:
     load_train_features = staticmethod(_load_train_features)
     safe_median = staticmethod(_safe_median)
     q_range = staticmethod(_q_range)
+    build_actor_photos_cache = staticmethod(_build_actor_photos_cache)
     flatten_unique_lists = staticmethod(_flatten_unique_lists)
 
     bootstrap_repo_path = staticmethod(_bootstrap_repo_path)

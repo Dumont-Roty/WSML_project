@@ -55,11 +55,8 @@ def _load_reference_df(path: Path) -> pd.DataFrame:
 H.bootstrap_repo_path()
 
 # Paths
-here = Path(__file__).resolve()
-ml_dir = next(p for p in here.parents if p.name == "ml")
-repo_root = ml_dir.parent
-ref_data_path = ml_dir / "data" / "final_results_28.json"
-merged_results_path = repo_root / "merged_results.json"
+ref_data_path = ML_DIR / "data" / "final_results_28.json"
+merged_results_path = REPO_ROOT / "merged_results.json"
 
 st.set_page_config(page_title="Exploration des données — Letterboxd", layout="wide")
 H.apply_letterboxd_theme()
