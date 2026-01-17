@@ -76,20 +76,20 @@ for col in ["year", "duration", "budget", "revenue", "rating"]:
     if col in ref_df.columns:
         ref_df[col] = pd.to_numeric(ref_df[col], errors="coerce")
 
-# Sidebar filters
+# --- Sidebar filters ---
 st.sidebar.subheader("Filtres")
-
-year_min = int(np.nanmin(ref_df["year"]) if "year" in ref_df.columns and ref_df["year"].notna().any() else 1900)
-year_max = int(np.nanmax(ref_df["year"]) if "year" in ref_df.columns and ref_df["year"].notna().any() else 2025)
+# - Years -
+year_min = int(np.nanmin(ref_df["year"]) if "year" in ref_df.columns and ref_df["year"].notna().any() else 1890)
+year_max = int(np.nanmax(ref_df["year"]) if "year" in ref_df.columns and ref_df["year"].notna().any() else 2030)
 year_range = st.sidebar.slider("Année", min_value=year_min, max_value=year_max, value=(year_min, year_max))
-
+# - Ratings -
 rating_range = None
 if "rating" in ref_df.columns and ref_df["rating"].notna().any():
     rmin = float(np.nanmin(ref_df["rating"]))
     rmax = float(np.nanmax(ref_df["rating"]))
     rating_range = st.sidebar.slider("Note (rating)", min_value=float(max(0.0, rmin)), max_value=float(min(5.0, rmax)), value=(0.0, 5.0))
 
-# Categorical filters (list-like)
+# - Categorical filters (list-like) -
 # Build initial options from the dataset already constrained by year/rating
 pre_filtered = ref_df.copy()
 if "year" in pre_filtered.columns:

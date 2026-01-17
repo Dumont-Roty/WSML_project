@@ -656,7 +656,7 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
         # Inclure le rating prédit dans les valeurs pour la similarité
         values_with_rating = dict(last_values)
         values_with_rating["rating"] = y_pred
-        sims = H.similar_movies_with_explanations(ref_df, values_with_rating, numeric_cols, identity_cols, top_n=3)
+        sims = H.similar_movies_with_explanations(ref_df, values_with_rating, numeric_cols, identity_cols, top_n=4)
 
         # Exclure le film de référence des résultats
         if ref_idx is not None:

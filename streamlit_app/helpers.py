@@ -1014,6 +1014,7 @@ def _similar_movies_with_explanations(
                 "poster_url": poster_url,
                 "similarity_pct": item.get("similarity_pct"),
                 "features": features_info,
+                "idx": idx,
             }
         )
 
