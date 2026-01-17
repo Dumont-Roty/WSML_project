@@ -801,8 +801,6 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
                             )
                         st.divider()
             
-            
-
     # Explicabilité (locale): neutralisation d'un champ à la fois
     with st.expander("Explicabilité (effets locaux)", expanded=False):
         st.caption(
@@ -892,37 +890,8 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
         if ref_df.empty or ("rating" not in ref_df.columns):
             st.info("Impossible d'afficher les analyses: la colonne `rating` est manquante dans les données de référence.")
         else:
-            # Option: apply a filter on the reference dataset based on the values used for the last prediction
-            apply_input_filter = st.checkbox(
-                "Appliquer filtre par caractéristiques saisies (genres/themes/directors)",
-                value=False,
-                help="Si activé, on calcule ces graphiques sur un sous-ensemble de films ressemblant à ta sélection (genre/thème/réalisateur).",
-            )
 
             ref_for_stats = ref_df
-            if apply_input_filter:
-                ref_for_stats = ref_df.copy()
-                def _contains_any(cell, tokens: list[str]) -> bool:
-                    if not tokens:
-                        return True
-                    if isinstance(cell, list):
-                        return any(str(x) in tokens for x in cell)
-                    if isinstance(cell, str):
-                        return cell in tokens
-                    return False
-
-                if last_used.get("genres") and last_values.get("genres"):
-                    tokens = [str(x) for x in (last_values.get("genres") or []) if x != "__MISSING__"]
-                    if tokens:
-                        ref_for_stats = ref_for_stats[ref_for_stats["genres"].apply(lambda c: _contains_any(c, tokens))]
-                if last_used.get("themes") and last_values.get("themes"):
-                    tokens = [str(x) for x in (last_values.get("themes") or []) if x != "__MISSING__"]
-                    if tokens:
-                        ref_for_stats = ref_for_stats[ref_for_stats["themes"].apply(lambda c: _contains_any(c, tokens))]
-                if last_used.get("directors") and last_values.get("directors") and "directors" in ref_for_stats.columns:
-                    tokens = [str(x) for x in (last_values.get("directors") or []) if x != "__MISSING__"]
-                    if tokens:
-                        ref_for_stats = ref_for_stats[ref_for_stats["directors"].apply(lambda c: _contains_any(c, tokens))]
 
             numeric_for_stats = [f for f in numeric_labels.keys() if f in ref_for_stats.columns]
 
@@ -972,13 +941,11 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
 
                 transform_x = None
                 if str(feat_choice) in {"budget", "revenue"}:
-                    log_x = st.checkbox(
-                        "Échelle log (log1p) pour cette variable",
-                        value=True,
-                        help="Recommandé pour budget/revenu (très asymétriques) afin d'éviter une échelle illisible.",
+                    # Affichage uniquement : l'échelle log rend ces graphiques lisibles (budget/revenu très asymétriques)
+                    transform_x = "log1p"
+                    st.caption(
+                        "Affichage : axe en échelle log (log1p) pour budget/revenu (lisibilité uniquement, ne change pas la prédiction)."
                     )
-                    if log_x:
-                        transform_x = "log1p"
 
                 user_x = None
                 if last_used.get(feat_choice):
