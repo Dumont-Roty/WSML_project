@@ -598,6 +598,446 @@ def _flatten_unique_lists(df: pd.DataFrame, col: str, top_k: int) -> list[str]:
     return [name for name, _ in ranked[:top_k]]
 
 
+def _similarity_weight(col_name: str) -> float:
+    """Retourne le poids d'un critère pour la similarité globale.
+    
+    Pondération par catégories (1 = plus fort) :
+    1) genres / themes : 2.0
+    2) rating : 1.8
+    3) directors / actors / casting / cast : 1.5
+    4) budget / revenue : 1.2
+    5) reste : 1.0
+    """
+    c = str(col_name).lower().strip()
+    # Cat 1 : genres / themes
+    if c in {"genres", "genre", "themes", "theme"}:
+        return 2.0
+
+    # Cat 2 : rating
+    if c == "rating":
+        return 1.8
+
+    # Cat 3 : directors / actors / casting
+    if c in {"director", "directors", "actors", "casting", "cast"}:
+        return 1.5
+
+    # Cat 4 : budget / revenue
+    if c in {"budget", "revenue"}:
+        return 1.2
+
+    # Cat 5 : le reste
+    return 1.0
+
+
+def _similar_movies(
+    ref_df: pd.DataFrame,
+    user_values: dict[str, object],
+    numeric_cols: list[str],
+    identity_cols: list[str],
+    *,
+    top_n: int = 3,
+) -> list[dict[str, object]]:
+    """Retourne les films les plus proches des saisies utilisateur.
+
+    - Numériques : similarité = 1 - diff/span, span = (max-min) sur le dataset, bornée à [0,1].
+    - Identités (listes) : similarité intersection / max(user_count, ref_count).
+    - Score global = moyenne pondérée des similarités.
+    """
+
+    if ref_df is None or getattr(ref_df, "empty", True):
+        return []
+
+    # Infer columns from JSON to cover all criteria
+    def _infer_numeric_cols(df: pd.DataFrame) -> set[str]:
+        out: set[str] = set()
+        for c in df.columns:
+            # Exclure le titre et autres champs non pertinents pour la similarité
+            if str(c).lower() in ("title", "url", "letterboxd_url", "letterboxd", "link", "id", "idx"):
+                continue
+            try:
+                if pd.api.types.is_numeric_dtype(df[c]):
+                    out.add(str(c))
+                    continue
+                s = pd.to_numeric(df[c], errors="coerce")
+                if s.notna().any():
+                    out.add(str(c))
+            except Exception:
+                pass
+        return out
+
+    def _infer_list_cols(df: pd.DataFrame) -> set[str]:
+        out: set[str] = set()
+        for c in df.columns:
+            try:
+                if df[c].apply(lambda v: isinstance(v, list)).any():
+                    out.add(str(c))
+            except Exception:
+                pass
+        return out
+
+    num_cols = set(numeric_cols or []) | _infer_numeric_cols(ref_df)
+    id_cols = set(identity_cols or []) | _infer_list_cols(ref_df)
+
+    spans: dict[str, float] = {}
+    for col in num_cols:
+        if col in ref_df.columns:
+            s = pd.to_numeric(ref_df[col], errors="coerce")
+            s = s[np.isfinite(s)]
+            if not s.empty:
+                span = float(s.max() - s.min())
+                spans[col] = span if span > 0 else 1.0
+
+    def _num_sim(col: str, uval: object, rval: object) -> float | None:
+        if not isinstance(uval, (int, float)) or not isinstance(rval, (int, float)):
+            return None
+        if col not in spans:
+            return None
+        span = spans[col]
+        d = abs(float(uval) - float(rval))
+        sim = 1.0 - min(d / span, 1.0)
+        return float(sim)
+
+    actor_cols = {"casting", "actors", "cast"}
+
+    def _list_sim(col: str, uval: object, rval: object) -> float | None:
+        if not isinstance(uval, list) or not isinstance(rval, list):
+            return None
+
+        u_list = [str(x).strip().lower() for x in uval if str(x).strip()]
+        r_list = [str(x).strip().lower() for x in rval if str(x).strip()]
+
+        # Ne comparer que les 5 premiers acteurs pour limiter le bruit
+        if col in actor_cols:
+            u_list = u_list[:5]
+            r_list = r_list[:5]
+
+        u = set(u_list)
+        r = set(r_list)
+        if not u or not r:
+            return None
+        inter = len(u & r)
+        max_count = max(len(u), len(r))
+        if max_count == 0:
+            return None
+        return float(inter / max_count)
+
+    def _list_contrib(col: str, uval: object, rval: object) -> dict | None:
+        if not isinstance(uval, list) or not isinstance(rval, list):
+            return {
+                "name": col,
+                "type": "identity",
+                "similarity": 0.0,
+                "status": "missing",
+                "details": {"reason": "Données manquantes ou format invalide"},
+            }
+        u = [str(x).strip() for x in uval if x is not None and str(x).strip()]
+        r = [str(x).strip() for x in rval if x is not None and str(x).strip()]
+
+        # Limiter aux 5 premiers acteurs pour réduire le bruit
+        if col in {"casting", "actors", "cast"}:
+            u = u[:5]
+            r = r[:5]
+
+        if not u or not r:
+            return {
+                "name": col,
+                "type": "identity",
+                "similarity": 0.0,
+                "status": "empty",
+                "details": {"reason": "Liste vide après nettoyage", "user_count": 0, "ref_count": 0},
+            }
+        us = set([s.lower() for s in u])
+        rs = set([s.lower() for s in r])
+        inter = us & rs
+        max_count = max(len(us), len(rs))
+        if max_count == 0:
+            return {
+                "name": col,
+                "type": "identity",
+                "similarity": 0.0,
+                "status": "no_overlap",
+                "details": {"reason": "Aucun recoupement", "user_count": len(us), "ref_count": len(rs)},
+            }
+        sim = float(len(inter) / max_count)
+        return {
+            "name": col,
+            "type": "identity",
+            "similarity": round(100.0 * sim, 1),
+            "status": "ok",
+            "details": {
+                "matched": sorted(list(inter)),
+                "user_count": len(us),
+                "ref_count": len(rs),
+            },
+        }
+
+    rows: list[dict[str, object]] = []
+    for idx, row in ref_df.iterrows():
+        total_weighted_sim = 0.0
+        total_weight = 0.0
+
+        for col in num_cols:
+            if col not in ref_df.columns:
+                continue
+            sim = _num_sim(col, user_values.get(col), row.get(col))
+            if sim is not None:
+                weight = _similarity_weight(col)
+                total_weighted_sim += sim * weight
+                total_weight += weight
+
+        for col in id_cols:
+            if col not in ref_df.columns:
+                continue
+            sim = _list_sim(col, user_values.get(col), row.get(col))
+            if sim is not None:
+                weight = _similarity_weight(col)
+                total_weighted_sim += sim * weight
+                total_weight += weight
+
+        if total_weight == 0:
+            continue
+        score = float(total_weighted_sim / total_weight)
+        rows.append(
+            {
+                "_score": score,
+                "title": row.get("title"),
+                "year": row.get("year"),
+                "url": row.get("url") or row.get("letterboxd_url"),
+                "idx": idx,
+            }
+        )
+
+    if not rows:
+        return []
+
+    rows = sorted(rows, key=lambda r: float(r.get("_score") or 0.0), reverse=True)[: int(top_n)]
+    for r in rows:
+        score = float(r.get("_score", 0.0))
+        # Remplacer NaN par 0.0 et s'assurer que le résultat est valide
+        if not np.isfinite(score):
+            score = 0.0
+        r["similarity_pct"] = round(100.0 * score, 1)
+    return rows
+
+
+def _letterboxd_url_from_row(row: dict) -> str | None:
+    for k in ("url", "letterboxd_url", "letterboxd", "link"):
+        v = row.get(k)
+        if isinstance(v, str) and v.strip():
+            return v.strip()
+    return None
+
+
+def _similar_movies_with_explanations(
+    ref_df: pd.DataFrame,
+    user_values: dict[str, object],
+    numeric_cols: list[str],
+    identity_cols: list[str],
+    *,
+    top_n: int = 3,
+) -> list[dict[str, object]]:
+    """Top-N films similaires avec explications par feature.
+
+    Renvoie une liste de dict: {
+      title, year, url, poster_url, similarity_pct, features: [ {name, type, similarity, details} ]
+    }.
+    """
+    if ref_df is None or getattr(ref_df, "empty", True):
+        return []
+
+    # Infer full sets of columns from JSON and precompute spans
+    def _infer_numeric_cols(df: pd.DataFrame) -> set[str]:
+        out: set[str] = set()
+        for c in df.columns:
+            # Exclure le titre et autres champs non pertinents pour la similarité
+            if str(c).lower() in ("title", "url", "letterboxd_url", "letterboxd", "link", "id", "idx"):
+                continue
+            try:
+                if pd.api.types.is_numeric_dtype(df[c]):
+                    out.add(str(c))
+                    continue
+                s = pd.to_numeric(df[c], errors="coerce")
+                if s.notna().any():
+                    out.add(str(c))
+            except Exception:
+                pass
+        return out
+
+    def _infer_list_cols(df: pd.DataFrame) -> set[str]:
+        out: set[str] = set()
+        for c in df.columns:
+            try:
+                if df[c].apply(lambda v: isinstance(v, list)).any():
+                    out.add(str(c))
+            except Exception:
+                pass
+        return out
+
+    num_cols = set(numeric_cols or []) | _infer_numeric_cols(ref_df)
+    id_cols = set(identity_cols or []) | _infer_list_cols(ref_df)
+
+    # Reuse base ranking from _similar_movies
+    base = _similar_movies(ref_df, user_values, numeric_cols, identity_cols, top_n=max(top_n * 3, 10))
+    if not base:
+        return []
+
+    spans: dict[str, float] = {}
+    for col in num_cols:
+        if col in ref_df.columns:
+            s = pd.to_numeric(ref_df[col], errors="coerce")
+            s = s[np.isfinite(s)]
+            if not s.empty:
+                span = float(s.max() - s.min())
+                spans[col] = span if span > 0 else 1.0
+
+    def _num_contrib(col: str, uval: object, rval: object) -> dict | None:
+        if not isinstance(uval, (int, float)) or not isinstance(rval, (int, float)):
+            # Données manquantes = malus de 0%
+            return {
+                "name": col,
+                "type": "numeric",
+                "similarity": 0.0,
+                "status": "missing",
+                "details": {"reason": "Données manquantes ou non numériques", "user": uval, "ref": rval},
+            }
+        u = float(uval)
+        r = float(rval)
+        span = spans.get(col)
+        if not span:
+            return {
+                "name": col,
+                "type": "numeric",
+                "similarity": 0.0,
+                "status": "no_span",
+                "details": {"reason": "Aucun écart détectable dans le dataset", "user": u, "ref": r},
+            }
+        d = abs(u - r)
+        sim = 1.0 - min(d / span, 1.0)
+        return {
+            "name": col,
+            "type": "numeric",
+            "similarity": round(100.0 * float(sim), 1),
+            "status": "ok",
+            "details": {"user": u, "ref": r, "diff": d, "span": span},
+        }
+
+    def _list_contrib(col: str, uval: object, rval: object) -> dict | None:
+        if not isinstance(uval, list) or not isinstance(rval, list):
+            return {
+                "name": col,
+                "type": "identity",
+                "similarity": 0.0,
+                "status": "missing",
+                "details": {"reason": "Données manquantes ou format invalide"},
+            }
+        u = [str(x).strip() for x in uval if x is not None and str(x).strip()]
+        r = [str(x).strip() for x in rval if x is not None and str(x).strip()]
+        if not u or not r:
+            return {
+                "name": col,
+                "type": "identity",
+                "similarity": 0.0,
+                "status": "empty",
+                "details": {"reason": "Liste vide après nettoyage", "user_count": 0, "ref_count": 0},
+            }
+        us = set([s.lower() for s in u])
+        rs = set([s.lower() for s in r])
+        inter = us & rs
+        
+        # Similarité basée sur l'identité : intersection / max(user_count, ref_count)
+        # Mesure la proportion d'éléments communs sans pénaliser les différences de taille
+        max_count = max(len(us), len(rs))
+        if not inter:
+            return {
+                "name": col,
+                "type": "identity",
+                "similarity": 0.0,
+                "status": "no_overlap",
+                "details": {"reason": "Aucun élément en commun", "user_count": len(us), "ref_count": len(rs)},
+            }
+        j = float(len(inter)) / float(max_count)
+        return {
+            "name": col,
+            "type": "identity",
+            "similarity": round(100.0 * j, 1),
+            "status": "ok",
+            "details": {"matched": sorted(list(inter))[:6], "user_count": len(us), "ref_count": len(rs), "intersection_count": len(inter)},
+        }
+
+    out: list[dict[str, object]] = []
+    for item in base:
+        idx = item.get("idx")
+        if idx is None:
+            continue
+        try:
+            row = ref_df.loc[int(idx)]
+        except Exception:
+            continue
+        features_info: list[dict[str, object]] = []
+        # numeric
+        for col in num_cols:
+            if col in ref_df.columns:
+                contrib = _num_contrib(col, user_values.get(col), row.get(col))
+                if contrib:
+                    features_info.append(contrib)
+        # identities
+        for col in id_cols:
+            if col in ref_df.columns:
+                contrib = _list_contrib(col, user_values.get(col), row.get(col))
+                if contrib:
+                    features_info.append(contrib)
+
+        lb_url = _letterboxd_url_from_row(dict(row))
+        poster_url = None
+        if lb_url:
+            try:
+                poster_url = _get_letterboxd_poster_url(lb_url)
+            except Exception:
+                poster_url = None
+            # Fallback to TMDB official poster if Letterboxd poster is missing
+            if not poster_url:
+                try:
+                    lb_html = _fetch_html(lb_url)
+                    tmdb_id = _extract_tmdb_movie_id(lb_html)
+                    if isinstance(tmdb_id, int):
+                        tmdb_imgs = _tmdb_movie_images(tmdb_id)
+                        if isinstance(tmdb_imgs, dict):
+                            poster_url = tmdb_imgs.get("poster_url") or tmdb_imgs.get("poster_url_large")
+                except Exception:
+                    pass
+
+        out.append(
+            {
+                "title": row.get("title"),
+                "year": row.get("year"),
+                "url": lb_url,
+                "poster_url": poster_url,
+                "similarity_pct": item.get("similarity_pct"),
+                "features": features_info,
+            }
+        )
+
+    # Keep top_n with most features info and highest similarity
+    # Nettoyer les NaN dans similarity_pct
+    for item in out:
+        sim_pct = item.get("similarity_pct")
+        if isinstance(sim_pct, (int, float)):
+            if not np.isfinite(float(sim_pct)):
+                item["similarity_pct"] = 0.0
+        else:
+            item["similarity_pct"] = 0.0
+
+    def _sim_sort_key(r: dict[str, object]) -> tuple[float, int]:
+        sim_val = r.get("similarity_pct")
+        sim_float = float(sim_val) if isinstance(sim_val, (int, float)) else 0.0
+        feats = r.get("features")
+        feat_count = len(feats) if isinstance(feats, list) else 0
+        return (sim_float, feat_count)
+
+    out = sorted(out, key=_sim_sort_key, reverse=True)[: int(top_n)]
+    return out
+
+
 # Small visual helpers used by pages
 
 def _bootstrap_repo_path() -> Path:
@@ -2113,6 +2553,8 @@ class Helpers:
     q_range = staticmethod(_q_range)
     build_actor_photos_cache = staticmethod(_build_actor_photos_cache)
     flatten_unique_lists = staticmethod(_flatten_unique_lists)
+    similar_movies = staticmethod(_similar_movies)
+    similar_movies_with_explanations = staticmethod(_similar_movies_with_explanations)
 
     bootstrap_repo_path = staticmethod(_bootstrap_repo_path)
     apply_letterboxd_theme = staticmethod(_apply_letterboxd_theme)
