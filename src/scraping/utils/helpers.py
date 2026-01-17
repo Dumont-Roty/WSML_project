@@ -1,13 +1,13 @@
 """Helpers ré-exportant des fonctions utilitaires existantes si présentes.
-Ce wrapper importe en toute sécurité depuis `WSML_code.list_scrap` et fournit
+Ce wrapper importe en toute sécurité depuis `scraping.list_scrap` et fournit
 un fallback minimal si nécessaire.
 """
 try:
-    from WSML_code.scrapers.list_scraper import detect_kind, _normalize_title  # type: ignore
+    from scraping.scrapers.list_scraper import detect_kind, _normalize_title  # type: ignore
 except Exception:  # pragma: no cover
     try:
         # fallback legacy wrapper
-        from WSML_code.list_scrap import detect_kind, _normalize_title  # type: ignore
+        from scraping.list_scrap import detect_kind, _normalize_title  # type: ignore
     except Exception:  # pragma: no cover
         import unicodedata
 

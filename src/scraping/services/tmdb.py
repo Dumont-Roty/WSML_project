@@ -1,8 +1,6 @@
-"""Wrapper léger pour le module TMDB existant (`WSML_code.scrap_tmdb`).
-Expose le module sous `WSML_code.services.tmdb`.
-"""
+"""Compat shim exposing `TMDBScraping` from the new package layout."""
 try:
-    from WSML_code.services.tmdb_impl import TMDBScraping as TMDBScraping  # type: ignore
+    from scraping.services.tmdb_impl import TMDBScraping as TMDBScraping  # type: ignore
 except Exception:  # pragma: no cover
     TMDBScraping = None
 

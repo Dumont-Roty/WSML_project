@@ -4,7 +4,6 @@ import json
 import os
 import re
 import sys
-import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -532,12 +531,11 @@ def _q_range(series: pd.Series, fallback_min: float, fallback_max: float) -> tup
     s = s[np.isfinite(s)]
     if s.empty:
         return float(fallback_min), float(fallback_max)
-    lo = float(s.quantile(0.02))
-    hi = float(s.quantile(0.98))
+    lo = float(fallback_min)
+    hi = float(fallback_max)
     if not np.isfinite(lo) or not np.isfinite(hi) or lo >= hi:
         return float(fallback_min), float(fallback_max)
-    pad = 0.1 * (hi - lo)
-    return float(max(fallback_min, lo - pad)), float(hi + pad)
+    return float(max(fallback_min, lo)), float(min(fallback_max, hi))
 
 
 def _build_actor_photos_cache(df: pd.DataFrame) -> dict[str, str]:

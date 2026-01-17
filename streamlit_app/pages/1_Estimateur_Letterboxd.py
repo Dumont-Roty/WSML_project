@@ -115,11 +115,11 @@ def _predict_budget_with_artifact(artifact: object, values: dict[str, object]) -
     if model is None or hasher is None:
         raise ValueError("artifact missing model or hasher")
 
-    def _safe_float(val: object, default: float) -> float:
+    def _safe_float(val: Any, default: float) -> float:
         try:
             return float(val)
         except Exception:
-            return float(default)
+            return default
 
     numeric_row: list[float] = []
     for col in numeric_cols:
@@ -323,9 +323,7 @@ name_options = {
 actor_photos_cache = H.build_actor_photos_cache(ref_df)
 print(f"[DEBUG] Cache photos acteurs : {len(actor_photos_cache)} entrées")
 
- 
-
-
+# Feature input widgets
 values: dict[str, object] = {}
 used: dict[str, bool] = {}
 
@@ -333,14 +331,14 @@ st.subheader("Chiffres (curseurs, optionnels)")
 nums_container = st.container()
 
 numeric_specs = [
-    ("year", "Année", True, 1880.0, 2100.0),
+    ("year", "Année", True, 1885.0, 2030.0),
     ("duration", "Durée (minutes)", True, 0.0, 400.0),
     ("budget", "Budget", False, 0.0, 500_000_000.0),
     ("revenue", "Revenu", False, 0.0, 3_000_000_000.0),
-    ("nbr_watched", "Nombre de visionnages", True, 0.0, 1_000_000.0),
-    ("nbr_appearence", "Nombre d'apparitions", True, 0.0, 500_000.0),
-    ("nbr_likes", "Nombre de likes", True, 0.0, 1_000_000.0),
-    ("fans_favoris", "Fans / favoris", True, 0.0, 500_000.0),
+    ("nbr_watched", "Nombre de visionnages", True, 0.0, 10_000_000.0),
+    ("nbr_appearence", "Nombre d'apparitions", True, 0.0, 1_000_000.0),
+    ("nbr_likes", "Nombre de likes", True, 0.0, 5_000_000.0),
+    ("fans_favoris", "Fans / favoris", True, 0.0, 600_000.0),
 ]
 
 numeric_labels = {feat: lbl for feat, lbl, *_ in numeric_specs}
@@ -656,7 +654,7 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
         st.caption(
             "Idée simple : on **modifie un seul champ à la fois** (en le remplaçant par une valeur ‘neutre’ : médiane, ou `__MISSING__`) "
             "et on regarde comment la prédiction change.\n\n"
-            "À lire comme : ‘**dans le modèle**, ce champ pousse la note vers le haut/bas **pour ce film-là**’. "
+            "À lire comme : \"**Dans le modèle**, ce champ pousse la note vers le haut/bas **pour ce film-là**\".\n\n"
             "Ce n'est **pas** une preuve de causalité dans la vraie vie."
         )
 
