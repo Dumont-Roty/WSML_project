@@ -183,17 +183,24 @@ class Scraping:
         text = (page.locator("a.all-link.more-link").text_content() or "").strip()
         if not text:
             return 0
-        # normalize spaces and thousands separators
-        s = text.replace('\xa0', ' ').replace(',', '').strip()
-        # capture integer or decimal, optional suffix k/m/b
-        m = re.search(r"\b(\d+(?:\.\d+)?)\s*([kmb])?\b", s, flags=re.IGNORECASE)
+        # Robust parsing: handle decimals with dot or comma, thousands separators (space, thin space), and suffixes K/M/B
+        s = text.strip()
+        # regex to capture numbers like 1,234 or 1 234 or 1.8 or 1,8 and optional suffix
+        m = re.search(r"([0-9]{1,3}(?:[ \u00A0\u202F\u2009\.,][0-9]{3})*(?:[.,][0-9]+)?|[0-9]+(?:[.,][0-9]+)?)\s*([kmb])?", s, flags=re.IGNORECASE)
         if not m:
             return 0
+        num_str = m.group(1)
+        suf = (m.group(2) or '').lower()
+        # Normalize numeric string
+        if '.' in num_str and ',' in num_str:
+            num_str = num_str.replace(',', '')
+        elif ',' in num_str and '.' not in num_str:
+            num_str = num_str.replace(',', '.')
+        num_str = re.sub(r'[ \u00A0\u202F\u2009]', '', num_str)
         try:
-            value = float(m.group(1))
+            value = float(num_str)
         except Exception:
             return 0
-        suf = (m.group(2) or '').lower()
         if suf == 'k':
             value *= 1_000
         elif suf == 'm':
