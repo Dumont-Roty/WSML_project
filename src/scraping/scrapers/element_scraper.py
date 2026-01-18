@@ -183,16 +183,23 @@ class Scraping:
         text = (page.locator("a.all-link.more-link").text_content() or "").strip()
         if not text:
             return 0
-        m = re.search(r"(?i)\b(\d+)\s*([k])?\b", text)
+        # normalize spaces and thousands separators
+        s = text.replace('\xa0', ' ').replace(',', '').strip()
+        # capture integer or decimal, optional suffix k/m/b
+        m = re.search(r"\b(\d+(?:\.\d+)?)\s*([kmb])?\b", s, flags=re.IGNORECASE)
         if not m:
             return 0
-        num = m.group(1)
         try:
-            value = int(num)
-        except ValueError:
+            value = float(m.group(1))
+        except Exception:
             return 0
-        if (m.group(2) or '').upper() == 'K':
+        suf = (m.group(2) or '').lower()
+        if suf == 'k':
             value *= 1_000
+        elif suf == 'm':
+            value *= 1_000_000
+        elif suf == 'b':
+            value *= 1_000_000_000
 
         return int(value)
 
