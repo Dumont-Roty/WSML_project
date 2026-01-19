@@ -318,7 +318,32 @@ def _tmdb_api_key() -> str | None:
     except Exception:
         pass
     key = os.environ.get("TMDB_API_KEY")
-    return key.strip() if isinstance(key, str) and key.strip() else None
+    if isinstance(key, str) and key.strip():
+        return key.strip()
+
+    # Fallback: if Streamlit is launched from a subdirectory, it may not pick up
+    # the repo-root `.streamlit/secrets.toml`. Try to read it explicitly.
+    try:
+        secrets_path = REPO_ROOT / ".streamlit" / "secrets.toml"
+        if secrets_path.exists():
+            raw = secrets_path.read_text(encoding="utf-8", errors="ignore")
+            # Prefer tomllib when available (Python 3.11+), otherwise a simple regex.
+            try:
+                import tomllib  # type: ignore
+
+                data = tomllib.loads(raw) if isinstance(raw, str) else {}
+                v = data.get("TMDB_API_KEY") if isinstance(data, dict) else None
+                if isinstance(v, str) and v.strip():
+                    return v.strip()
+            except Exception:
+                m = re.search(r"^\s*TMDB_API_KEY\s*=\s*['\"]([^'\"]+)['\"]\s*$", raw, flags=re.MULTILINE)
+                if m:
+                    v = str(m.group(1)).strip()
+                    return v if v else None
+    except Exception:
+        pass
+
+    return None
 
 
 def _extract_tmdb_movie_id(letterboxd_html: str) -> int | None:
@@ -598,6 +623,73 @@ def _flatten_unique_lists(df: pd.DataFrame, col: str, top_k: int) -> list[str]:
     return [name for name, _ in ranked[:top_k]]
 
 
+# ---- Similarity helpers (shared by _similar_movies* functions)
+
+_SIMILARITY_EXCLUDED_COLS = {
+    "title",
+    "url",
+    "letterboxd_url",
+    "letterboxd",
+    "link",
+    "id",
+    "idx",
+}
+
+
+def _infer_numeric_cols_for_similarity(df: pd.DataFrame) -> set[str]:
+    """Infer numeric-ish columns from a dataframe for similarity scoring.
+
+    Excludes obvious identifier/text columns.
+    """
+
+    out: set[str] = set()
+    for c in df.columns:
+        if str(c).lower() in _SIMILARITY_EXCLUDED_COLS:
+            continue
+        try:
+            if pd.api.types.is_numeric_dtype(df[c]):
+                out.add(str(c))
+                continue
+            s = pd.to_numeric(df[c], errors="coerce")
+            if s.notna().any():
+                out.add(str(c))
+        except Exception:
+            pass
+    return out
+
+
+def _infer_list_cols_for_similarity(df: pd.DataFrame) -> set[str]:
+    """Infer list-valued columns from a dataframe for similarity scoring."""
+
+    out: set[str] = set()
+    for c in df.columns:
+        try:
+            if df[c].apply(lambda v: isinstance(v, list)).any():
+                out.add(str(c))
+        except Exception:
+            pass
+    return out
+
+
+def _compute_numeric_spans_for_similarity(df: pd.DataFrame, numeric_cols: set[str]) -> dict[str, float]:
+    """Compute per-column spans (max-min) used to normalize numeric deltas."""
+
+    spans: dict[str, float] = {}
+    for col in numeric_cols:
+        if col not in df.columns:
+            continue
+        try:
+            s = pd.to_numeric(df[col], errors="coerce")
+            s = s[np.isfinite(s)]
+            if s.empty:
+                continue
+            span = float(s.max() - s.min())
+            spans[col] = span if span > 0 else 1.0
+        except Exception:
+            continue
+    return spans
+
+
 def _similarity_weight(col_name: str) -> float:
     """Retourne le poids d'un critère pour la similarité globale.
     
@@ -647,45 +739,9 @@ def _similar_movies(
     if ref_df is None or getattr(ref_df, "empty", True):
         return []
 
-    # Infer columns from JSON to cover all criteria
-    def _infer_numeric_cols(df: pd.DataFrame) -> set[str]:
-        out: set[str] = set()
-        for c in df.columns:
-            # Exclure le titre et autres champs non pertinents pour la similarité
-            if str(c).lower() in ("title", "url", "letterboxd_url", "letterboxd", "link", "id", "idx"):
-                continue
-            try:
-                if pd.api.types.is_numeric_dtype(df[c]):
-                    out.add(str(c))
-                    continue
-                s = pd.to_numeric(df[c], errors="coerce")
-                if s.notna().any():
-                    out.add(str(c))
-            except Exception:
-                pass
-        return out
-
-    def _infer_list_cols(df: pd.DataFrame) -> set[str]:
-        out: set[str] = set()
-        for c in df.columns:
-            try:
-                if df[c].apply(lambda v: isinstance(v, list)).any():
-                    out.add(str(c))
-            except Exception:
-                pass
-        return out
-
-    num_cols = set(numeric_cols or []) | _infer_numeric_cols(ref_df)
-    id_cols = set(identity_cols or []) | _infer_list_cols(ref_df)
-
-    spans: dict[str, float] = {}
-    for col in num_cols:
-        if col in ref_df.columns:
-            s = pd.to_numeric(ref_df[col], errors="coerce")
-            s = s[np.isfinite(s)]
-            if not s.empty:
-                span = float(s.max() - s.min())
-                spans[col] = span if span > 0 else 1.0
+    num_cols = set(numeric_cols or []) | _infer_numeric_cols_for_similarity(ref_df)
+    id_cols = set(identity_cols or []) | _infer_list_cols_for_similarity(ref_df)
+    spans = _compute_numeric_spans_for_similarity(ref_df, num_cols)
 
     def _num_sim(col: str, uval: object, rval: object) -> float | None:
         if not isinstance(uval, (int, float)) or not isinstance(rval, (int, float)):
@@ -845,50 +901,15 @@ def _similar_movies_with_explanations(
     if ref_df is None or getattr(ref_df, "empty", True):
         return []
 
-    # Infer full sets of columns from JSON and precompute spans
-    def _infer_numeric_cols(df: pd.DataFrame) -> set[str]:
-        out: set[str] = set()
-        for c in df.columns:
-            # Exclure le titre et autres champs non pertinents pour la similarité
-            if str(c).lower() in ("title", "url", "letterboxd_url", "letterboxd", "link", "id", "idx"):
-                continue
-            try:
-                if pd.api.types.is_numeric_dtype(df[c]):
-                    out.add(str(c))
-                    continue
-                s = pd.to_numeric(df[c], errors="coerce")
-                if s.notna().any():
-                    out.add(str(c))
-            except Exception:
-                pass
-        return out
-
-    def _infer_list_cols(df: pd.DataFrame) -> set[str]:
-        out: set[str] = set()
-        for c in df.columns:
-            try:
-                if df[c].apply(lambda v: isinstance(v, list)).any():
-                    out.add(str(c))
-            except Exception:
-                pass
-        return out
-
-    num_cols = set(numeric_cols or []) | _infer_numeric_cols(ref_df)
-    id_cols = set(identity_cols or []) | _infer_list_cols(ref_df)
+    num_cols = set(numeric_cols or []) | _infer_numeric_cols_for_similarity(ref_df)
+    id_cols = set(identity_cols or []) | _infer_list_cols_for_similarity(ref_df)
 
     # Reuse base ranking from _similar_movies
     base = _similar_movies(ref_df, user_values, numeric_cols, identity_cols, top_n=max(top_n * 3, 10))
     if not base:
         return []
 
-    spans: dict[str, float] = {}
-    for col in num_cols:
-        if col in ref_df.columns:
-            s = pd.to_numeric(ref_df[col], errors="coerce")
-            s = s[np.isfinite(s)]
-            if not s.empty:
-                span = float(s.max() - s.min())
-                spans[col] = span if span > 0 else 1.0
+    spans = _compute_numeric_spans_for_similarity(ref_df, num_cols)
 
     def _num_contrib(col: str, uval: object, rval: object) -> dict | None:
         if not isinstance(uval, (int, float)) or not isinstance(rval, (int, float)):
@@ -1581,72 +1602,20 @@ def _optional_multiselect_count(
     ref_tmdb_id: int | None,
     actor_photos_cache: dict[str, str] | None = None,
 ) -> tuple[bool, float]:
-    use_key = f"use_{feature}_{state_suffix}"
-    val_key = f"val_{feature}_{state_suffix}"
-
-    prefill_list: list[str] = []
-    prefill_used = False
-    if prefill_from_ref and isinstance(ref_row, dict):
-        rr = ref_row
-        if isinstance(rr, dict):
-            val = rr.get(ref_col)
-            if ref_col == "directors" and val is None:
-                val = rr.get("director")
-            if isinstance(val, list):
-                prefill_list = [str(x) for x in val if str(x).strip()]
-            elif isinstance(val, str) and val.strip():
-                prefill_list = [val.strip()]
-            if ref_col in {"directors", "casting", "producers", "writers", "composer"}:
-                prefill_list = prefill_list[:5]
-            prefill_used = bool(prefill_list)
-
-    pre_has = bool(preset_values and feature in preset_values)
-    use = st.checkbox(f"Utiliser {label}", value=(prefill_used or pre_has), key=use_key)
-    suggested_list: list[str] | None = None
-    if ref_row is not None:
-        ref_val = ref_row.get(ref_col)
-        if isinstance(ref_val, list):
-            suggested_list = [str(x) for x in ref_val]
-    # If prefill_from_ref is active and the suggested list corresponds to the prefill list, don't show caption
-    try:
-        if not (prefill_from_ref and prefill_used and suggested_list is not None and set(suggested_list) <= set(prefill_list)):
-            _suggestion_caption(label, suggested_list)
-    except Exception:
-        _suggestion_caption(label, suggested_list)
-
+    use, selected = _optional_multiselect_people_base(
+        feature=feature,
+        label=label,
+        ref_col=ref_col,
+        preset_values=preset_values,
+        ref_row=ref_row,
+        prefill_from_ref=prefill_from_ref,
+        state_suffix=state_suffix,
+        name_options=name_options,
+        ref_tmdb_id=ref_tmdb_id,
+        actor_photos_cache=actor_photos_cache,
+    )
     if not use:
         return False, float(medians.get(feature, 0.0))
-
-    options = name_options.get(ref_col, [])
-    default_sel: list[str] = []
-    if prefill_list:
-        default_sel = prefill_list
-    if preset_values and feature in preset_values:
-        pv = preset_values.get(feature)
-        if isinstance(pv, list):
-            default_sel = [str(x) for x in pv]
-    default_sel = [x for x in default_sel if x in options]
-    selected = st.multiselect(label, options=options, default=default_sel, key=val_key)
-
-    if selected and _tmdb_api_key() and ref_col in {"directors", "casting", "producers", "writers", "composer"}:
-        known: dict[str, str] = {}
-        # Start with cache from database
-        if actor_photos_cache:
-            known.update(actor_photos_cache)
-        # Merge with TMDB cast data if reference movie is provided
-        if ref_col == "casting" and ref_tmdb_id:
-            cast = _tmdb_movie_cast(int(ref_tmdb_id), top_n=60) or []
-            for member in cast:
-                name = str(member.get("name") or "").strip()
-                url = str(member.get("profile_url") or "").strip()
-                if name and url:
-                    known[name] = url
-        _render_selected_people_thumbnails(
-            [str(x) for x in selected],
-            title=("Acteurs sélectionnés" if ref_col == "casting" else "Personnes sélectionnées"),
-            known_photos=known,
-        )
-
     return True, float(len(selected))
 
 
@@ -1663,6 +1632,41 @@ def _optional_multiselect_list(
     ref_tmdb_id: int | None,
     actor_photos_cache: dict[str, str] | None = None,
 ) -> tuple[bool, list[str]]:
+    use, selected = _optional_multiselect_people_base(
+        feature=feature,
+        label=label,
+        ref_col=ref_col,
+        preset_values=preset_values,
+        ref_row=ref_row,
+        prefill_from_ref=prefill_from_ref,
+        state_suffix=state_suffix,
+        name_options=name_options,
+        ref_tmdb_id=ref_tmdb_id,
+        actor_photos_cache=actor_photos_cache,
+    )
+    if not use:
+        return False, ["__MISSING__"]
+    return True, [str(x) for x in selected]
+
+
+def _optional_multiselect_people_base(
+    *,
+    feature: str,
+    label: str,
+    ref_col: str,
+    preset_values: dict | None,
+    ref_row: dict | None,
+    prefill_from_ref: bool,
+    state_suffix: str,
+    name_options: dict,
+    ref_tmdb_id: int | None,
+    actor_photos_cache: dict[str, str] | None = None,
+) -> tuple[bool, list[str]]:
+    """Shared implementation for the people multiselect widgets.
+
+    Returns (use_flag, selected_list). Callers adapt the return type.
+    """
+
     use_key = f"use_{feature}_{state_suffix}"
     val_key = f"val_{feature}_{state_suffix}"
 
@@ -1670,34 +1674,40 @@ def _optional_multiselect_list(
     prefill_used = False
     if prefill_from_ref and isinstance(ref_row, dict):
         rr = ref_row
-        if isinstance(rr, dict):
-            val = rr.get(ref_col)
-            if ref_col == "directors" and val is None:
-                val = rr.get("director")
-            if isinstance(val, list):
-                prefill_list = [str(x) for x in val if str(x).strip()]
-            elif isinstance(val, str) and val.strip():
-                prefill_list = [val.strip()]
-            if ref_col in {"directors", "casting", "producers", "writers", "composer"}:
-                prefill_list = prefill_list[:5]
-            prefill_used = bool(prefill_list)
+        val = rr.get(ref_col)
+        if ref_col == "directors" and val is None:
+            val = rr.get("director")
+        if isinstance(val, list):
+            prefill_list = [str(x) for x in val if str(x).strip()]
+        elif isinstance(val, str) and val.strip():
+            prefill_list = [val.strip()]
+        if ref_col in {"directors", "casting", "producers", "writers", "composer"}:
+            prefill_list = prefill_list[:5]
+        prefill_used = bool(prefill_list)
 
     pre_has = bool(preset_values and feature in preset_values)
     use = st.checkbox(f"Utiliser {label}", value=(prefill_used or pre_has), key=use_key)
+
     suggested_list: list[str] | None = None
     if ref_row is not None:
         ref_val = ref_row.get(ref_col)
         if isinstance(ref_val, list):
             suggested_list = [str(x) for x in ref_val]
+
     # If prefill_from_ref is active and the suggested list corresponds to the prefill list, don't show caption
     try:
-        if not (prefill_from_ref and prefill_used and suggested_list is not None and set(suggested_list) <= set(prefill_list)):
+        if not (
+            prefill_from_ref
+            and prefill_used
+            and suggested_list is not None
+            and set(suggested_list) <= set(prefill_list)
+        ):
             _suggestion_caption(label, suggested_list)
     except Exception:
         _suggestion_caption(label, suggested_list)
 
     if not use:
-        return False, ["__MISSING__"]
+        return False, []
 
     options = name_options.get(ref_col, [])
     default_sel: list[str] = []
@@ -1728,6 +1738,7 @@ def _optional_multiselect_list(
             title=("Acteurs sélectionnés" if ref_col == "casting" else "Personnes sélectionnées"),
             known_photos=known,
         )
+
     return True, [str(x) for x in selected]
 
 

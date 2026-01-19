@@ -28,7 +28,7 @@ TRAIN_PATH = APP_ROOT / "data" / "train.parquet"
 
 # Import shared helpers from the central module to keep this page presentation-only.
 from streamlit_app.helpers import Helpers as H
- 
+from streamlit_app.components.similarity_section import render_similarity_section
 
 
 # ------------ Streamlit page ------------
@@ -651,155 +651,18 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
             "Il ne garantit pas qu'un film précis tombera dans cette plage."
         )
 
-    # Similarités top 3 avec explications détaillées + vue visuelle
-    with st.expander("Similarités (top 3)", expanded=False):
-        # Inclure le rating prédit dans les valeurs pour la similarité
-        values_with_rating = dict(last_values)
-        values_with_rating["rating"] = y_pred
-        sims = H.similar_movies_with_explanations(ref_df, values_with_rating, numeric_cols, identity_cols, top_n=4)
-
-        # Exclure le film de référence des résultats
-        if ref_idx is not None:
-            sims = [s for s in sims if s.get("idx") != ref_idx]
-        elif ref_row is not None:
-            ref_title = str(ref_row.get("title") or "").strip().lower()
-            ref_year = str(ref_row.get("year") or "").strip()
-            sims = [s for s in sims if not (
-                str(s.get("title") or "").strip().lower() == ref_title
-                and str(s.get("year") or "").strip() == ref_year
-            )]
-        if not sims:
-            st.info("Aucune similarité calculable (données insuffisantes).")
-        else:
-            # Onglets: Vue visuelle | Détails complets
-            tab_visual, tab_details = st.tabs(["🎬 Vue visuelle", "📋 Détails complets"])
-            
-            with tab_visual:
-                st.markdown("##### Aperçu visuel des films similaires")
-                # Vue visuelle simplifiée avec posters
-                cols = st.columns(min(3, len(sims)))
-                for i, sim in enumerate(sims[:3]):
-                    with cols[i % len(cols)]:
-                        title = sim.get("title") or "(Titre manquant)"
-                        year_raw = sim.get("year")
-                        year = int(year_raw) if isinstance(year_raw, (int, float)) else None
-                        sim_pct = sim.get("similarity_pct")
-                        url_raw = sim.get("url")
-                        url = str(url_raw) if isinstance(url_raw, str) else None
-                        poster_raw = sim.get("poster_url")
-                        poster = str(poster_raw) if isinstance(poster_raw, str) else None
-                        label = f"{title} ({year})" if year is not None else title
-                        st.markdown(f"**#{i+1} — {label}**")
-                        st.metric("Similarité", f"{sim_pct}%")
-                        if poster:
-                            try:
-                                st.image(str(poster), width=160, caption="Affiche")
-                            except Exception:
-                                pass
-                        if url:
-                            st.link_button("Fiche Letterboxd", url, use_container_width=True)
-            
-            with tab_details:
-                st.markdown("##### Films similaires à votre saisie")
-                
-                # Construire une vue détaillée de chaque film
-                for i, sim in enumerate(sims):
-                    with st.container():
-                        title = sim.get("title") or "(Titre manquant)"
-                        year_raw = sim.get("year")
-                        year = int(year_raw) if isinstance(year_raw, (int, float)) else None
-                        sim_pct = sim.get("similarity_pct")
-                        url_raw = sim.get("url")
-                        url = str(url_raw) if isinstance(url_raw, str) else None
-                        feats_raw = sim.get("features")
-                        feats = list(feats_raw) if isinstance(feats_raw, list) else []
-                        label = f"{title} ({year})" if year is not None else title
-                        
-                        # En-tête du film
-                        col1, col2, col3 = st.columns([3, 1, 1])
-                        with col1:
-                            st.markdown(f"### #{i+1} — {label}")
-                        with col2:
-                            st.metric("Similarité", f"{sim_pct}%")
-                        with col3:
-                            if url:
-                                st.link_button("Letterboxd", url)
-                        
-                        # Tableau détaillé avec 5 colonnes
-                        if feats:
-                            st.markdown("##### Comparaison détaillée")
-                            table_data = []
-                            for f in feats:
-                                name = str(f.get("name") or "")
-                                typ = str(f.get("type") or "")
-                                sim_val = f.get("similarity")
-                                det = f.get("details") or {}
-                                status = f.get("status", "unknown")
-                                
-                                # Valeur utilisateur
-                                if status == "missing":
-                                    user_value = "Manquant"
-                                elif typ == "numeric":
-                                    user_value = det.get("user")
-                                else:  # identity
-                                    user_count = det.get("user_count", 0)
-                                    user_value = f"{user_count} item(s)"
-                                
-                                # Valeur film
-                                if status == "missing":
-                                    film_value = "Manquant"
-                                elif typ == "numeric":
-                                    film_value = det.get("ref")
-                                else:  # identity
-                                    ref_count = det.get("ref_count", 0)
-                                    film_value = f"{ref_count} item(s)"
-                                
-                                # Calcul de diff (%) pour numériques
-                                diff_display = "—"
-                                if status == "ok" and typ == "numeric":
-                                    user_v = det.get("user")
-                                    ref_v = det.get("ref")
-                                    if user_v is not None and ref_v is not None and ref_v != 0:
-                                        diff_pct = abs(user_v - ref_v) / abs(ref_v) * 100
-                                        diff_display = f"{diff_pct:.1f}%"
-                                elif status == "ok" and typ == "identity":
-                                    # Pour les listes, diff = 100 - similarité
-                                    diff_display = f"{100 - sim_val:.1f}%"
-                                
-                                # Couleur/emoji du status
-                                if status == "ok":
-                                    status_display = f"🟢 {sim_val}%"
-                                elif status == "missing":
-                                    status_display = "🔴 0%"
-                                elif status == "empty":
-                                    status_display = "⚠️ 0%"
-                                elif status == "no_overlap":
-                                    status_display = f"🟠 {sim_val}%"
-                                else:
-                                    status_display = "❓ N/A"
-                                
-                                table_data.append({
-                                    "Critère": name,
-                                    "Votre valeur": str(user_value) if user_value is not None else "—",
-                                    "Valeur film": str(film_value) if film_value is not None else "—",
-                                    "Similarité": status_display,
-                                    "Différence (%)": diff_display,
-                                })
-                            
-                            df_comparison = pd.DataFrame(table_data)
-                            st.dataframe(
-                                df_comparison,
-                                use_container_width=True,
-                                column_config={
-                                    "Critère": st.column_config.TextColumn("Critère", width="medium"),
-                                    "Votre valeur": st.column_config.TextColumn("Votre valeur", width="medium"),
-                                    "Valeur film": st.column_config.TextColumn("Valeur film", width="medium"),
-                                    "Similarité": st.column_config.TextColumn("Similarité", width="small"),
-                                    "Différence (%)": st.column_config.TextColumn("Différence (%)", width="small"),
-                                },
-                                hide_index=True,
-                            )
-                        st.divider()
+    # Similarités (rendu extrait dans un module pour alléger cette page)
+    render_similarity_section(
+        H=H,
+        ref_df=ref_df,
+        last_values=last_values,
+        numeric_cols=numeric_cols,
+        identity_cols=identity_cols,
+        y_pred=y_pred,
+        ref_idx=ref_idx,
+        ref_row=ref_row,
+        top_n=4,
+    )
             
     # Explicabilité (locale): neutralisation d'un champ à la fois
     with st.expander("Explicabilité (effets locaux)", expanded=False):
@@ -873,12 +736,7 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
             if chart is not None:
                 st.altair_chart(chart, use_container_width=True)
 
-    used_cols = [c for c in features if last_used.get(c)]
-    if used_cols:
-        st.caption("Champs utilisés: " + ", ".join(used_cols))
-    else:
-        st.caption("Aucun champ activé: valeurs neutres (médianes) utilisées.")
-
+    
     # Explications statistiques (dataset): corrélations et graphiques
     with st.expander("Analyses statistiques (corrélations + graphiques)", expanded=False):
         st.caption(
@@ -939,13 +797,8 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
                     format_func=lambda x: numeric_labels.get(str(x), str(x)),
                 )
 
+                # Pas d'échelle log : on garde un axe linéaire pour le nuage de points (et l'histogramme).
                 transform_x = None
-                if str(feat_choice) in {"budget", "revenue"}:
-                    # Affichage uniquement : l'échelle log rend ces graphiques lisibles (budget/revenu très asymétriques)
-                    transform_x = "log1p"
-                    st.caption(
-                        "Affichage : axe en échelle log (log1p) pour budget/revenu (lisibilité uniquement, ne change pas la prédiction)."
-                    )
 
                 user_x = None
                 if last_used.get(feat_choice):
@@ -1181,4 +1034,8 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
                         display_t = tdf.rename(columns={"themes": "Thème", "Mean": "Note moyenne", "Cohen_d": "Cohen d", "Related": "Relation"})
                         st.dataframe(display_t, width='stretch', hide_index=True)
 
-            # (Diagnostic acteur/réalisateur disponible ici; plus de détails dans Exploration)
+    used_cols = [c for c in features if last_used.get(c)]
+    if used_cols:
+        st.caption("Champs utilisés: " + ", ".join(used_cols))
+    else:
+        st.caption("Aucun champ activé: valeurs neutres (médianes) utilisées.")
