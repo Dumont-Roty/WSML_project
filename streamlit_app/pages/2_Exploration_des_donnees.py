@@ -55,8 +55,8 @@ def _load_reference_df(path: Path) -> pd.DataFrame:
 H.bootstrap_repo_path()
 
 # Paths
-ref_data_path = ML_DIR / "data" / "final_results_28.json"
-merged_results_path = REPO_ROOT / "merged_results.json"
+ref_data_path = ML_DIR / "data" / "partial_result_2026-01-19.json"
+merged_results_path = REPO_ROOT / "partial_result_2026-01-19.json"
 
 st.set_page_config(page_title="Exploration des données — Letterboxd", layout="wide")
 H.apply_letterboxd_theme()
@@ -68,7 +68,7 @@ if ref_df.empty:
     ref_df = _load_reference_df(merged_results_path)
 
 if ref_df.empty:
-    st.error("Impossible de charger les données (final_results_28.json / merged_results.json).")
+    st.error("Impossible de charger les données (partial_result_2026-01-19.json).")
     st.stop()
 
 # Normalize common columns
