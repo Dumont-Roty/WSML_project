@@ -35,35 +35,80 @@ class Scraping:
             if match:
                 return int(match.group(0).strip())
         return 0
+    
+    
+    # Utility to parse integer from aria-label strings   
+    @staticmethod
+    def _parse_integer_from_aria(s: str) -> int:
+        if not s:
+            return 0
+        m = re.search(r"[\d\u00A0\u202F\u2009\.,]+", s)
+        if not m:
+            return 0
+        raw = m.group(0)
+        digits = re.sub(r"[^0-9]", "", raw)
+        if not digits:
+            return 0
+        try:
+            return int(digits)
+        except Exception:
+            return 0
+
+    @staticmethod
+    def _extract_stat_text(page: Page, sel: str, *, ctx_keyword: str | None = None) -> str:
+        try:
+            page.wait_for_selector(sel, timeout=5000)
+        except Exception:
+            return ""
+        try:
+            el = page.locator(sel)
+        except Exception:
+            return ""
+
+        # Prefer aria-label (contains full value e.g. "Watched by 558,575 members")
+        try:
+            v = el.get_attribute("aria-label")
+            if isinstance(v, str) and v.strip():
+                if ctx_keyword is None or ctx_keyword.lower() in v.lower():
+                    return v.strip()
+        except Exception:
+            pass
+
+        # We prefer aria-label and return it; fallbacks are intentionally omitted because
+        # aria-label is expected to contain the full value (see code comments).
+        return ""
 
     @staticmethod
     def nbr_watched(page: Page) -> int:
-        page.wait_for_selector(".production-statistic.-watches", timeout=5000)
-        watched_int = page.locator(".production-statistic.-watches").inner_html()
-        if watched_int is not None:
-            match = re.search(r"\b([1-9],\d{3},\d{3}|[1-9]\d{0,2},\d{3}|[1-9]\d{0,2})\b", watched_int)
-            if match:
-                return int(match.group(0).replace(',', ''))
+        try:
+            el = page.locator(".production-statistic.-watches")
+            v = el.get_attribute("aria-label")
+            if isinstance(v, str) and v.strip() and "watched" in v.lower():
+                return Scraping._parse_integer_from_aria(v)
+        except Exception:
+            pass
         return 0
 
     @staticmethod
     def scrap_appearence(page: Page) -> int:
-        page.wait_for_selector(".production-statistic.-lists", timeout=5000)
-        appearence_int = page.locator(".production-statistic.-lists").inner_html()
-        if appearence_int is not None:
-            match = re.search(r"\b([1-9],\d{3},\d{3}|[1-9]\d{0,2},\d{3}|[1-9]\d{0,2})\b", appearence_int)
-            if match:
-                return int(match.group(0).replace(',', ''))
+        try:
+            el = page.locator(".production-statistic.-lists")
+            v = el.get_attribute("aria-label")
+            if isinstance(v, str) and v.strip() and ("list" in v.lower() or "appears" in v.lower()):
+                return Scraping._parse_integer_from_aria(v)
+        except Exception:
+            pass
         return 0
 
     @staticmethod
     def scrap_like(page: Page) -> int:
-        page.wait_for_selector(".production-statistic.-likes", timeout=5000)
-        like_int = page.locator(".production-statistic.-likes").inner_html()
-        if like_int is not None:
-            match = re.search(r"\b([1-9],\d{3},\d{3}|[1-9]\d{0,2},\d{3}|[1-9]\d{0,2})\b", like_int)
-            if match:
-                return int(match.group(0).replace(',', ''))
+        try:
+            el = page.locator(".production-statistic.-likes")
+            v = el.get_attribute("aria-label")
+            if isinstance(v, str) and v.strip() and ("like" in v.lower() or "liked" in v.lower()):
+                return Scraping._parse_integer_from_aria(v)
+        except Exception:
+            pass
         return 0
 
     @staticmethod

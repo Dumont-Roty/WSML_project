@@ -22,8 +22,8 @@ MODEL_PATH = APP_ROOT / "models" / "best_model.joblib"
 METRICS_PATH = APP_ROOT / "models" / "metrics.json"
 BUDGET_MODEL_PATH = APP_ROOT / "models" / "budget_model.joblib"
 BUDGET_METRICS_PATH = APP_ROOT / "models" / "budget_metrics.json"
-MERGED_RESULTS_PATH = REPO_ROOT / "merged_results.json"
-REF_DATA_PATH = APP_ROOT / "data" / "final_results_28.json"
+MERGED_RESULTS_PATH = REPO_ROOT / "partial_result_2026-01-19.json"
+REF_DATA_PATH = APP_ROOT / "data" / "partial_result_2026-01-19.json"
 TRAIN_PATH = APP_ROOT / "data" / "train.parquet"
 
 # Import shared helpers from the central module to keep this page presentation-only.
@@ -162,7 +162,7 @@ def _predict_budget_with_artifact(artifact: object, values: dict[str, object]) -
 
 ref_df = H.load_reference_df(REF_DATA_PATH)
 if ref_df.empty:
-    # Fallback only (some environments may not ship final_results_28.json at runtime).
+    # Fallback only (some environments may not ship partial_result_2026-01-19.json at runtime).
     ref_df = H.load_reference_df(MERGED_RESULTS_PATH)
 
 NAME_OPTION_COLS = [
@@ -201,7 +201,7 @@ ref_poster_url: str | None = None
 ref_backdrop_url: str | None = None
 prefill_from_ref = st.sidebar.checkbox("Préremplir depuis le film de référence", value=False, key="prefill_from_ref")
 if ref_df.empty:
-    st.sidebar.info("Aucun film de référence disponible (final_results_28.json / merged_results.json introuvable ou vide).")
+    st.sidebar.info("Aucun film de référence disponible (partial_result_2026-01-19.json introuvable ou vide).")
 else:
     df_labels = ref_df[["title", "year"]].copy()
     df_labels["year"] = pd.to_numeric(df_labels["year"], errors="coerce").fillna(0).astype(int)
