@@ -11,6 +11,10 @@ Usage:
   python scripts/fix_url_numbers.py --in ml/data/partial_result_2026-01-19.json
     --out ml/data/partial_result_2026-01-19.fixed.json --backup
 
+
+python scripts/fix_url_numbers.py --in dummy.json --init-storage-state --init-url https://letterboxd.com/ --save-storage-state state.json
+
+python scripts/fix_url_numbers.py --in ml/data/partial_result_2026-01-19.2.json --out ml/data/pr2.json --rescrape=sample --max-rescrape=10 --only-null-counts
 """
 from __future__ import annotations
 
