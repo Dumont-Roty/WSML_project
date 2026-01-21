@@ -5,7 +5,7 @@ les nouveaux budgets/revenues et un statut. Conçu pour être lancé depuis la r
 repo avec le virtualenv actif.
 
 Usage (PowerShell) :
-    $env:PYTHONPATH = 'src;src/WSML_code'
+    $env:PYTHONPATH = 'src'
     .\.venv\Scripts\python .\scripts\targeted_update_tmdb.py
 
 Ou après activation du venv :
@@ -25,13 +25,11 @@ from collections import Counter
 # Ensure project modules are importable when running from repo root
 ROOT = Path.cwd()
 SRC = ROOT / 'src'
-SRC_WSML = SRC / 'WSML_code'
-sys.path.insert(0, str(SRC_WSML))
 sys.path.insert(0, str(SRC))
 
 try:
-    from WSML_code.scrapers.page_scraper import PageScrap
-    from WSML_code.services.dismiss_impl import dismiss_overlay
+    from scraping.scrapers.page_scraper import PageScrap
+    from scraping.services.dismiss_impl import dismiss_overlay
 except Exception as e:
     print('Import error:', e)
     print('Make sure you run this from the repository root and the venv is available.')

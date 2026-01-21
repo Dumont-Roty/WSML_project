@@ -5,7 +5,7 @@ de base (moyenne/médiane/min/max/écart-type), un histogramme par pas de 0,5 et
 affiche les 10 meilleurs/pire. Imprime le résumé au format JSON sur stdout.
 
 Usage (PowerShell) :
-    $env:PYTHONPATH='src;src/WSML_code'
+    $env:PYTHONPATH='src'
     .\.venv\Scripts\python .\scripts\analyze_ratings.py
 """
 from pathlib import Path
