@@ -103,105 +103,108 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+####################################################
 
-st.title("À propos")
+st.title("ℹ️ À propos du Projet")
 
-st.markdown(
-    """
-## Objectif
-Estimer la **note Letterboxd (0–5)** d’un film, en s’appuyant sur des attributs numériques et des informations d’identités (réalisateurs, casting, thèmes…).
+tab_concept, tab_methode, tab_data = st.tabs([
+    "🎯 Concept & Objectifs", 
+    "🧠 Méthodologie ML", 
+    "📊 Source des Données"
+])
 
-## Données
-Les données sont issues d’un pipeline de scraping/agrégation (selon le dataset présent dans `ml/data/`). Elles peuvent contenir : valeurs manquantes, erreurs de saisie, biais de popularité.
+with tab_concept:
+    st.markdown("""
+    ### Le Machine Learning au service du Cinéma
+    L'objectif de cette application est de décoder la réception d'une œuvre par la communauté **Letterboxd**. 
+    En utilisant des algorithmes de régression, nous estimons la note moyenne (0-5) qu'un film pourrait obtenir.
+    
+    **Ce que le modèle analyse :**
+    - La "signature" des réalisateurs et acteurs (notoriété statistique).
+    - Les indicateurs économiques (budget, revenus).
+    - Les caractéristiques techniques (genres, thèmes, durée).
+    - Etc.
+    """)
 
-## Choix de modélisation
-- **Pipeline scikit-learn** avec séparation:
-  - Variables numériques (année, durée, budget, revenu…)
-  - Variables d’identité (réalisateurs/casting/thèmes/genres…)
-- **Identités** : encodage par hashing via un transformeur `IdentityHasher` (basé sur `FeatureHasher`).
-  - Intérêt: gérer des catégories très nombreuses, éviter un one-hot géant.
-  - Limite: collisions possibles (dépend de la dimension de hashing).
+with tab_methode:
+    st.markdown("""
+    ### Choix de Modélisation
+    Nous utilisons un pipeline **Scikit-Learn** sophistiqué :
+    - **Identity Hashing** : Pour gérer des milliers de noms (acteurs/réalisateurs) sans créer des fichiers géants, nous utilisons le *Hashing Trick*. Cela permet de capturer l'influence d'un individu même dans un casting choral.
+    """)
+# **Modèle Budget** : Un modèle secondaire aide à prédire ou contextualiser le budget via une transformation logarithmique (`log1p`) pour stabiliser les écarts extrêmes entre blockbusters et films indépendants.
 
-## Budget (aide)
-- Le modèle budget est entraîné sur `log1p(budget)` puis inversé via `expm1`.
-- Une **fourchette** peut être estimée à partir de quantiles des résidus (approximatif).
-
-## Limites
-- Les prédictions sont **indicatives**.
-- Les corrélations ne sont pas des causalités.
-- Les estimations peuvent être instables pour des combinaisons rares (identités peu vues).
-"""
-)
-
+with tab_data:
+    st.info("⚠️ **Note sur la fiabilité** : Les données sont issues d'un pipeline de scraping. Elles reflètent des corrélations statistiques et non des vérités absolues.")
+    st.markdown("""
+    - **Origine** : Scraping hybride Letterboxd + Enrichissement TMDB.
+    - **Traitement** : Les valeurs manquantes sont imputées par la médiane pour garantir que le modèle puisse toujours répondre.
+    """)
 
 st.divider()
-st.header("Détails techniques")
 
+# --- Section Performance (Dynamique) ---
+st.header("📈 Performance du Modèle")
 
-st.subheader("Modèle de note (rating)")
 if not metrics:
-  st.info("Fichier `ml/models/metrics.json` introuvable ou illisible.")
+    st.error("📊 Données de performance (`metrics.json`) indisponibles.")
 else:
-  target = str(metrics.get("target") or "rating")
-  selected_model = metrics.get("selected_model")
-  scoring = metrics.get("scoring")
-  feature_mode = metrics.get("feature_mode")
-  input_schema = metrics.get("input_schema") if isinstance(metrics.get("input_schema"), dict) else {}
-  numeric_cols = input_schema.get("numeric_cols") if isinstance(input_schema.get("numeric_cols"), list) else []
-  identity_cols = input_schema.get("identity_cols") if isinstance(input_schema.get("identity_cols"), list) else []
-  hash_dim = input_schema.get("hash_dim")
+    # Affichage des métriques clés dans des colonnes avec design
+    test_metrics = metrics.get("test_metrics", {})
+    r2 = test_metrics.get("r2", 0)
+    rmse = test_metrics.get("rmse", 0)
+    acc050 = test_metrics.get("acc_within_0_50", 0)
 
-  left, right = st.columns(2)
-  with left:
-    st.markdown(
-      "\n".join(
-        [
-          f"- **Cible**: `{target}`",
-          f"- **Modèle sélectionné**: `{selected_model}`" if selected_model else "- **Modèle sélectionné**: —",
-          f"- **Scoring**: `{scoring}`" if scoring else "- **Scoring**: —",
-          f"- **Mode des features**: `{feature_mode}`" if feature_mode else "- **Mode des features**: —",
-        ]
-      )
-    )
-  with right:
-    st.markdown("**Schéma d'entrée**")
-    st.markdown(f"- `numeric_cols`: {len(numeric_cols)}")
-    st.markdown(f"- `identity_cols`: {len(identity_cols)}")
-    if hash_dim is not None:
-      st.markdown(f"- `hash_dim`: `{hash_dim}`")
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Précision (R²)", f"{float(r2):.3f}", help="Plus proche de 1 est le mieux.")
+    c2.metric("Erreur (RMSE)", f"{float(rmse):.3f}", help="Écart moyen en points de note.")
+    c3.metric("Fiabilité à ±0.5", f"{float(acc050)*100:.1f}%", help="% de films prédits avec moins de 0.5 point d'écart.")
 
-  test_metrics = metrics.get("test_metrics") if isinstance(metrics.get("test_metrics"), dict) else {}
-  if test_metrics:
-    st.markdown("**Qualité (test)**")
+    # Expander pour les détails techniques plus profonds
+    with st.expander("🔍 Voir les détails techniques complets"):
+        col_l, col_r = st.columns(2)
+        with col_l:
+            st.write(f"**Modèle sélectionné :** `{metrics.get('selected_model', 'N/A')}`")
+            st.write(f"**Cible :** `{metrics.get('target', 'rating')}`")
+        with col_r:
+            input_schema = metrics.get("input_schema", {})
+            st.write(f"**Variables numériques :** {len(input_schema.get('numeric_cols', []))}")
+            st.write(f"**Colonnes d'identité :** {len(input_schema.get('identity_cols', []))}")
+        
+        cv_results = metrics.get("cv_results", [])
+        if cv_results:
+            st.write("**Comparaison des modèles testés (Cross-Validation) :**")
+            st.table(cv_results)
 
-    r2 = test_metrics.get("r2")
-    mae = test_metrics.get("mae")
-    rmse = test_metrics.get("rmse")
-    acc025 = test_metrics.get("acc_within_0_25")
-    acc050 = test_metrics.get("acc_within_0_50")
+st.divider()
 
-    c1, c2, c3, c4, c5 = st.columns(5)
-    with c1:
-      st.metric("R²", f"{float(r2):.3f}" if r2 is not None else "—")
-    with c2:
-      st.metric("MAE", f"{float(mae):.3f}" if mae is not None else "—")
-    with c3:
-      st.metric("RMSE", f"{float(rmse):.3f}" if rmse is not None else "—")
-    with c4:
-      st.metric("Acc@0.25", f"{100.0*float(acc025):.1f}%" if acc025 is not None else "—")
-    with c5:
-      st.metric("Acc@0.50", f"{100.0*float(acc050):.1f}%" if acc050 is not None else "—")
+# --- Section Pédagogique (Expliquer le fonctionnement) ---
+st.header("🛠️ Comment ça marche ?")
 
-    st.caption(
-      "Acc@0.25/0.50 = proportion de prédictions à moins de 0.25/0.5 point de la vraie note. "
-      "MAE/RMSE sont en points de note (sur 0–5)."
-    )
+col_a, col_b = st.columns(2)
 
-  cv_results = metrics.get("cv_results") if isinstance(metrics.get("cv_results"), list) else []
-  if cv_results:
-    st.markdown("**Comparaison modèles (CV)**")
-    st.table(cv_results)
+with col_a:
+    st.subheader("👥 L'effet 'Star System'")
+    st.markdown("""
+    Le modèle ne compte pas simplement le nombre d'acteurs. Il reconnaît les **identités**. 
+    Un acteur historiquement associé à des films bien notés apportera un "poids" positif à la prédiction. 
+    *Ce n'est pas un jugement de talent, mais un constat statistique sur vos données.*
+    """)
 
+with col_b:
+    st.subheader("📉 Score de Confiance")
+    st.markdown("""
+    Chaque prédiction est accompagnée d'un indice de complétude :
+    - **Élevé (80%+)** : Tous les champs sont remplis.
+    - **Moyen (50%+)** : Certains champs manquent (médiane utilisée).
+    - **Faible (-50%)** : Données insuffisantes pour une prédiction fiable.
+    """)
+
+# --- Footer ---
+st.caption("Projet Master MECEN - Web Scraping et Machine Learning")
+
+
+# --- Section Budget (Désactivée) ---
 
 # st.subheader("Modèle de budget (aide)")
 # if not budget_metrics:
@@ -270,43 +273,3 @@ else:
 #   if interval:
 #     st.markdown("**Intervalle de prédiction (approx.)**")
 #     st.write(interval)
-
-
-st.subheader("Comment sont utilisées les personnes (casting, réalisateurs, etc.)")
-st.markdown(
-  """
-Dans ce projet, les personnes/catégories (ex: `casting`, `directors`, `genres`, `themes`…) sont fournies au modèle comme **listes d'identités**.
-
-- Le modèle ne reçoit pas simplement “le nombre d'acteurs”, mais les **noms** (identités) encodés par hashing.
-- Conséquence: **1 acteur “top” vs 5 acteurs inconnus** peut changer la prédiction à cause des identités elles‑mêmes, pas seulement à cause de la taille du casting.
-- Attention: ce n'est pas une mesure de “qualité réelle” d'un acteur, mais des **corrélations apprises** sur les données d'entraînement.
-"""
-)
-
-
-st.subheader("Qualité estimée des prédictions selon les champs fournis")
-st.markdown(
-  """
-La précision d'une prédiction dépend de la quantité et de la pertinence des champs fournis.
-
-- Si tous les champs numériques et d'identité présents dans le schéma d'entrée sont renseignés, la prédiction a une confiance plus élevée.
-- Si plusieurs champs manquent, le modèle retombe sur des valeurs médianes ou jeux d'identités vides, ce qui réduit la fiabilité.
-
-Règle simple utilisée dans l'interface :
-
-1. On compte le nombre de champs attendus (`numeric_cols` + `identity_cols`).
-2. On compte combien d'entre eux l'utilisateur a explicitement activés/complétés.
-3. `completeness = fournis / total` → niveau :
-   - `>= 0.8` : confiance élevée
-   - `>= 0.5` : confiance moyenne
-   - `<  0.5` : confiance faible
-
-Concrètement, lorsqu'un champ n'est pas renseigné :
-
-- Les variables numériques manquantes sont remplacées par leur médiane calculée sur l'ensemble d'entraînement.
-- Les listes d'identités non fournies sont traitées comme vides (ou par défaut), ce qui supprime les effets d'identités spécifiques.
-- Pour le budget, si absent, le modèle utilise une prédiction de budget (modèle d'aide) ou la médiane selon la configuration.
-
-La page principale affichera, pour chaque prédiction, un indicateur de complétude et un message (ex : "Confiance : Moyenne — Plusieurs champs manquent").
-"""
-)
