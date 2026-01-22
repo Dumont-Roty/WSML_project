@@ -21,7 +21,7 @@ def show_presentation():
 
     # Titre principal 
     st.title("🎬 Letterboxd Insights", text_alignment="center")
-    st.subheader("Le Machine Learning au service du 7ème Art")
+    st.subheader("Le Machine Learning au service du 7ème Art", text_alignment="center")
 
     st.markdown("---")
 

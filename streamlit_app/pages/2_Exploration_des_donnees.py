@@ -61,7 +61,7 @@ merged_results_path = REPO_ROOT / "partial_result_2026-01-19.json"
 st.set_page_config(page_title="Exploration des données — Letterboxd", layout="wide")
 H.apply_letterboxd_theme()
 
-st.title("📊 Analyse du Paysage Cinématographique")
+st.title("📊 Analyse du Paysage Cinématographique", text_alignment="center")
 
 ref_df = _load_reference_df(ref_data_path)
 if ref_df.empty:
