@@ -61,7 +61,7 @@ merged_results_path = REPO_ROOT / "partial_result_2026-01-19.json"
 st.set_page_config(page_title="Exploration des données — Letterboxd", layout="wide")
 H.apply_letterboxd_theme()
 
-st.title("Exploration des données")
+st.title("📊 Analyse du Paysage Cinématographique")
 
 ref_df = _load_reference_df(ref_data_path)
 if ref_df.empty:
@@ -189,7 +189,7 @@ else:
 st.divider()
 
 # Correlations and plots
-st.subheader("Corrélations et graphiques")
+st.subheader("🔍 Facteurs d'Influence & Tendances")
 
 numeric_candidates = [c for c in ["budget", "revenue", "duration", "year", "nbr_watched", "nbr_likes", "fans_favoris"] if c in filtered.columns]
 
@@ -257,7 +257,7 @@ if "casting" in filtered.columns and selected_actor and selected_actor != "Aucun
 
 # Average ratings by genre
 if "genres" in filtered.columns and "rating" in filtered.columns:
-    st.subheader("Note moyenne par genre")
+    st.subheader("🎭 Performance par Catégorie Cinématographique")
     tmp = filtered[["genres", "rating"]].dropna()
     tmp = tmp[tmp["genres"].apply(lambda x: isinstance(x, list))]
     if not tmp.empty:
@@ -271,7 +271,7 @@ if "genres" in filtered.columns and "rating" in filtered.columns:
         st.bar_chart(grp.set_index("genres"))
         
 # Table + export
-st.subheader("Table")
+st.subheader("🗂️ Consultation du Dataset Brut")
 show_cols = [c for c in ["title", "year", "rating", "budget", "revenue", "duration", "directors", "genres", "themes","casting", "nbr_watched", "nbr_appearence", "nbr_likes", "fans_favoris", "letterboxd_url"] if c in filtered.columns]
 if not show_cols:
     show_cols = list(filtered.columns[:16])
