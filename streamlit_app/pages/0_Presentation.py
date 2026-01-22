@@ -17,27 +17,57 @@ from streamlit_app.helpers import Helpers as H
 st.set_page_config(page_title="Présentation — Estimateur Letterboxd", layout="wide")
 H.apply_letterboxd_theme()
 
-st.title("Présentation", text_alignment="center")
+def show_presentation():
 
-st.markdown(
-    """
-Ce projet vise à **estimer la note Letterboxd (0–5)** d’un film à partir de caractéristiques (année, durée, budget, revenu…) et d’informations d’**identité** (réalisateurs, casting, thèmes…).
+    # Titre principal 
+    st.title("🎬 Letterboxd Insights", text_alignment="center")
+    st.subheader("Le Machine Learning au service du 7ème Art")
 
-- La **note prédite** est l’objectif principal.
-- La **suggestion de budget** est une **aide** pour contextualiser l’estimation (indication, pas une vérité).
+    st.markdown("---")
 
-Utilise la navigation Streamlit (menu à gauche) pour accéder aux pages :
-- **Estimateur Letterboxd** : saisie des paramètres + prédictions
-- **Exploration des données** : filtres, stats, corrélations, moyennes par thème/réal…
-- **Outils / Jeu** : (à venir)
-- **À propos** : méthodologie, choix de modèles, limites
-"""
-)
+    # Section 1 : Le Pitch 
+    col1, col2 = st.columns([2, 1])
 
-with st.expander("Données et limites"):
-    st.markdown(
-        """
-- Les données sont issues de scraping / agrégation et peuvent contenir des biais, valeurs manquantes ou incohérences.
-- Les prédictions sont **indicatives** et dépendent de la couverture et de la qualité des données.
-"""
-    )
+    with col1:
+        st.markdown("""
+            ### ✨ Est-il possible d'anticiper le succès d'un film ?
+            Bienvenue sur **Letterboxd Insights**, une plateforme analytique conçue pour décoder les secrets des notes cinématographiques. 
+            
+            En croisant les données sociales de **Letterboxd** avec les indicateurs économiques de **TMDB**, notre algorithme de Machine Learning identifie les facteurs qui font d'un film une œuvre culte ou un succès populaire.
+            """)
+
+    ### ??????
+    with col2:
+        st.info("💡 **Le Saviez-vous ?** \n\n Le budget n'est pas toujours le premier facteur de succès sur Letterboxd. L'influence du réalisateur et le genre pèsent parfois bien plus lourd !")
+
+    st.markdown("---")
+
+    # Section 2 : Les fonctionnalités 
+    st.write("### 🚀 Explorez les fonctionnalités")
+        
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        st.markdown("#### 🔮 **Prédire**")
+        st.write("Utilisez l'**Estimateur** pour simuler la réception d'un film en fonction de son casting, son budget et son équipe technique.")
+            
+    with c2:
+        st.markdown("#### 📊 **Analyser**")
+        st.write("Plongez dans l'**Exploration de données** pour visualiser les corrélations entre revenus, genres et notations communautaires.")
+
+    with c3:
+        st.markdown("#### 🧠 **Comprendre**")
+        st.write("Consultez l'onglet **À propos** pour découvrir les coulisses de notre modèle de Machine Learning et ses performances.")
+
+    st.markdown("---")
+
+    # Section 3 : Note de méthodologie 
+    with st.expander("📌 Note méthodologique & Données"):
+        st.write("""Ce projet repose sur un dataset unique combinant scraping et API. 
+            - **Source principale :** Letterboxd (données sociales et critiques).
+            - **Source secondaire :** TMDB (budgets, revenus, visuels).
+            - **Précision :** Les estimations fournies sont indicatives. Elles reflètent les tendances statistiques observées sur plus de 3 000 films analysés.
+            """)
+
+# Appel de la fonction
+show_presentation()
