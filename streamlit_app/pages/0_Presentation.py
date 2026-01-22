@@ -62,10 +62,9 @@ def show_presentation():
 
     # Section 3 : Note de méthodologie 
     with st.expander("📌 Note méthodologique & Données"):
-        st.write("""Ce projet repose sur un dataset unique combinant scraping et API. 
-            
-            **Source principale :** Letterboxd (données sociales et critiques).
-            **Source secondaire :** TMDB (budgets, revenus, visuels).
+        st.write("""Ce projet repose sur un dataset unique combinant scraping et API. \n
+            **Source principale :** Letterboxd (données sociales et critiques).\n
+            **Source secondaire :** TMDB (budgets, revenus, visuels).\n
             **Précision :** Les estimations fournies sont indicatives. Elles reflètent les tendances statistiques observées sur plus de 3 000 films analysés.
             """)
 
