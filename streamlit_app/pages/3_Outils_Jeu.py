@@ -30,13 +30,13 @@ with col_a:
     st.header("🎬 Projet A")
     title_a = st.text_input("Nom du film A", "Projet Alpha")
     genre_a = st.selectbox("Genre A", ["Drama", "Horror", "Comedy", "Sci-Fi", "Action"], key="g_a")
-    budget_a = st.slider("Budget (M$)", 1, 300, 50, key="b_a")
+    budget_a = st.slider("Budget prévisionnel", 1, 300, 50, key="b_a", help="Budget exprimé en Millions de Dollars (M$)")
 
 with col_b:
     st.header("🎬 Projet B")
     title_b = st.text_input("Nom du film B", "Projet Beta")
     genre_b = st.selectbox("Genre B", ["Drama", "Horror", "Comedy", "Sci-Fi", "Action"], key="g_b")
-    budget_b = st.slider("Budget (M$)", 1, 300, 50, key="b_b")
+    budget_b = st.slider("Budget prévisionnel", 1, 300, 50, key="b_b", help="Budget exprimé en Millions de Dollars (M$)")
 
 st.markdown("---")
 
