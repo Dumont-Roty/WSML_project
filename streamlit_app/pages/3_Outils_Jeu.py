@@ -17,14 +17,54 @@ from streamlit_app.helpers import Helpers as H
 st.set_page_config(page_title="Outils / Jeu — Letterboxd", layout="wide")
 H.apply_letterboxd_theme()
 
-st.title("Outils / Jeu")
-st.info("Page en construction — on ajoutera ici des mini-outils/jeux basés sur les données Letterboxd.")
+# --- BANDEAU EN COURS DE DÉVELOPPEMENT ---
+st.warning("🧪 **Espace Laboratoire** : Cette page est actuellement en cours de développement. Le module 'Duel' est en version Bêta fonctionnelle, d'autres outils arriveront prochainement.")
 
-st.markdown(
-    """
-Idées (à implémenter plus tard) :
-- **What-if**: comparer deux configurations de film (casting/genres) et voir l'impact sur la note.
-- **Deviner le budget**: proposition + score selon l'écart.
-- **Templates**: appliquer des presets et comparer.
-"""
-)
+st.title("⚔️ Le Duel des Studios", text_alignment="center")
+st.subheader("Quel projet remportera les faveurs de la communauté ?")
+
+# --- LOGIQUE DU DUEL ---
+col_a, col_b = st.columns(2)
+
+with col_a:
+    st.header("🎬 Projet A")
+    title_a = st.text_input("Nom du film A", "Projet Alpha")
+    genre_a = st.selectbox("Genre A", ["Drama", "Horror", "Comedy", "Sci-Fi", "Action"], key="g_a")
+    budget_a = st.slider("Budget (M$)", 1, 300, 50, key="b_a")
+
+with col_b:
+    st.header("🎬 Projet B")
+    title_b = st.text_input("Nom du film B", "Projet Beta")
+    genre_b = st.selectbox("Genre B", ["Drama", "Horror", "Comedy", "Sci-Fi", "Action"], key="g_b")
+    budget_b = st.slider("Budget (M$)", 1, 300, 50, key="b_b")
+
+st.markdown("---")
+
+if st.button("🚀 Lancer le Duel !", use_container_width=True):
+    
+    # Simulation simplifiée des notes
+    bonus_genre = {"Drama": 0.5, "Sci-Fi": 0.4, "Horror": 0.3, "Comedy": 0.2, "Action": 0.1}
+    
+    # Simulation Note A
+    note_a = 2.8 + bonus_genre.get(genre_a, 0) + (budget_a / 1000)
+    # Simulation Note B
+    note_b = 2.8 + bonus_genre.get(genre_b, 0) + (budget_b / 1000)
+    
+    note_a = round(min(note_a, 4.9), 2)
+    note_b = round(min(note_b, 4.9), 2)
+
+    st.balloons()
+    
+    res_a, res_b = st.columns(2)
+    with res_a:
+        st.metric(label=f"Note estimée pour {title_a}", value=f"{note_a}/5")
+    with res_b:
+        st.metric(label=f"Note estimée pour {title_b}", value=f"{note_b}/5")
+
+    if note_a > note_b:
+        st.success(f"🏆 Victoire pour **{title_a}** !")
+    elif note_b > note_a:
+        st.success(f"🏆 Victoire pour **{title_b}** !")
+    else:
+        st.warning("🤝 Égalité parfaite !")
+
