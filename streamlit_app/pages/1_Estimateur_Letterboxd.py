@@ -36,10 +36,14 @@ from streamlit_app.components.similarity_section import render_similarity_sectio
 st.set_page_config(page_title="Estimateur — Prédiction de note Letterboxd", layout="wide")
 H.apply_letterboxd_theme()
 
-st.title("Prédire la note Letterboxd (0–5)")
-st.markdown(
-    "Renseigne les caractéristiques de ton film fictif, puis clique sur **Prédire**. "
-)
+st.title("🔮 Simulateur de Succès Critique", text_alignment="center")
+with st.container():
+    st.markdown("""
+    ### Bienvenue dans votre studio virtuel !
+    Utilisez les contrôles ci-dessous pour configurer votre projet cinématographique. 
+    Notre intelligence artificielle analysera votre **casting**, votre **budget** et votre **équipe technique** pour estimer sa future réception sur Letterboxd.
+    """)
+    st.info("💡 **Conseil :** Plus vous renseignez de champs, plus l'indice de confiance de la prédiction sera élevé.")
 
 # Presets / Templates
 PRESETS: dict[str, dict] = {
