@@ -532,7 +532,22 @@ if st.session_state.get("_last_prediction") is not None and st.session_state.get
     last_used = dict(payload.get("used") or {})
 
     st.success("Prédiction terminée")
-    st.metric("Note prédite", f"{y_pred:.2f} / 5")
+
+    st.markdown("---")
+    col_score, col_label = st.columns([1, 2])
+
+    with col_score:
+        st.metric("⭐ NOTE PREDITE", f"{y_pred:.2f} / 5")
+    with col_label:
+        if y_pred >= 4.0:
+            st.subheader("💎 Chef-d'œuvre potentiel")
+            st.caption("La communauté Letterboxd devrait acclamer ce projet.")
+        elif y_pred >= 3.0:
+            st.subheader("🎬 Succès d'estime")
+            st.caption("Une réception positive et solide est attendue.")
+        else:
+            st.subheader("🍿 Avis partagés")
+            st.caption("Le projet pourrait diviser la critique et le public.")
 
     st.caption(
         "Ce score est une **prédiction du modèle** (pas une vérité). Les indicateurs ci-dessous aident à savoir "
