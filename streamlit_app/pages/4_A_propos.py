@@ -105,7 +105,7 @@ st.markdown(
 )
 ####################################################
 
-st.title("ℹ️ À propos du Projet")
+st.title("ℹ️ À propos du Projet", text_alignment="center")
 
 tab_concept, tab_methode, tab_data = st.tabs([
     "🎯 Concept & Objectifs", 
@@ -144,7 +144,7 @@ with tab_data:
 st.divider()
 
 # --- Section Performance (Dynamique) ---
-st.header("📈 Performance du Modèle")
+st.header("📈 Performance du Modèle", text_alignment="center")
 
 if not metrics:
     st.error("📊 Données de performance (`metrics.json`) indisponibles.")
@@ -179,7 +179,7 @@ else:
 st.divider()
 
 # --- Section Pédagogique (Expliquer le fonctionnement) ---
-st.header("🛠️ Comment ça marche ?")
+st.header("🛠️ Comment ça marche ?", text_alignment="center")
 
 col_a, col_b = st.columns(2)
 
@@ -201,7 +201,7 @@ with col_b:
     """)
 
 # --- Footer ---
-st.caption("Projet Master MECEN - Web Scraping et Machine Learning")
+st.caption("Projet Master MECEN - Web Scraping et Machine Learning", text_alignment="center")
 
 
 # --- Section Budget (Désactivée) ---
