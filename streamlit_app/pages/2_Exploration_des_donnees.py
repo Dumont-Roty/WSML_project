@@ -264,7 +264,7 @@ if "genres" in filtered.columns and "rating" in filtered.columns:
         exploded = tmp.explode("genres")
         grp = exploded.groupby("genres", as_index=False)["rating"].mean()
         try:
-            s = grp["rating"].sort_values(ascending=False).head(30)
+            s = grp["rating"].sort_values(ascending=True).head(30)
             grp = grp.loc[s.index]
         except Exception:
             grp = grp.head(30)
@@ -272,11 +272,11 @@ if "genres" in filtered.columns and "rating" in filtered.columns:
         
 # Table + export
 st.subheader("Table")
-show_cols = [c for c in ["title", "year", "rating", "budget", "revenue", "duration", "directors", "genres", "themes"] if c in filtered.columns]
+show_cols = [c for c in ["title", "year", "rating", "budget", "revenue", "duration", "directors", "genres", "themes","casting", "nbr_watched", "nbr_appearence", "nbr_likes", "fans_favoris", "letterboxd_url"] if c in filtered.columns]
 if not show_cols:
-    show_cols = list(filtered.columns[:10])
+    show_cols = list(filtered.columns[:16])
 
-st.dataframe(filtered[show_cols], width='stretch', height=420)
+st.dataframe(filtered[show_cols], width='stretch', height=620)
 
 csv = filtered[show_cols].to_csv(index=False).encode("utf-8")
 st.download_button("Télécharger CSV (sélection)", data=csv, file_name="letterboxd_selection.csv", mime="text/csv")

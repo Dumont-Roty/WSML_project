@@ -23,6 +23,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import Ridge
 from sklearn.svm import SVR
 
+
 # Permet d'importer `src.*` même si le script est lancé via `python src/ml/optimize_model.py`
 # (dans ce cas sys.path[0] pointe sur src/ml, pas sur la racine du repo).
 _REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -32,12 +33,15 @@ if str(_REPO_ROOT) not in sys.path:
 from src.utils.identity_hasher import IdentityHasher
 
 
+
+# Chemins par défaut pour les fichiers d'entrée/sortie
 DEFAULT_TRAIN = Path("ml/data/train.parquet")
 DEFAULT_TEST = Path("ml/data/test.parquet")
 DEFAULT_MODEL_OUT = Path("ml/models/best_model.joblib")
 DEFAULT_REPORT_OUT = Path("ml/models/metrics.json")
 
 
+# Colonnes d'identité (features catégorielles à hasher)
 IDENTITY_COLS_DEFAULT = [
     "directors",
     "casting",
@@ -50,6 +54,7 @@ IDENTITY_COLS_DEFAULT = [
     "themes",
 ]
 
+# Colonnes numériques utilisées pour l'entraînement
 NUMERIC_COLS_DEFAULT = [
     "year",
     "duration",
@@ -62,13 +67,16 @@ NUMERIC_COLS_DEFAULT = [
 ]
 
 
+
+# Pour la prédiction du budget avant production : seules ces colonnes sont autorisées
 BUDGET_NUMERIC_COLS_DEFAULT = [
-    # Hypothèse "avant production": infos disponibles a priori.
     "year",
     "duration",
 ]
 
 
+
+# Résultat d'un modèle candidat (pour la recherche d'hyperparamètres)
 @dataclass(frozen=True)
 class CandidateResult:
     name: str
@@ -77,6 +85,7 @@ class CandidateResult:
 
 
 def _load_parquet(path: Path) -> pd.DataFrame:
+    """Charge un fichier parquet en DataFrame pandas, avec vérification d'existence."""
     path = Path(path)
     if not path.exists():
         raise FileNotFoundError(f"Fichier introuvable: {path}")
@@ -84,6 +93,7 @@ def _load_parquet(path: Path) -> pd.DataFrame:
 
 
 def _load_table(path: Path) -> pd.DataFrame:
+    """Charge un fichier parquet ou JSON en DataFrame pandas."""
     path = Path(path)
     if not path.exists():
         raise FileNotFoundError(f"Fichier introuvable: {path}")
@@ -96,6 +106,7 @@ def _load_table(path: Path) -> pd.DataFrame:
 
 
 def _ensure_list_col(df: pd.DataFrame, col: str) -> None:
+    """S'assure qu'une colonne est bien une liste de chaînes (pour hashing identités)."""
     if col not in df.columns:
         df[col] = None
 
@@ -119,6 +130,10 @@ def _split_xy(
     target: str,
     drop_cols: List[str],
 ) -> Tuple[pd.DataFrame, pd.Series]:
+    """
+    Sépare X (features numériques) et y (cible) pour l'entraînement classique.
+    Supprime les colonnes non numériques et les lignes sans cible.
+    """
     if target not in df.columns:
         raise ValueError(f"Colonne cible '{target}' absente. Colonnes: {list(df.columns)}")
 
@@ -153,6 +168,10 @@ def _split_xy_identities(
     identity_cols: List[str],
     numeric_cols: List[str],
 ) -> Tuple[pd.DataFrame, pd.Series, List[str], List[str]]:
+    """
+    Sépare X (features numériques + identités) et y (cible) pour le mode hashing identités.
+    Vérifie la présence des colonnes nécessaires.
+    """
     if target not in df.columns:
         raise ValueError(f"Colonne cible '{target}' absente. Colonnes: {list(df.columns)}")
 

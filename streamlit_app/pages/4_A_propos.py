@@ -203,73 +203,73 @@ else:
     st.table(cv_results)
 
 
-st.subheader("Modèle de budget (aide)")
-if not budget_metrics:
-  st.info("Fichier `ml/models/budget_metrics.json` introuvable ou illisible.")
-else:
-  target = str(budget_metrics.get("target") or "budget")
-  selected_model = budget_metrics.get("selected_model")
-  scoring = budget_metrics.get("scoring")
-  feature_mode = budget_metrics.get("feature_mode")
-  input_schema = budget_metrics.get("input_schema") if isinstance(budget_metrics.get("input_schema"), dict) else {}
-  numeric_cols = input_schema.get("numeric_cols") if isinstance(input_schema.get("numeric_cols"), list) else []
-  identity_cols = input_schema.get("identity_cols") if isinstance(input_schema.get("identity_cols"), list) else []
-  hash_dim = input_schema.get("hash_dim")
+# st.subheader("Modèle de budget (aide)")
+# if not budget_metrics:
+#   st.info("Fichier `ml/models/budget_metrics.json` introuvable ou illisible.")
+# else:
+#   target = str(budget_metrics.get("target") or "budget")
+#   selected_model = budget_metrics.get("selected_model")
+#   scoring = budget_metrics.get("scoring")
+#   feature_mode = budget_metrics.get("feature_mode")
+#   input_schema = budget_metrics.get("input_schema") if isinstance(budget_metrics.get("input_schema"), dict) else {}
+#   numeric_cols = input_schema.get("numeric_cols") if isinstance(input_schema.get("numeric_cols"), list) else []
+#   identity_cols = input_schema.get("identity_cols") if isinstance(input_schema.get("identity_cols"), list) else []
+#   hash_dim = input_schema.get("hash_dim")
 
-  left, right = st.columns(2)
-  with left:
-    st.markdown(
-      "\n".join(
-        [
-          f"- **Cible**: `{target}`",
-          f"- **Modèle sélectionné**: `{selected_model}`" if selected_model else "- **Modèle sélectionné**: —",
-          f"- **Scoring**: `{scoring}`" if scoring else "- **Scoring**: —",
-          f"- **Mode des features**: `{feature_mode}`" if feature_mode else "- **Mode des features**: —",
-        ]
-      )
-    )
-  with right:
-    st.markdown("**Schéma d'entrée**")
-    st.markdown(f"- `numeric_cols`: {len(numeric_cols)}")
-    st.markdown(f"- `identity_cols`: {len(identity_cols)}")
-    if hash_dim is not None:
-      st.markdown(f"- `hash_dim`: `{hash_dim}`")
+#   left, right = st.columns(2)
+#   with left:
+#     st.markdown(
+#       "\n".join(
+#         [
+#           f"- **Cible**: `{target}`",
+#           f"- **Modèle sélectionné**: `{selected_model}`" if selected_model else "- **Modèle sélectionné**: —",
+#           f"- **Scoring**: `{scoring}`" if scoring else "- **Scoring**: —",
+#           f"- **Mode des features**: `{feature_mode}`" if feature_mode else "- **Mode des features**: —",
+#         ]
+#       )
+#     )
+#   with right:
+#     st.markdown("**Schéma d'entrée**")
+#     st.markdown(f"- `numeric_cols`: {len(numeric_cols)}")
+#     st.markdown(f"- `identity_cols`: {len(identity_cols)}")
+#     if hash_dim is not None:
+#       st.markdown(f"- `hash_dim`: `{hash_dim}`")
 
-  test_metrics = budget_metrics.get("test_metrics") if isinstance(budget_metrics.get("test_metrics"), dict) else {}
-  if test_metrics:
-    st.markdown("**Qualité (test)**")
-    r2 = test_metrics.get("r2")
-    mae = test_metrics.get("mae")
-    rmse = test_metrics.get("rmse")
-    acc025 = test_metrics.get("acc_within_0_25")
-    acc050 = test_metrics.get("acc_within_0_50")
+#   test_metrics = budget_metrics.get("test_metrics") if isinstance(budget_metrics.get("test_metrics"), dict) else {}
+#   if test_metrics:
+#     st.markdown("**Qualité (test)**")
+#     r2 = test_metrics.get("r2")
+#     mae = test_metrics.get("mae")
+#     rmse = test_metrics.get("rmse")
+#     acc025 = test_metrics.get("acc_within_0_25")
+#     acc050 = test_metrics.get("acc_within_0_50")
 
-    c1, c2, c3, c4, c5 = st.columns(5)
-    with c1:
-      st.metric("R²", f"{float(r2):.3f}" if r2 is not None else "—")
-    with c2:
-      st.metric("MAE", f"{float(mae):.3f}" if mae is not None else "—")
-    with c3:
-      st.metric("RMSE", f"{float(rmse):.3f}" if rmse is not None else "—")
-    with c4:
-      st.metric("Acc@0.25", f"{100.0*float(acc025):.1f}%" if acc025 is not None else "—")
-    with c5:
-      st.metric("Acc@0.50", f"{100.0*float(acc050):.1f}%" if acc050 is not None else "—")
+#     c1, c2, c3, c4, c5 = st.columns(5)
+#     with c1:
+#       st.metric("R²", f"{float(r2):.3f}" if r2 is not None else "—")
+#     with c2:
+#       st.metric("MAE", f"{float(mae):.3f}" if mae is not None else "—")
+#     with c3:
+#       st.metric("RMSE", f"{float(rmse):.3f}" if rmse is not None else "—")
+#     with c4:
+#       st.metric("Acc@0.25", f"{100.0*float(acc025):.1f}%" if acc025 is not None else "—")
+#     with c5:
+#       st.metric("Acc@0.50", f"{100.0*float(acc050):.1f}%" if acc050 is not None else "—")
 
-    if acc025 is not None or acc050 is not None:
-      st.caption(
-        "Acc@0.25/0.50 = proportion de prédictions à moins de 0.25/0.5 unité de la vraie valeur."
-      )
+#     if acc025 is not None or acc050 is not None:
+#       st.caption(
+#         "Acc@0.25/0.50 = proportion de prédictions à moins de 0.25/0.5 unité de la vraie valeur."
+#       )
 
-  cv_results = budget_metrics.get("cv_results") if isinstance(budget_metrics.get("cv_results"), list) else []
-  if cv_results:
-    st.markdown("**Comparaison modèles (CV)**")
-    st.table(cv_results)
+#   cv_results = budget_metrics.get("cv_results") if isinstance(budget_metrics.get("cv_results"), list) else []
+#   if cv_results:
+#     st.markdown("**Comparaison modèles (CV)**")
+#     st.table(cv_results)
 
-  interval = budget_metrics.get("prediction_interval") if isinstance(budget_metrics.get("prediction_interval"), dict) else None
-  if interval:
-    st.markdown("**Intervalle de prédiction (approx.)**")
-    st.write(interval)
+#   interval = budget_metrics.get("prediction_interval") if isinstance(budget_metrics.get("prediction_interval"), dict) else None
+#   if interval:
+#     st.markdown("**Intervalle de prédiction (approx.)**")
+#     st.write(interval)
 
 
 st.subheader("Comment sont utilisées les personnes (casting, réalisateurs, etc.)")

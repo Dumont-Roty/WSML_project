@@ -225,33 +225,35 @@ else:
         ref_lb_url = lb_url
 
         if lb_url and lb_url.startswith("http"):
-            # Try to extract TMDB id from the Letterboxd page (no TMDB key required for this)
+            # Extraire l'ID TMDB depuis la page Letterboxd
             try:
                 lb_html = H.fetch_html(lb_url)
                 ref_tmdb_id = H.extract_tmdb_movie_id(lb_html)
-                print(f"[DEBUG] TMDB ID extrait de {lb_url}: {ref_tmdb_id}")
-            except Exception as e:
+            except Exception:
                 ref_tmdb_id = None
-                print(f"[DEBUG] Erreur extraction TMDB ID: {e}")
 
-            # Privilégier TMDB pour les posters (meilleure qualité)
+            # Fonction simplifiée pour récupérer le poster TMDB
+            def get_tmdb_poster_url(tmdb_id: int, api_key: str, size: str = "w500") -> str | None:
+                import requests
+                url = f"https://api.themoviedb.org/3/movie/{tmdb_id}"
+                params = {"api_key": api_key}
+                resp = requests.get(url, params=params)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    poster_path = data.get("poster_path")
+                    if poster_path:
+                        return f"https://image.tmdb.org/t/p/{size}{poster_path}"
+                return None
+
             api_key = H.tmdb_api_key()
-            print(f"[DEBUG] TMDB API key present: {bool(api_key)}")
             if api_key and ref_tmdb_id:
-                imgs = H.tmdb_movie_images(int(ref_tmdb_id))
-                print(f"[DEBUG] Images TMDB récupérées: {imgs}")
-                if isinstance(imgs, dict):
-                    # Utiliser TMDB en priorité pour poster et backdrop
-                    ref_poster_url = imgs.get("poster_url_large") or imgs.get("poster_url") or ref_poster_url
-                    ref_backdrop_url = imgs.get("backdrop_url_large") or imgs.get("backdrop_url") or ref_backdrop_url
-                    print(f"[DEBUG] Poster TMDB: {ref_poster_url}")
-            
-            # Fallback sur Letterboxd uniquement si TMDB n'a pas de poster
+                ref_poster_url = get_tmdb_poster_url(int(ref_tmdb_id), api_key)
+
+            # Fallback Letterboxd si pas de poster TMDB
             if not ref_poster_url:
                 poster_url = H.get_letterboxd_poster_url(lb_url)
                 if poster_url:
                     ref_poster_url = poster_url
-                    print(f"[DEBUG] Poster Letterboxd (fallback): {poster_url}")
 
 # Header (main area): Letterboxd-like film page header when a reference movie is selected
 if ref_row is not None and ref_poster_url:
