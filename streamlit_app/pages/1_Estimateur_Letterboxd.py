@@ -503,7 +503,7 @@ if "_last_prediction_payload" not in st.session_state:
 if "_last_prediction_error" not in st.session_state:
     st.session_state["_last_prediction_error"] = None
 
-predict_clicked = st.button("Prédire")
+predict_clicked = st.button("🚀 Lancer l'estimation critique")
 if predict_clicked:
     X = pd.DataFrame([values], columns=features)
     try:
@@ -520,6 +520,7 @@ if predict_clicked:
         st.session_state["_last_prediction"] = None
         st.session_state["_last_prediction_payload"] = None
         st.session_state["_last_prediction_error"] = str(e)
+
 
 if st.session_state.get("_last_prediction_error"):
     st.error(f"Erreur pendant la prédiction: {st.session_state['_last_prediction_error']}")
