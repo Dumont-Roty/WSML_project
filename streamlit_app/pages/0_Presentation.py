@@ -36,7 +36,6 @@ def show_presentation():
             En croisant les données sociales de **Letterboxd** avec les indicateurs économiques de **TMDB**, notre algorithme de Machine Learning identifie les facteurs qui font d'un film une œuvre culte ou un succès populaire.
             """)
 
-    ### ??????
     with col2:
         st.info("💡 **Le Saviez-vous ?** \n\n Le budget n'est pas toujours le premier facteur de succès sur Letterboxd. L'influence du réalisateur et le genre pèsent parfois bien plus lourd !")
 
@@ -64,6 +63,7 @@ def show_presentation():
     # Section 3 : Note de méthodologie 
     with st.expander("📌 Note méthodologique & Données"):
         st.write("""Ce projet repose sur un dataset unique combinant scraping et API. 
+            
             - **Source principale :** Letterboxd (données sociales et critiques).
             - **Source secondaire :** TMDB (budgets, revenus, visuels).
             - **Précision :** Les estimations fournies sont indicatives. Elles reflètent les tendances statistiques observées sur plus de 3 000 films analysés.
