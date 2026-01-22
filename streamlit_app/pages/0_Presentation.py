@@ -64,9 +64,9 @@ def show_presentation():
     with st.expander("📌 Note méthodologique & Données"):
         st.write("""Ce projet repose sur un dataset unique combinant scraping et API. 
             
-            - **Source principale :** Letterboxd (données sociales et critiques).
-            - **Source secondaire :** TMDB (budgets, revenus, visuels).
-            - **Précision :** Les estimations fournies sont indicatives. Elles reflètent les tendances statistiques observées sur plus de 3 000 films analysés.
+            **Source principale :** Letterboxd (données sociales et critiques).
+            **Source secondaire :** TMDB (budgets, revenus, visuels).
+            **Précision :** Les estimations fournies sont indicatives. Elles reflètent les tendances statistiques observées sur plus de 3 000 films analysés.
             """)
 
 # Appel de la fonction
