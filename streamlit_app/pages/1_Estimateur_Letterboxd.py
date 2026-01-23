@@ -16,18 +16,17 @@ if str(REPO_ROOT) not in sys.path:
 
 import src.utils.identity_hasher  # noqa: F401
 
-
-APP_ROOT = REPO_ROOT / "ml"
-MODEL_PATH = APP_ROOT / "models" / "best_model.joblib"
-METRICS_PATH = APP_ROOT / "models" / "metrics.json"
-BUDGET_MODEL_PATH = APP_ROOT / "models" / "budget_model.joblib"
-BUDGET_METRICS_PATH = APP_ROOT / "models" / "budget_metrics.json"
-MERGED_RESULTS_PATH = REPO_ROOT / "partial_result_2026-01-19.json"
-REF_DATA_PATH = APP_ROOT / "data" / "partial_result_2026-01-19.json"
-TRAIN_PATH = APP_ROOT / "data" / "train.parquet"
-
 # Import shared helpers from the central module to keep this page presentation-only.
 from streamlit_app.helpers import Helpers as H
+
+# Utilisation des chemins centralisés depuis helpers
+MODEL_PATH = H.MODEL_PATH
+METRICS_PATH = H.METRICS_PATH
+BUDGET_MODEL_PATH = H.BUDGET_MODEL_PATH
+BUDGET_METRICS_PATH = H.BUDGET_METRICS_PATH
+MERGED_RESULTS_PATH = H.MERGED_RESULTS_PATH
+REF_DATA_PATH = H.REF_DATA_PATH
+TRAIN_PATH = H.TRAIN_PATH
 from streamlit_app.components.similarity_section import render_similarity_section
 
 

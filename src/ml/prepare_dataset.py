@@ -27,7 +27,7 @@ def main() -> int:
     )
     parser.add_argument("--data", default="ml/data/cleaned_data.parquet", help="Chemin du parquet nettoyé")
     parser.add_argument("--target", default="rating", help="Nom de la colonne cible (ex: rating)")
-    parser.add_argument("--test-size", type=float, default=0.2, help="Proportion du test set (ex: 0.2 = 20%)")
+    parser.add_argument("--test-size", type=float, default=0.2, help="Proportion du test set (ex: 0.2 = 20%%)")
     parser.add_argument("--seed", type=int, default=42, help="Seed aléatoire pour la reproductibilité")
     parser.add_argument(
         "--out-train",

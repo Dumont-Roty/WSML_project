@@ -24,6 +24,9 @@ from sklearn.linear_model import Ridge
 from sklearn.svm import SVR
 
 
+# ============================================================================
+# CONFIGURATION DES IMPORTS
+# ============================================================================
 # Permet d'importer `src.*` même si le script est lancé via `python src/ml/optimize_model.py`
 # (dans ce cas sys.path[0] pointe sur src/ml, pas sur la racine du repo).
 _REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -34,6 +37,10 @@ from src.utils.identity_hasher import IdentityHasher
 
 
 
+# ============================================================================
+# CONFIGURATION DES CHEMINS ET FEATURES
+# ============================================================================
+
 # Chemins par défaut pour les fichiers d'entrée/sortie
 DEFAULT_TRAIN = Path("ml/data/train.parquet")
 DEFAULT_TEST = Path("ml/data/test.parquet")
@@ -42,28 +49,31 @@ DEFAULT_REPORT_OUT = Path("ml/models/metrics.json")
 
 
 # Colonnes d'identité (features catégorielles à hasher)
+# Ces colonnes contiennent des listes de noms (acteurs, réalisateurs, genres, etc.)
+# qui seront transformées en vecteurs numériques via IdentityHasher
 IDENTITY_COLS_DEFAULT = [
-    "directors",
-    "casting",
-    "producers",
-    "writers",
-    "composer",
-    "studio",
-    "languages",
-    "genres",
-    "themes",
+    "directors",      # Réalisateurs : ["Christopher Nolan", ...]
+    "casting",        # Acteurs : ["Leonardo DiCaprio", "Tom Hardy", ...]
+    "producers",      # Producteurs
+    "writers",        # Scénaristes
+    "composer",       # Compositeurs de musique
+    "studio",         # Studios de production : ["Warner Bros.", ...]
+    "languages",      # Langues du film : ["English", "French", ...]
+    "genres",         # Genres : ["Sci-Fi", "Thriller", ...]
+    "themes",         # Thèmes : ["Time Travel", "Mind-Bending", ...]
 ]
 
 # Colonnes numériques utilisées pour l'entraînement
+# Ces features sont déjà numériques et seront normalisées (StandardScaler)
 NUMERIC_COLS_DEFAULT = [
-    "year",
-    "duration",
-    "nbr_watched",
-    "nbr_appearence",
-    "nbr_likes",
-    "fans_favoris",
-    "budget",
-    "revenue",
+    "year",           # Année de sortie : 2010, 2015, etc.
+    "duration",       # Durée en minutes : 148, 95, etc.
+    "nbr_watched",    # Nombre de vues sur Letterboxd : 250000, etc.
+    "nbr_appearence", # Nombre d'apparitions dans les listes : 15000, etc.
+    "nbr_likes",      # Nombre de likes : 50000, etc.
+    "fans_favoris",   # Nombre de favoris : 8000, etc.
+    "budget",         # Budget en USD : 160000000, etc.
+    "revenue",        # Revenus box-office en USD : 829895144, etc.
 ]
 
 
@@ -106,7 +116,23 @@ def _load_table(path: Path) -> pd.DataFrame:
 
 
 def _ensure_list_col(df: pd.DataFrame, col: str) -> None:
-    """S'assure qu'une colonne est bien une liste de chaînes (pour hashing identités)."""
+    """
+    S'assure qu'une colonne est bien une liste de chaînes (pour hashing identités).
+    
+    TRANSFORMATIONS APPLIQUÉES :
+    - None ou NaN          -> ["__MISSING__"]
+    - ["Drama", "Sci-Fi"]  -> ["Drama", "Sci-Fi"] (inchangé)
+    - []                   -> ["__MISSING__"] (liste vide remplacée)
+    - "Action"             -> ["Action"] (string convertie en liste)
+    - 42                   -> ["42"] (nombre converti en string puis liste)
+    
+    POURQUOI ?
+    - IdentityHasher attend des listes de strings
+    - Les données peuvent être inconsistantes (scraping imparfait)
+    - Le token __MISSING__ permet de distinguer "donnée absente" de "liste vide"
+    
+    MODIFICATION IN-PLACE : La colonne dans df est modifiée directement.
+    """
     if col not in df.columns:
         df[col] = None
 
@@ -132,6 +158,25 @@ def _split_xy(
 ) -> Tuple[pd.DataFrame, pd.Series]:
     """
     Sépare X (features numériques) et y (cible) pour l'entraînement classique.
+    
+    MODE BASELINE (sans identités) :
+    - Ne conserve que les colonnes numériques (int, float)
+    - Supprime les colonnes de type texte/liste (url, title, casting, etc.)
+    - Filtre les lignes où la cible est manquante (NaN)
+    
+    PARAMÈTRES :
+    - df : DataFrame complet
+    - target : nom de la colonne cible à prédire (ex: "rating")
+    - drop_cols : colonnes à ignorer systématiquement (ex: ["url", "title"])
+    
+    RETOUR :
+    - X : DataFrame avec uniquement les features numériques
+    - y : Série avec la cible (valeurs non-NaN uniquement)
+    
+    EXEMPLE :
+    Input:  df avec [year, duration, title, url, rating, genres]
+    Output: X = [year, duration], y = [3.5, 4.2, ...]
+    
     Supprime les colonnes non numériques et les lignes sans cible.
     """
     if target not in df.columns:
@@ -170,6 +215,25 @@ def _split_xy_identities(
 ) -> Tuple[pd.DataFrame, pd.Series, List[str], List[str]]:
     """
     Sépare X (features numériques + identités) et y (cible) pour le mode hashing identités.
+    
+    DIFFÉRENCE avec _split_xy :
+    - _split_xy : ne garde que les colonnes numériques (mode baseline simple)
+    - _split_xy_identities : conserve AUSSI les colonnes de type liste (acteurs, genres, etc.)
+      pour les transformer via IdentityHasher dans le pipeline
+    
+    PARAMÈTRES :
+    - df : DataFrame complet avec toutes les colonnes
+    - target : nom de la colonne cible (ex: "rating")
+    - drop_cols : colonnes à ignorer (ex: "url", "title")
+    - identity_cols : colonnes de type liste à hasher (ex: ["directors", "genres"])
+    - numeric_cols : colonnes numériques à normaliser (ex: ["year", "budget"])
+    
+    RETOUR :
+    - X : DataFrame avec colonnes numériques + identités
+    - y : Série avec la cible
+    - present_numeric : liste des colonnes numériques présentes
+    - present_identity : liste des colonnes identités présentes
+    
     Vérifie la présence des colonnes nécessaires.
     """
     if target not in df.columns:
