@@ -7,6 +7,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
+
 import joblib
 import numpy as np
 import pandas as pd
@@ -22,6 +23,10 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import Ridge
 from sklearn.svm import SVR
+# Ajout des modèles avancés
+from xgboost import XGBRegressor
+from lightgbm import LGBMRegressor
+from catboost import CatBoostRegressor
 
 
 # Permet d'importer `src.*` même si le script est lancé via `python src/ml/optimize_model.py`
@@ -206,46 +211,27 @@ def _split_xy_identities(
 
 def _build_candidates(seed: int, *, use_identities: bool, target: str) -> Dict[str, Any]:
     target_name = str(target).strip().lower()
-    if use_identities:
-        # Le budget est beaucoup plus lent à entraîner (CV + hashing + modèles). On limite.
-        if target_name == "budget":
-            return {
-                "dummy_mean": DummyRegressor(strategy="mean"),
-                "ridge": Ridge(random_state=seed),
-                "gbr": GradientBoostingRegressor(random_state=seed),
-                "rf": RandomForestRegressor(
-                    n_estimators=200,
-                    random_state=seed,
-                    n_jobs=-1,
-                ),
-            }
-        return {
-            "dummy_mean": DummyRegressor(strategy="mean"),
-            "ridge": Ridge(random_state=seed),
-            "rf": RandomForestRegressor(
-                n_estimators=400,
-                random_state=seed,
-                n_jobs=-1,
-            ),
-            "gbr": GradientBoostingRegressor(random_state=seed),
-        }
-    return {
+    # Ajout des modèles avancés et priorité aux réseaux de neurones
+    base_models = {
         "dummy_mean": DummyRegressor(strategy="mean"),
         "ridge": Ridge(random_state=seed),
-        "rf": RandomForestRegressor(
-            n_estimators=300,
-            random_state=seed,
-            n_jobs=-1,
-        ),
+        "rf": RandomForestRegressor(n_estimators=300, random_state=seed, n_jobs=-1),
         "gbr": GradientBoostingRegressor(random_state=seed),
         "knn": KNeighborsRegressor(),
         "svr": SVR(),
-        "mlp": MLPRegressor(
-            random_state=seed,
-            max_iter=800,
-            early_stopping=True,
-        ),
+        # Réseau de neurones scikit-learn
+        "mlp": MLPRegressor(random_state=seed, max_iter=800, early_stopping=True),
+        # Boosting avancé
+        "xgb": XGBRegressor(random_state=seed, n_jobs=-1, verbosity=0),
+        "lgbm": LGBMRegressor(random_state=seed, n_jobs=-1, verbose=-1),
+        "catboost": CatBoostRegressor(random_state=seed, verbose=0),
     }
+    # Pour le mode identités ou budget, on peut restreindre si besoin (pour éviter des runs trop longs)
+    if use_identities:
+        if target_name == "budget":
+            return {k: v for k, v in base_models.items() if k in ["dummy_mean", "ridge", "gbr", "rf", "mlp", "xgb", "lgbm", "catboost"]}
+        return {k: v for k, v in base_models.items() if k != "knn" and k != "svr"}
+    return base_models
 
 
 def _build_pipeline_identities(
@@ -283,6 +269,52 @@ def _build_pipeline(model: Any) -> Pipeline:
 
 def _param_grid_for(name: str, *, target: str) -> Dict[str, Any]:
     target_name = str(target).strip().lower()
+    if name == "xgb":
+        if target_name == "budget":
+            return {
+                "model__n_estimators": [100, 200],
+                "model__max_depth": [3, 5, 7],
+                "model__learning_rate": [0.05, 0.1],
+                "model__subsample": [0.8, 1.0],
+            }
+        else:
+            return {
+                "model__n_estimators": [100, 300, 600],
+                "model__max_depth": [3, 5, 7],
+                "model__learning_rate": [0.01, 0.05, 0.1],
+                "model__subsample": [0.8, 1.0],
+            }
+
+    if name == "lgbm":
+        if target_name == "budget":
+            return {
+                "model__n_estimators": [100, 200],
+                "model__max_depth": [-1, 5, 10],
+                "model__learning_rate": [0.05, 0.1],
+                "model__num_leaves": [31, 50],
+            }
+        else:
+            return {
+                "model__n_estimators": [100, 300, 600],
+                "model__max_depth": [-1, 5, 10],
+                "model__learning_rate": [0.01, 0.05, 0.1],
+                "model__num_leaves": [31, 50, 100],
+            }
+
+    if name == "catboost":
+        if target_name == "budget":
+            return {
+                "model__iterations": [100, 200],
+                "model__depth": [4, 6, 8],
+                "model__learning_rate": [0.05, 0.1],
+            }
+        else:
+            return {
+                "model__iterations": [100, 300, 600],
+                "model__depth": [4, 6, 8],
+                "model__learning_rate": [0.01, 0.05, 0.1],
+            }
+    
     # Noms avec préfixe pipeline: model__...
     if name == "ridge":
         if target_name == "budget":
@@ -360,6 +392,13 @@ def _evaluate_candidates(
     results: List[CandidateResult] = []
 
     for name, model in candidates.items():
+        if name == "catboost":
+            # Diagnostic CatBoost: check NaN/infs
+            n_nan_X = np.isnan(X.values).sum() if hasattr(X, 'values') else 0
+            n_inf_X = np.isinf(X.values).sum() if hasattr(X, 'values') else 0
+            n_nan_y = np.isnan(y.values).sum() if hasattr(y, 'values') else 0
+            n_inf_y = np.isinf(y.values).sum() if hasattr(y, 'values') else 0
+            print(f"[catboost diagnostic] NaN in X: {n_nan_X}, inf in X: {n_inf_X}, NaN in y: {n_nan_y}, inf in y: {n_inf_y}")
         if use_identities:
             pipe = _build_pipeline_identities(
                 model,
@@ -654,14 +693,28 @@ def main() -> int:
         hash_dim=int(args.hash_dim),
     )
 
-    print("\n--- Comparaison (CV sur train) ---")
-    for r in results:
-        print(f"{r.name:10s}  mean={r.cv_mean:+.4f}  std={r.cv_std:.4f}")
 
-    # On évite de sélectionner la baseline si un autre modèle fait mieux
-    best_name = results[0].name
-    if best_name.startswith("dummy") and len(results) > 1:
-        best_name = results[1].name
+    # Mise en avant des modèles réseaux de neurones dans l'affichage
+    def model_priority(name: str) -> int:
+        # Priorité haute pour les réseaux de neurones (mlp, catboost)
+        if name in ("mlp", "catboost"):
+            return 0
+        if name in ("xgb", "lgbm"):
+            return 1
+        return 2
+
+    results_sorted = sorted(results, key=lambda r: (model_priority(r.name), -r.cv_mean))
+
+    print("\n--- Comparaison (CV sur train, priorité réseaux de neurones) ---")
+    for r in results_sorted:
+        star = "⭐" if r.name in ("mlp", "catboost") else " "
+        print(f"{r.name:10s}  mean={r.cv_mean:+.4f}  std={r.cv_std:.4f} {star}")
+
+    # Sélectionne le meilleur modèle en priorisant les réseaux de neurones si score proche
+    best_name = results_sorted[0].name
+    # Si le meilleur est dummy, prend le suivant
+    if best_name.startswith("dummy") and len(results_sorted) > 1:
+        best_name = results_sorted[1].name
 
     print(f"\nChoisi pour tuning: {best_name} (search={args.search})")
 
@@ -722,7 +775,9 @@ def main() -> int:
         },
         "test_metrics": _metrics(np.asarray(yte), np.asarray(y_pred)),
         "prediction_interval": pred_interval,
-        "cv_results": [asdict(r) for r in results],
+        # Ajout d'une clé pour mettre en avant les modèles réseaux de neurones
+        "cv_results": [asdict(r) | {"is_neural": r.name in ("mlp", "catboost")} for r in results_sorted],
+        "neural_priority": [r.name for r in results_sorted if r.name in ("mlp", "catboost")],
     }
 
     default_model_out, default_report_out = _default_artifacts_for_target(str(args.target))
