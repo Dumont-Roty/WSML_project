@@ -14,3 +14,6 @@ wheels/
 duplicates_report.tsv
 duplicates_*.tsv
 duplicates_*.txt
+
+# Results
+.results/

@@ -4,7 +4,7 @@ __pycache__/
 *.pyc
 
 # Data and models
-data/
+# data/
 # models/
 
 # Jupyter
