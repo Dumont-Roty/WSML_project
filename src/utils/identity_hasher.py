@@ -10,11 +10,29 @@ from sklearn.feature_extraction import FeatureHasher
 
 
 class IdentityHasher(BaseEstimator, TransformerMixin):
-    """Hashing encoder for list-like identity columns (directors, genres, ...).
-
-    - Normalises tokens to lowercase and underscores spaces.
-    - Replaces missing/empty entries with a __MISSING__ token.
-    - Produces a dense matrix (float32) from sklearn FeatureHasher.
+    """Encodeur par hashing pour colonnes catégorielles de type liste (réalisateurs, genres, ...).
+    
+    OBJECTIF : Transformer des listes de noms (ex: ["Spielberg", "Nolan"]) en features numériques
+               pour l'entraînement de modèles ML.
+    
+    POURQUOI HASHING ?
+    - One-Hot Encoding classique explose en dimension avec des milliers de noms uniques
+    - Le hashing projette les noms dans un espace fixe (ex: 1024 dimensions)
+    - Collision possible mais impact faible sur la précision
+    
+    FONCTIONNEMENT :
+    1. Normalisation : "Steven Spielberg" -> "steven_spielberg"
+    2. Préfixage : "directors=steven_spielberg" pour distinguer réalisateurs/acteurs
+    3. Hashing : chaque token est projeté dans un vecteur de taille n_features
+    4. Agrégation : somme des vecteurs pour tous les tokens d'une colonne
+    
+    EXEMPLE :
+    Input:  {"directors": ["Nolan", "Spielberg"], "genres": ["Sci-Fi"]}
+    Output: array de 1024 floats (vecteur dense)
+    
+    - Normalise les tokens en minuscules avec underscores à la place des espaces
+    - Remplace les entrées manquantes par un token __MISSING__
+    - Produit une matrice dense (float32) via sklearn FeatureHasher
     """
     def __init__(self, columns: Tuple[str, ...], n_features: int = 1024):
         self.columns = columns

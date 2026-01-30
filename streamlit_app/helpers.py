@@ -29,8 +29,8 @@ MODEL_PATH = APP_ROOT / "models" / "best_model.joblib"
 METRICS_PATH = APP_ROOT / "models" / "metrics.json"
 BUDGET_MODEL_PATH = APP_ROOT / "models" / "budget_model.joblib"
 BUDGET_METRICS_PATH = APP_ROOT / "models" / "budget_metrics.json"
-MERGED_RESULTS_PATH = REPO_ROOT / "merged_results.json"
-REF_DATA_PATH = APP_ROOT / "data" / "final_results_28.json"
+MERGED_RESULTS_PATH = REPO_ROOT / "partial_result_2026-01-19.json"
+REF_DATA_PATH = APP_ROOT / "data" / "partial_result_2026-01-23.json"
 TRAIN_PATH = APP_ROOT / "data" / "train.parquet"
 
 
@@ -2535,6 +2535,15 @@ class Helpers:
     The underlying module-level functions remain available for backward
     compatibility.
     """
+
+    # Chemins de base de données centralisés
+    MERGED_RESULTS_PATH = MERGED_RESULTS_PATH
+    REF_DATA_PATH = REF_DATA_PATH
+    MODEL_PATH = MODEL_PATH
+    METRICS_PATH = METRICS_PATH
+    BUDGET_MODEL_PATH = BUDGET_MODEL_PATH
+    BUDGET_METRICS_PATH = BUDGET_METRICS_PATH
+    TRAIN_PATH = TRAIN_PATH
 
     sanitize_widget_suffix = staticmethod(_sanitize_widget_suffix)
     load_model = staticmethod(_load_model)

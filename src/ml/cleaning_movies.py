@@ -19,7 +19,7 @@ Inspiré de la logique du repo du prof (séance 10/11).
 Ce script NE fait pas d'entraînement / prédiction.
 
 Usage :
-    python src/ml/cleaning_movies.py --input ml/data/merged_results.json --output ml/data/cleaned_data.parquet
+    python src/ml/cleaning_movies.py --input ml/data/partial_result_<date>.json --output ml/data/cleaned_data.parquet
 
 Par défaut, on garde `rating` comme colonne cible potentielle (mais on ne l'utilise pas ici).
 """
@@ -34,7 +34,7 @@ from typing import Iterable
 import polars as pl
 
 
-DEFAULT_INPUT = Path("ml/data/final_results_28.json")
+DEFAULT_INPUT = Path("ml/data/partial_result_2026-01-23.json")
 DEFAULT_OUTPUT = Path("ml/data/cleaned_data.parquet")
 
 
@@ -78,11 +78,16 @@ def _safe_list_len(expr: pl.Expr) -> pl.Expr:
 
 def construit_features_numeriques(df: pl.DataFrame) -> pl.DataFrame:
     """
-    Construit un DataFrame prêt pour l'apprentissage automatique :
-    - garde les colonnes d'identification (url, title)
-    - convertit les champs numériques en Float64
-    - ajoute des colonnes *_count à partir des listes (ex: nb de genres)
-    - remplace les valeurs manquantes numériques par 0 (sauf la cible)
+    Transforme les colonnes en features numériques utilisables par sklearn.
+    
+    Transformations appliquées :
+    1. Colonnes scalaires (year, duration, budget, etc.) : converties en float64
+    2. Colonnes listes (genres, casting, directors, etc.) : comptées (nombre d'éléments)
+       - Ex: ["Drama", "Thriller"] -> genres_count = 2
+    3. Valeurs manquantes : remplacées par 0 ou None selon le contexte
+    
+    Cette étape prépare les données pour l'apprentissage supervisé où chaque
+    feature doit être un nombre.
     """
 
     # Colonnes numériques à garder (si elles existent)

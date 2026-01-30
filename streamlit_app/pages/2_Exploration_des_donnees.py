@@ -16,6 +16,10 @@ import streamlit as st
 
 from streamlit_app.helpers import Helpers as H
 
+# Utilisation des chemins centralisés depuis helpers
+REF_DATA_PATH = H.REF_DATA_PATH
+MERGED_RESULTS_PATH = H.MERGED_RESULTS_PATH
+
 def _flatten_unique_lists(df: pd.DataFrame, col: str, top_k: int = 250) -> list[str]:
     if df.empty or col not in df.columns:
         return []
@@ -54,21 +58,18 @@ def _load_reference_df(path: Path) -> pd.DataFrame:
 
 H.bootstrap_repo_path()
 
-# Paths
-ref_data_path = ML_DIR / "data" / "partial_result_2026-01-19.json"
-merged_results_path = REPO_ROOT / "partial_result_2026-01-19.json"
-
 st.set_page_config(page_title="Exploration des données — Letterboxd", layout="wide")
 H.apply_letterboxd_theme()
 
 st.title("📊 Analyse du Paysage Cinématographique", text_alignment="center")
 
-ref_df = _load_reference_df(ref_data_path)
+# Chargement de la base de données avec fallback
+ref_df = _load_reference_df(REF_DATA_PATH)
 if ref_df.empty:
-    ref_df = _load_reference_df(merged_results_path)
+    ref_df = _load_reference_df(MERGED_RESULTS_PATH)
 
 if ref_df.empty:
-    st.error("Impossible de charger les données (partial_result_2026-01-19.json).")
+    st.error(f"Impossible de charger les données depuis {REF_DATA_PATH.name} ou {MERGED_RESULTS_PATH.name}.")
     st.stop()
 
 # Normalize common columns
