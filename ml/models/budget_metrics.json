@@ -1,0 +1,52 @@
+{
+  "target": "budget",
+  "target_transform": {
+    "name": "log1p"
+  },
+  "features": [
+    "year",
+    "duration",
+    "directors",
+    "casting",
+    "producers",
+    "writers",
+    "composer",
+    "studio",
+    "languages",
+    "genres",
+    "themes"
+  ],
+  "n_features": 2050,
+  "n_train": 3318,
+  "n_test": 830,
+  "selected_model": "RandomForestRegressor",
+  "scoring": "custom",
+  "clip_predictions": false,
+  "clip_range": null,
+  "feature_mode": "identities",
+  "input_schema": {
+    "numeric_cols": [
+      "year",
+      "duration"
+    ],
+    "identity_cols": [
+      "directors",
+      "casting",
+      "producers",
+      "writers",
+      "composer",
+      "studio",
+      "languages",
+      "genres",
+      "themes"
+    ],
+    "hash_dim": 2048
+  },
+  "test_metrics": {
+    "r2": 0.5414586993228128,
+    "mae": 20622519.384754293,
+    "rmse": 39048410.325216845
+  },
+  "prediction_interval": null,
+  "cv_results": []
+}

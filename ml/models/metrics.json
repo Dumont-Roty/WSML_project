@@ -1,0 +1,128 @@
+{
+  "target": "rating",
+  "target_transform": null,
+  "features": [
+    "year",
+    "duration",
+    "nbr_watched",
+    "nbr_appearence",
+    "nbr_likes",
+    "fans_favoris",
+    "budget",
+    "revenue",
+    "directors_count",
+    "casting_count",
+    "producers_count",
+    "writers_count",
+    "composer_count",
+    "studio_count",
+    "languages_count",
+    "genres_count",
+    "themes_count"
+  ],
+  "n_features": 17,
+  "n_train": 4514,
+  "n_test": 1129,
+  "selected_model": "mlp",
+  "scoring": "r2",
+  "clip_predictions": false,
+  "clip_range": null,
+  "feature_mode": "numeric_only",
+  "input_schema": {
+    "numeric_cols": [
+      "year",
+      "duration",
+      "nbr_watched",
+      "nbr_appearence",
+      "nbr_likes",
+      "fans_favoris",
+      "budget",
+      "revenue",
+      "directors_count",
+      "casting_count",
+      "producers_count",
+      "writers_count",
+      "composer_count",
+      "studio_count",
+      "languages_count",
+      "genres_count",
+      "themes_count"
+    ],
+    "identity_cols": [],
+    "hash_dim": null
+  },
+  "test_metrics": {
+    "r2": 0.7622932577901476,
+    "mae": 0.21026461243260988,
+    "rmse": 0.28131724411366466,
+    "acc_within_0_25": 0.6731620903454384,
+    "acc_within_0_50": 0.9317980513728964
+  },
+  "prediction_interval": null,
+  "cv_results": [
+    {
+      "name": "mlp",
+      "cv_mean": 0.6761044865894219,
+      "cv_std": 0.05915146553350753,
+      "is_neural": true
+    },
+    {
+      "name": "catboost",
+      "cv_mean": NaN,
+      "cv_std": NaN,
+      "is_neural": true
+    },
+    {
+      "name": "lgbm",
+      "cv_mean": 0.8431349704401274,
+      "cv_std": 0.009611328188547485,
+      "is_neural": false
+    },
+    {
+      "name": "xgb",
+      "cv_mean": 0.8279589898327723,
+      "cv_std": 0.010009934372489794,
+      "is_neural": false
+    },
+    {
+      "name": "rf",
+      "cv_mean": 0.7912615872639306,
+      "cv_std": 0.016390101507585502,
+      "is_neural": false
+    },
+    {
+      "name": "gbr",
+      "cv_mean": 0.7776467575784729,
+      "cv_std": 0.013992511323715612,
+      "is_neural": false
+    },
+    {
+      "name": "svr",
+      "cv_mean": 0.6374370639564113,
+      "cv_std": 0.017246499840796996,
+      "is_neural": false
+    },
+    {
+      "name": "ridge",
+      "cv_mean": 0.40356576128744337,
+      "cv_std": 0.021263735220951503,
+      "is_neural": false
+    },
+    {
+      "name": "knn",
+      "cv_mean": 0.36368336334465823,
+      "cv_std": 0.023942807757665944,
+      "is_neural": false
+    },
+    {
+      "name": "dummy_mean",
+      "cv_mean": -0.0009531438929919478,
+      "cv_std": 0.0012964497349550739,
+      "is_neural": false
+    }
+  ],
+  "neural_priority": [
+    "mlp",
+    "catboost"
+  ]
+}
