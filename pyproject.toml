@@ -17,6 +17,7 @@ dependencies = [
     "pyinstrument>=5.1.1",
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
+    "python-dotenv>=1.2.2",
     "requests>=2.32.5",
     "rich>=13.7.0",
     # "scalene>=1.5.55",  # retiré car non utilisé
