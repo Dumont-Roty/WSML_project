@@ -562,7 +562,7 @@ def _q_range(series: pd.Series, fallback_min: float, fallback_max: float) -> tup
         return float(fallback_min), float(fallback_max)
     return float(max(fallback_min, lo)), float(min(fallback_max, hi))
 
-
+@st.cache_data
 def _build_actor_photos_cache(df: pd.DataFrame) -> dict[str, str]:
     """
     Construit un dictionnaire {nom_acteur: profile_url} depuis la base de données.
@@ -592,7 +592,7 @@ def _build_actor_photos_cache(df: pd.DataFrame) -> dict[str, str]:
     
     return cache
 
-
+@st.cache_data
 def _flatten_unique_lists(df: pd.DataFrame, col: str, top_k: int) -> list[str]:
     if df.empty or col not in df.columns:
         return []
