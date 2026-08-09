@@ -235,22 +235,17 @@ else:
             except Exception:
                 ref_tmdb_id = None
 
-            # Fonction simplifiée pour récupérer le poster TMDB
-            def get_tmdb_poster_url(tmdb_id: int, api_key: str, size: str = "w500") -> str | None:
-                import requests
-                url = f"https://api.themoviedb.org/3/movie/{tmdb_id}"
-                params = {"api_key": api_key}
-                resp = requests.get(url, params=params)
-                if resp.status_code == 200:
-                    data = resp.json()
-                    poster_path = data.get("poster_path")
-                    if poster_path:
-                        return f"https://image.tmdb.org/t/p/{size}{poster_path}"
-                return None
+            if ref_tmdb_id:
+                tmdb_imgs = H.tmdb_movie_images(int(ref_tmdb_id))
+                if isinstance(tmdb_imgs, dict):
+                    # On récupère l'URL du poster dans le dictionnaire renvoyé
+                    ref_poster_url = tmdb_imgs.get("poster_url") or tmdb_imgs.get("poster_url_large")
 
-            api_key = H.tmdb_api_key()
-            if api_key and ref_tmdb_id:
-                ref_poster_url = get_tmdb_poster_url(int(ref_tmdb_id), api_key)
+            # Fallback Letterboxd si pas de poster TMDB
+            if not ref_poster_url:
+                poster_url = H.get_letterboxd_poster_url(lb_url)
+                if poster_url:
+                    ref_poster_url = poster_url
 
             # Fallback Letterboxd si pas de poster TMDB
             if not ref_poster_url:

@@ -20,24 +20,6 @@ from streamlit_app.helpers import Helpers as H
 REF_DATA_PATH = H.REF_DATA_PATH
 MERGED_RESULTS_PATH = H.MERGED_RESULTS_PATH
 
-def _flatten_unique_lists(df: pd.DataFrame, col: str, top_k: int = 250) -> list[str]:
-    if df.empty or col not in df.columns:
-        return []
-    values = df[col].dropna().tolist()
-    flat: list[str] = []
-    for v in values:
-        if isinstance(v, list):
-            flat.extend([str(x) for x in v if x is not None and str(x).strip()])
-        elif isinstance(v, str) and v.strip():
-            flat.append(v.strip())
-    if not flat:
-        return []
-    counts: dict[str, int] = {}
-    for name in flat:
-        counts[name] = counts.get(name, 0) + 1
-    ranked = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
-    return [name for name, _ in ranked[:top_k]]
-
 
 def _has_any_token(cell: object, tokens: set[str]) -> bool:
     if not tokens:
@@ -49,12 +31,6 @@ def _has_any_token(cell: object, tokens: set[str]) -> bool:
     return False
 
 
-@st.cache_data
-def _load_reference_df(path: Path) -> pd.DataFrame:
-    if not path.exists():
-        return pd.DataFrame()
-    return pd.read_json(path)
-
 
 H.bootstrap_repo_path()
 
@@ -64,9 +40,9 @@ H.apply_letterboxd_theme()
 st.title("📊 Analyse du Paysage Cinématographique", text_alignment="center")
 
 # Chargement de la base de données avec fallback
-ref_df = _load_reference_df(REF_DATA_PATH)
+ref_df = H.load_reference_df(REF_DATA_PATH)
 if ref_df.empty:
-    ref_df = _load_reference_df(MERGED_RESULTS_PATH)
+    ref_df = H.load_reference_df(MERGED_RESULTS_PATH)
 
 if ref_df.empty:
     st.error(f"Impossible de charger les données depuis {REF_DATA_PATH.name} ou {MERGED_RESULTS_PATH.name}.")
@@ -102,13 +78,13 @@ if rating_range is not None and "rating" in pre_filtered.columns:
 actor_state = st.session_state.get("Acteurs")
 if actor_state and actor_state != "Aucun" and "casting" in pre_filtered.columns:
     _mask_actor = pre_filtered[pre_filtered["casting"].apply(lambda c: isinstance(c, list) and str(actor_state) in [str(x) for x in c])]
-    director_options = _flatten_unique_lists(_mask_actor, "directors", top_k=300)
-    theme_options = _flatten_unique_lists(_mask_actor, "themes", top_k=400)
-    genre_options = _flatten_unique_lists(_mask_actor, "genres", top_k=250)
+    director_options = H.flatten_unique_lists(_mask_actor, "directors", top_k=300)
+    theme_options = H.flatten_unique_lists(_mask_actor, "themes", top_k=400)
+    genre_options = H.flatten_unique_lists(_mask_actor, "genres", top_k=250)
 else:
-    director_options = _flatten_unique_lists(pre_filtered, "directors", top_k=300)
-    theme_options = _flatten_unique_lists(pre_filtered, "themes", top_k=400)
-    genre_options = _flatten_unique_lists(pre_filtered, "genres", top_k=250)
+    director_options = H.flatten_unique_lists(pre_filtered, "directors", top_k=300)
+    theme_options = H.flatten_unique_lists(pre_filtered, "themes", top_k=400)
+    genre_options = H.flatten_unique_lists(pre_filtered, "genres", top_k=250)
 
 # Primary selectors
 selected_directors = st.sidebar.multiselect("Réalisateurs", options=director_options, default=[])
@@ -127,7 +103,7 @@ if selected_genres and "genres" in mask_for_actors.columns:
     tokens = set(selected_genres)
     mask_for_actors = mask_for_actors[mask_for_actors["genres"].apply(lambda x: _has_any_token(x, tokens))]
 
-casting_options = _flatten_unique_lists(mask_for_actors, "casting", top_k=600)
+casting_options = H.flatten_unique_lists(mask_for_actors, "casting", top_k=600)
 
 # Actor selector placed under "Réalisateurs" as requested; remove the "(filtre)" suffix
 selected_actor = None

@@ -46,6 +46,10 @@ def _sanitize_widget_suffix(s: str) -> str:
 def _load_model(model_path: Path):
     return joblib.load(model_path)
 
+@st.cache_data
+def _load_json(path: Path) -> dict:
+    import json
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
 
 def _load_schema(metrics_path: Path) -> tuple[list[str], list[str], list[str]]:
     if not metrics_path.exists():
@@ -2547,6 +2551,7 @@ class Helpers:
 
     sanitize_widget_suffix = staticmethod(_sanitize_widget_suffix)
     load_model = staticmethod(_load_model)
+    load_json = staticmethod(_load_json)
     load_schema = staticmethod(_load_schema)
     load_budget_interval = staticmethod(_load_budget_interval)
     load_test_rmse = staticmethod(_load_test_rmse)
